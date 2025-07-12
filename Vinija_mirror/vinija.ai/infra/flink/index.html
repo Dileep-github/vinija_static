@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/infra/flink/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:20 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Infrastructure • Flink</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Infrastructure • Flink</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a>    <ul>
+      <li><a href="#what-is-apache-flink" id="markdown-toc-what-is-apache-flink">What is Apache Flink?</a></li>
+    </ul>
+  </li>
+  <li><a href="#stream-processing" id="markdown-toc-stream-processing">Stream Processing</a>    <ul>
+      <li><a href="#continuous-processing-techniques-in-stream-processing" id="markdown-toc-continuous-processing-techniques-in-stream-processing">Continuous Processing Techniques in Stream Processing</a></li>
+      <li><a href="#example-calculating-a-moving-average-for-stock-prices" id="markdown-toc-example-calculating-a-moving-average-for-stock-prices">Example: Calculating a Moving Average for Stock Prices</a></li>
+    </ul>
+  </li>
+  <li><a href="#parallel-dataflows-in-flink" id="markdown-toc-parallel-dataflows-in-flink">Parallel Dataflows in Flink</a>    <ul>
+      <li><a href="#practical-example-parallel-dataflow-in-a-word-count-application" id="markdown-toc-practical-example-parallel-dataflow-in-a-word-count-application">Practical Example: Parallel Dataflow in a Word Count Application</a></li>
+    </ul>
+  </li>
+  <li><a href="#stateful-stream-processing" id="markdown-toc-stateful-stream-processing">Stateful Stream Processing</a>    <ul>
+      <li><a href="#example-counting-events-per-minute" id="markdown-toc-example-counting-events-per-minute">Example: Counting Events Per Minute</a></li>
+      <li><a href="#diagram-explanation-and-job-parallelism" id="markdown-toc-diagram-explanation-and-job-parallelism">Diagram Explanation and Job Parallelism</a></li>
+    </ul>
+  </li>
+  <li><a href="#fault-tolerance-via-state-snapshots-in-apache-flink" id="markdown-toc-fault-tolerance-via-state-snapshots-in-apache-flink">Fault Tolerance via State Snapshots in Apache Flink</a>    <ul>
+      <li><a href="#example-transaction-processing-system" id="markdown-toc-example-transaction-processing-system">Example: Transaction Processing System</a></li>
+    </ul>
+  </li>
+  <li><a href="#flinks-web-ui" id="markdown-toc-flinks-web-ui">Flink’s Web UI</a></li>
+  <li><a href="#flink-terminology" id="markdown-toc-flink-terminology">Flink terminology</a></li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a>    <ul>
+      <li><a href="#stream-processing-log-analysis" id="markdown-toc-stream-processing-log-analysis">Stream Processing: Log Analysis</a></li>
+      <li><a href="#event-time-processing-e-commerce-order-processing" id="markdown-toc-event-time-processing-e-commerce-order-processing">Event Time Processing: E-commerce Order Processing</a></li>
+      <li><a href="#state-management-and-fault-tolerance-user-session-analysis" id="markdown-toc-state-management-and-fault-tolerance-user-session-analysis">State Management and Fault Tolerance: User Session Analysis</a></li>
+    </ul>
+  </li>
+  <li><a href="#datastream-api" id="markdown-toc-datastream-api">DataStream API</a>    <ul>
+      <li><a href="#1-datastream-api" id="markdown-toc-1-datastream-api">1. <strong>DataStream API</strong></a></li>
+      <li><a href="#2-event-time" id="markdown-toc-2-event-time">2. <strong>Event Time</strong></a></li>
+      <li><a href="#3-windows" id="markdown-toc-3-windows">3. <strong>Windows</strong></a></li>
+      <li><a href="#4-window-functions" id="markdown-toc-4-window-functions">4. <strong>Window Functions</strong></a></li>
+      <li><a href="#5-late-events" id="markdown-toc-5-late-events">5. <strong>Late Events</strong></a></li>
+      <li><a href="#6-connectors" id="markdown-toc-6-connectors">6. <strong>Connectors</strong></a></li>
+      <li><a href="#7-fault-tolerance" id="markdown-toc-7-fault-tolerance">7. <strong>Fault Tolerance</strong></a></li>
+      <li><a href="#8-state-management" id="markdown-toc-8-state-management">8. <strong>State Management</strong></a></li>
+      <li><a href="#windows" id="markdown-toc-windows">Windows</a>        <ul>
+          <li><a href="#tumbling-windows-example" id="markdown-toc-tumbling-windows-example">Tumbling Windows Example</a></li>
+          <li><a href="#sliding-windows-example" id="markdown-toc-sliding-windows-example">Sliding Windows Example</a></li>
+          <li><a href="#session-windows-example" id="markdown-toc-session-windows-example">Session Windows Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#surprises" id="markdown-toc-surprises">Surprises</a></li>
+      <li><a href="#example-code-to-handle-windows-and-late-events" id="markdown-toc-example-code-to-handle-windows-and-late-events">Example Code to Handle Windows and Late Events</a></li>
+    </ul>
+  </li>
+  <li><a href="#key-flink-concepts-and-examples" id="markdown-toc-key-flink-concepts-and-examples">Key Flink Concepts and Examples</a>    <ul>
+      <li><a href="#event-driven-applications" id="markdown-toc-event-driven-applications">Event-driven Applications</a></li>
+      <li><a href="#process-functions" id="markdown-toc-process-functions">Process Functions</a>        <ul>
+          <li><a href="#keyedprocessfunction-example" id="markdown-toc-keyedprocessfunction-example">KeyedProcessFunction Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#key-concepts-to-be-aware-of" id="markdown-toc-key-concepts-to-be-aware-of">Key Concepts to Be Aware Of</a></li>
+      <li><a href="#performance-considerations" id="markdown-toc-performance-considerations">Performance Considerations</a></li>
+      <li><a href="#side-outputs" id="markdown-toc-side-outputs">Side Outputs</a>        <ul>
+          <li><a href="#side-outputs-example" id="markdown-toc-side-outputs-example">Side Outputs Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#summary" id="markdown-toc-summary">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#interview-questions" id="markdown-toc-interview-questions">Interview Questions</a>    <ul>
+      <li><a href="#easy-questions" id="markdown-toc-easy-questions">Easy Questions</a></li>
+      <li><a href="#medium-questions" id="markdown-toc-medium-questions">Medium Questions</a></li>
+      <li><a href="#difficult-questions" id="markdown-toc-difficult-questions">Difficult Questions</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Streaming refers to the continuous flow of data that is processed in real-time or near real-time as it is generated. Unlike batch processing, which handles large volumes of data at once, streaming processes data incrementally, making it suitable for applications that require timely updates and immediate response.</li>
+  <li>As we can see in the image below <a href="https://www.qlik.com/us/streaming-data">(source)</a>, streaming data continuously flows from a source to a sink at a very high speed.</li>
+</ul>
+
+<p><img src="../assets/flink/1.png" alt="" /></p>
+
+<ul>
+  <li>Recommender systems benefit from real-time data processing to instantly update recommendations based on users’ recent activities. Flink processes large streams of events (like clicks, purchases, or views) in real-time, allowing systems to dynamically adjust the content or product suggestions shown to a user.</li>
+</ul>
+
+<p><img src="../assets/flink/3.png" alt="" /></p>
+
+<ul>
+  <li>As we can see in the image above <a href="https://nightlies.apache.org/flink/flink-docs-master/docs/learn-flink/overview/">(source)</a>, an unbounded stream, in the context of data processing, refers to a continuous, never-ending flow of data that is processed in real-time. Unbounded streams do not have a defined beginning or end as the name might suggest.</li>
+  <li>There are two families of processing here, batch and stream, and we will look at them in detail below.
+    <h3 id="what-is-apache-flink">What is Apache Flink?</h3>
+  </li>
+  <li>Apache Flink is a powerful stream-processing framework that provides robust data processing capabilities in real-time and batch processing modes. It is designed to handle large-scale data processing with low latency and high throughput.</li>
+  <li>Flink stands out due to its ability to process data streams and perform complex event processing, making it suitable for applications requiring timely and accurate data processing.</li>
+</ul>
+
+<h2 id="stream-processing">Stream Processing</h2>
+<ul>
+  <li>Stream processing involves analyzing and acting on data in real time as it flows from the source to the destination. This technique is particularly useful in scenarios where immediate response is required, such as monitoring systems for quick alerts on system health issues, financial trading platforms for executing trades based on real-time market data, or recommendation systems updating user suggestions based on their current interactions.</li>
+</ul>
+
+<p><img src="../assets/flink/4.png" alt="" /></p>
+
+<ul>
+  <li>The image above <a href="https://nightlies.apache.org/flink/flink-docs-master/docs/learn-flink/overview/">(source)</a> shows how Flink does stream processing.</li>
+</ul>
+
+<h3 id="continuous-processing-techniques-in-stream-processing">Continuous Processing Techniques in Stream Processing</h3>
+
+<ol>
+  <li>
+    <p><strong>Windowing</strong>: One of the foundational techniques in stream processing is windowing, which groups together events that occur within a specified time frame or are triggered by a certain number of events. This is crucial for performing calculations like averages or sums over a continuous stream.</p>
+
+    <ul>
+      <li><strong>Tumbling Windows</strong>: These are fixed-sized, non-overlapping windows that reset after each period. For instance, calculating a simple average of transaction values every 5 minutes.</li>
+      <li><strong>Sliding Windows</strong>: These overlap and slide over the data stream, allowing calculations over windows that move over time. For example, a moving average of stock prices where the window might slide every minute over a 10-minute span.</li>
+      <li><strong>Session Windows</strong>: Dynamically sized windows that group events by activity sessions. If no event occurs within a certain timeout period, the window is closed.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>State Management</strong>: Continuous processing requires maintaining state over the course of a stream. For real-time applications, managing state (like the sum of elements or the last N elements for a moving average) is vital. Systems like Flink manage state with fault tolerance, ensuring that state information is not lost even in the event of a system failure.</p>
+  </li>
+  <li>
+    <p><strong>Time Handling</strong>: Accurate time handling is critical, especially when processing events that don’t arrive in order or at predictable intervals. Stream processing frameworks handle this with:</p>
+
+    <ul>
+      <li><strong>Event Time</strong>: The time when the event actually occurred.</li>
+      <li><strong>Processing Time</strong>: The time when the event is processed.</li>
+      <li><strong>Ingestion Time</strong>: The time when the event is ingested into the processing system.</li>
+    </ul>
+
+    <p>Event time is particularly useful for accurate historical analyses or when exact timing of events is crucial, as in financial trading.</p>
+  </li>
+  <li>
+    <p><strong>Complex Event Processing (CEP)</strong>: This involves detecting patterns or combinations of events. For example, if a financial transaction exceeds a certain threshold followed by another transaction within a minute from the same user, an alert might be triggered.</p>
+  </li>
+  <li>
+    <p><strong>Moving Averages</strong>: A specific example of continuous processing is calculating moving averages, which can be used to smooth out short-term fluctuations and highlight longer-term trends in data. This is often used in stock market analysis, sensor data monitoring, and more.</p>
+
+    <ul>
+      <li><strong>Simple Moving Average (SMA)</strong>: The unweighted mean of the previous N data points.</li>
+      <li><strong>Exponential Moving Average (EMA)</strong>: Gives more weight to recent data points, making it more responsive to new information.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="example-calculating-a-moving-average-for-stock-prices">Example: Calculating a Moving Average for Stock Prices</h3>
+
+<p>Using a stream processing framework like Apache Flink, you could set up a job to calculate a moving average of stock prices in real-time. Here’s a simplified example of how this might be set up:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">StockPrice</span><span class="o">&gt;</span> <span class="n">stockStream</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"stock-ticker"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Double</span><span class="o">&gt;</span> <span class="n">movingAverage</span> <span class="o">=</span> <span class="n">stockStream</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">stock</span> <span class="o">-&gt;</span> <span class="n">stock</span><span class="o">.</span><span class="na">getSymbol</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">5</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">aggregate</span><span class="o">(</span><span class="k">new</span> <span class="nc">AverageAggregate</span><span class="o">());</span>
+
+<span class="n">movingAverage</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>In this setup:</p>
+<ul>
+  <li>Stock prices are consumed from a Kafka topic.</li>
+  <li>The stream is keyed by stock symbol, ensuring calculations are performed per stock.</li>
+  <li>A tumbling window of 5 minutes is used to calculate the average.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">AverageAggregate</code> would be a custom aggregator that computes the average price within the window.</li>
+</ul>
+
+<h2 id="parallel-dataflows-in-flink">Parallel Dataflows in Flink</h2>
+<ul>
+  <li>
+    <p>The image below <a href="https://nightlies.apache.org/flink/flink-docs-master/docs/learn-flink/overview/">(source)</a>, illustrates how Flink runs it’s dataflows in parallel. When a stream of data enters a Flink application, it is divided into multiple partitions, which can then be processed concurrently.
+<img src="../assets/flink/5.png" alt="" /></p>
+  </li>
+  <li>
+    <p>Flink is designed to execute programs in a parallel and distributed manner. This parallelism is a core aspect of its architecture, allowing it to process large volumes of data efficiently. Let’s break down the key concepts involved in parallel dataflows in Flink. Let’s look at a few key concepts of that below:</p>
+  </li>
+</ul>
+
+<p><strong>1. Parallelism and Operator Subtasks:</strong></p>
+<ul>
+  <li><strong>Parallelism:</strong> In Flink, parallelism refers to the number of parallel tasks that an operator is split into. Each parallel task is known as a subtask.</li>
+  <li><strong>Operator Subtasks:</strong> Each operator in a Flink program can have multiple subtasks, which run independently of one another. These subtasks can be executed on different threads and potentially on different machines or containers, enhancing the scalability and fault tolerance of the system.</li>
+</ul>
+
+<p><strong>Example:</strong>
+If you have a <code class="language-plaintext highlighter-rouge">map()</code> operator with a parallelism of 4, it means there are 4 subtasks (or instances) of this operator running concurrently.</p>
+
+<ul>
+  <li>Flink uses different patterns for transporting data between operators. The two primary patterns are:</li>
+</ul>
+
+<p><strong>2. One-to-One (Forwarding) Streams:</strong></p>
+<ul>
+  <li><strong>Definition:</strong> In one-to-one streams, the data is passed directly from one operator to the next without changing the partitioning. This means that each subtask of the downstream operator receives data from exactly one subtask of the upstream operator.</li>
+  <li><strong>Order Preservation:</strong> The order of elements is preserved in one-to-one streams. For example, if subtask[1] of a Source operator produces data, subtask[1] of the downstream <code class="language-plaintext highlighter-rouge">map()</code> operator will receive those elements in the same order.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">source</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">());</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">mapped</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="o">.</span><span class="na">toUpperCase</span><span class="o">());</span>
+</code></pre></div></div>
+<ul>
+  <li>In this example, if the <code class="language-plaintext highlighter-rouge">source</code> and <code class="language-plaintext highlighter-rouge">map()</code> have the same parallelism, each subtask of <code class="language-plaintext highlighter-rouge">source</code> forwards its data to the corresponding subtask of <code class="language-plaintext highlighter-rouge">map()</code> in the same order.</li>
+</ul>
+
+<p><strong>3. Redistributing Streams:</strong></p>
+<ul>
+  <li><strong>Definition:</strong> Redistributing streams change the partitioning of the data as it flows from one operator to another. This is achieved through operations like <code class="language-plaintext highlighter-rouge">keyBy()</code>, <code class="language-plaintext highlighter-rouge">broadcast()</code>, or <code class="language-plaintext highlighter-rouge">rebalance()</code>.</li>
+  <li><strong>Partitioning and Order:</strong> In redistributing streams, data from each subtask of the upstream operator can be sent to different subtasks of the downstream operator based on a certain partitioning strategy. The order of elements is preserved only within the sending and receiving subtasks pair.</li>
+</ul>
+
+<p><strong>Examples of Redistributing Streams:</strong></p>
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">keyBy()</code>:</strong> Partitions the stream based on a key. Elements with the same key are sent to the same subtask of the downstream operator.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">broadcast()</code>:</strong> Sends each element to all subtasks of the downstream operator.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">rebalance()</code>:</strong> Randomly redistributes the elements to the downstream operator’s subtasks, ensuring an even distribution of data.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">source</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">());</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">keyedStream</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">value</span><span class="o">,</span> <span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">()))</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="o">.</span><span class="na">f0</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">seconds</span><span class="o">(</span><span class="mi">5</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</code></pre></div></div>
+<ul>
+  <li>Here, <code class="language-plaintext highlighter-rouge">keyBy()</code> redistributes the stream such that all elements with the same key go to the same window subtask. The <code class="language-plaintext highlighter-rouge">keyBy()</code> operation ensures that each key is processed by a specific subtask, allowing for stateful operations like windowing and aggregation.</li>
+</ul>
+
+<h3 id="practical-example-parallel-dataflow-in-a-word-count-application">Practical Example: Parallel Dataflow in a Word Count Application</h3>
+
+<ul>
+  <li>
+    <p>To illustrate these concepts, let’s consider a simple word count application:</p>
+  </li>
+  <li><strong>Step 1: Source Operator</strong>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">text</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">readTextFile</span><span class="o">(</span><span class="s">"path/to/input"</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>This source operator reads text data from a file. Suppose it has a parallelism of 2, meaning there are 2 subtasks reading the file in parallel.</p>
+  </li>
+  <li><strong>Step 2: Tokenization (<code class="language-plaintext highlighter-rouge">flatMap</code>)</strong>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">tokenized</span> <span class="o">=</span> <span class="n">text</span>
+  <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="k">new</span> <span class="nc">Tokenizer</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">setParallelism</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>  <span class="c1">// Same parallelism as source</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">flatMap</code> operator splits each line into words. With a parallelism of 2, each subtask processes the data independently, preserving the order within each partition.</p>
+  </li>
+  <li><strong>Step 3: Key By Word</strong>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">wordCounts</span> <span class="o">=</span> <span class="n">tokenized</span>
+  <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="o">.</span><span class="na">f0</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">setParallelism</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>  <span class="c1">// Higher parallelism for scaling</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">keyBy</code> operation redistributes the data so that all occurrences of the same word are processed by the same subtask. The parallelism here is increased to 4, allowing better scalability. Each subtask now receives and sums the counts for a specific set of words.</p>
+  </li>
+  <li><strong>Step 4: Sink Operator</strong>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wordCounts</span><span class="o">.</span><span class="na">writeAsText</span><span class="o">(</span><span class="s">"path/to/output"</span><span class="o">).</span><span class="na">setParallelism</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>The sink operator writes the word counts to an output file. With a parallelism of 4, it matches the parallelism of the previous <code class="language-plaintext highlighter-rouge">sum</code> operator, ensuring efficient data processing and output.</li>
+</ul>
+
+<h2 id="stateful-stream-processing">Stateful Stream Processing</h2>
+<ul>
+  <li>
+    <p>The image below <a href="https://nightlies.apache.org/flink/flink-docs-master/docs/learn-flink/overview/">(source)</a>, shows how Flink maintains state within it’s operations.
+<img src="../assets/flink/6.png" alt="" /></p>
+  </li>
+  <li>
+    <p>Stateful stream processing in Apache Flink allows operators within a stream to maintain and update state based on the data they process. This feature is essential for operations where the handling of each event may depend on the outcome of previous events. Stateful processing enables a variety of sophisticated analytical applications, from simple metrics aggregation to complex conditional logic needed for fraud detection.</p>
+  </li>
+  <li>
+    <p>Each instance of a stateful operator in a Flink job manages a portion of the application’s state. This setup is akin to a sharded key-value store where each shard corresponds to a parallel instance of an operator. Events are distributed among these instances based on a key, typically a characteristic of the data which dictates how events are related and how state is maintained, such as a user ID or transaction ID.</p>
+  </li>
+  <li>
+    <p>The local management of state (each operator instance managing its state independently) allows Flink to provide high performance (low latency and high throughput), as state access does not involve network overhead or interaction with remote data stores. Here’s how Flink handles state:</p>
+  </li>
+  <li><strong>Local State Access</strong>: Each stateful operator instance accesses its state locally. If an event modifies the state, only the local state on that specific instance is affected.</li>
+  <li><strong>Physical Distribution</strong>: The physical distribution of instances (each potentially on different machines) provides natural scalability and fault tolerance.</li>
+  <li><strong>State Storage</strong>: State can be stored in memory (on the JVM heap) for fast access, or off-heap in efficiently organized on-disk data structures to handle larger states.</li>
+</ul>
+
+<h4 id="example-counting-events-per-minute">Example: Counting Events Per Minute</h4>
+
+<ul>
+  <li>Consider a Flink application that counts events per minute for real-time monitoring on a dashboard. Each event could represent a user action on a website, like clicking a button or loading a page.</li>
+</ul>
+
+<p><strong>Job Setup</strong>:</p>
+<ol>
+  <li><strong>Source Operator</strong>: Streams events into the job.</li>
+  <li><strong>KeyBy Operator</strong>: Keys events by some attribute, e.g., user ID.</li>
+  <li><strong>Stateful Operator (Window)</strong>: Counts events per minute. Each instance handles counts for a specific set of user IDs.</li>
+  <li><strong>Sink Operator</strong>: Outputs the aggregated counts to a dashboard or database.</li>
+</ol>
+
+<p><strong>Illustrative Flink Code</strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Event</span><span class="o">&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"events"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">&gt;&gt;</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">events</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="nl">Event:</span><span class="o">:</span><span class="n">getUserId</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">CountFunction</span><span class="o">());</span>
+
+<span class="n">counts</span><span class="o">.</span><span class="na">addSink</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaProducer</span><span class="o">&lt;&gt;(</span><span class="s">"output-topic"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+</code></pre></div></div>
+
+<p>In this setup:</p>
+<ul>
+  <li>Events are keyed by user ID, ensuring all events from a specific user are processed by the same operator instance.</li>
+  <li>A time window of one minute is applied to count events.</li>
+  <li>The count for each user and minute is emitted to a sink, which could be updating a real-time dashboard.</li>
+</ul>
+
+<p><strong>State Handling</strong>:</p>
+<ul>
+  <li>Each parallel instance of the <code class="language-plaintext highlighter-rouge">process</code> function maintains a local state counting events. This state is accessed and updated rapidly with each incoming event, solely within the local context of the instance.</li>
+</ul>
+
+<h3 id="diagram-explanation-and-job-parallelism">Diagram Explanation and Job Parallelism</h3>
+
+<ul>
+  <li><strong>Parallelism</strong>: The job is configured with a parallelism of two for the first three operators, meaning there are two instances running concurrently for each of these stages.</li>
+  <li><strong>Network Shuffle</strong>: A shuffle operation between the second and third operators ensures that events with the same key (user ID) are routed to the same instance of the third operator. This is crucial for correct state management and consistent counting per user.</li>
+  <li><strong>Sink Parallelism</strong>: The final sink might have a parallelism of one, consolidating output to a single point before dispatching it, e.g., to a database or dashboard.</li>
+</ul>
+
+<h2 id="fault-tolerance-via-state-snapshots-in-apache-flink">Fault Tolerance via State Snapshots in Apache Flink</h2>
+
+<ul>
+  <li>
+    <p>Apache Flink ensures fault tolerance and provides exactly-once processing semantics through an effective mechanism involving state snapshots and stream replay. This approach is critical for maintaining data integrity and consistency, especially in environments where data accuracy and system reliability are paramount.</p>
+  </li>
+  <li>
+    <p>Flink’s fault tolerance mechanism is designed around the concept of state snapshots and checkpoints. Here’s a step-by-step explanation of how this works:</p>
+  </li>
+</ul>
+
+<ol>
+  <li>
+    <p><strong>State Snapshots</strong>: Periodically, Flink captures the complete state of the distributed pipeline. This includes not only the current state of each operator in the job graph but also the positions (offsets) within the input streams from which data has been read. These snapshots encapsulate the entire processing state at a specific point in time.</p>
+  </li>
+  <li>
+    <p><strong>Asynchronous Snapshots</strong>: The snapshots are taken asynchronously, meaning that they do not block the ongoing data processing. This is vital for performance, ensuring that the snapshot process does not cause delays or downtime in stream processing.</p>
+  </li>
+  <li>
+    <p><strong>Stream Replay</strong>: In the event of a failure (such as a machine crash or network issue), Flink uses these snapshots to recover the state of the distributed pipeline. The input streams to the job are rewound to the point recorded in the last successful snapshot.</p>
+  </li>
+  <li>
+    <p><strong>State Restoration and Resumption</strong>: Once the state is restored, processing resumes, ensuring that no data is lost and that each record is processed exactly once. This resumption is seamless and maintains the integrity of the processing pipeline, ensuring that all state computations are consistent with the event history.</p>
+  </li>
+</ol>
+
+<h4 id="example-transaction-processing-system">Example: Transaction Processing System</h4>
+
+<p>Consider a financial transaction processing system where each transaction must be processed exactly once for billing accuracy.</p>
+
+<p><strong>Flink Job Configuration</strong>:</p>
+<ul>
+  <li><strong>Source</strong>: Transactions enter the system from a Kafka topic.</li>
+  <li><strong>Processing</strong>: Transactions are processed to calculate billing amounts.</li>
+  <li><strong>Sink</strong>: Processed transactions are stored in a database.</li>
+</ul>
+
+<p><strong>Flink Code Snippet</strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Transaction</span><span class="o">&gt;</span> <span class="n">transactions</span> <span class="o">=</span> <span class="n">env</span>
+    <span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"transactions"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"Transaction Source"</span><span class="o">);</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">ProcessedTransaction</span><span class="o">&gt;</span> <span class="n">processed</span> <span class="o">=</span> <span class="n">transactions</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="nl">Transaction:</span><span class="o">:</span><span class="n">getAccountId</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="k">new</span> <span class="nc">BillingMapper</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"Billing Processing"</span><span class="o">);</span>
+
+<span class="n">processed</span><span class="o">.</span><span class="na">addSink</span><span class="o">(</span><span class="k">new</span> <span class="nc">JdbcSink</span><span class="o">&lt;&gt;(</span><span class="s">"jdbc-url"</span><span class="o">,</span> <span class="s">"insert-query"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">JdbcStatementBuilder</span><span class="o">&lt;&gt;()))</span>
+    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"Database Sink"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p><strong>State Snapshot Configuration</strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">env</span><span class="o">.</span><span class="na">enableCheckpointing</span><span class="o">(</span><span class="mi">5000</span><span class="o">);</span> <span class="c1">// enable checkpointing every 5000 milliseconds</span>
+</code></pre></div></div>
+
+<p>In this configuration:</p>
+<ul>
+  <li>Every 5 seconds, Flink takes a snapshot of the entire state of the job, including the offsets of the transactions in the Kafka topic and the current state of each billing computation.</li>
+  <li>If there is a failure, Flink restores each operator to its state from the last snapshot and replays the transactions from the corresponding Kafka offset, ensuring no transaction is missed or double-processed.</li>
+</ul>
+
+<h2 id="flinks-web-ui">Flink’s Web UI</h2>
+
+<p><img src="../assets/flink/2.png" alt="" /></p>
+
+<h2 id="flink-terminology">Flink terminology</h2>
+
+<ul>
+  <li><strong>Checkpoint Storage</strong>
+    <ul>
+      <li>The location where the State Backend will store its snapshot during a checkpoint, such as the Java Heap of the JobManager or a filesystem like HDFS or S3. Checkpoints are essential for Flink’s fault tolerance. During checkpoints, the state of the application is snapshot and stored in the specified storage. This allows Flink to recover and restore the state of the application in case of failures, ensuring exactly-once processing guarantees.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Application Cluster</strong>
+    <ul>
+      <li>A dedicated Flink Cluster that executes Flink Jobs from one Flink Application exclusively. The lifetime of the Flink Cluster is tied to the lifetime of the Flink Application. This cluster type is suitable for applications that require isolated resources and dedicated clusters for execution. It ensures that the resources are solely dedicated to a single application, enhancing performance and reliability.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Job Cluster</strong>
+    <ul>
+      <li>A dedicated Flink Cluster that executes a single Flink Job. The lifetime of the Flink Cluster is tied to the lifetime of the Flink Job. This deployment mode has been deprecated since Flink 1.15. Previously used for isolating jobs for better performance and resource management. Deprecated in favor of more flexible deployment modes like Application and Session clusters.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Cluster</strong>
+    <ul>
+      <li>A distributed system consisting of (typically) one JobManager and one or more Flink TaskManager processes. The JobManager orchestrates the job execution, while TaskManagers execute the tasks. Clusters can be deployed on various environments including local setups, on-premise data centers, or cloud platforms.</li>
+    </ul>
+  </li>
+  <li><strong>Event</strong>
+    <ul>
+      <li>A statement about a change in the state of the domain modeled by the application. Events can be input and/or output of a stream or batch processing application. Events are special types of records. In stream processing, events represent the fundamental units of data that flow through the system. Examples include user clicks, sensor readings, or financial transactions.</li>
+    </ul>
+  </li>
+  <li><strong>ExecutionGraph</strong>
+    <ul>
+      <li>See Physical Graph. Represents the execution plan of a Flink job, detailing how logical operators are translated into physical tasks for execution.</li>
+    </ul>
+  </li>
+  <li><strong>Function</strong>
+    <ul>
+      <li>Functions are implemented by the user and encapsulate the application logic of a Flink program. Most Functions are wrapped by a corresponding Operator. Examples include MapFunction, FilterFunction, and ReduceFunction. These functions define the transformations and computations applied to the data streams.</li>
+    </ul>
+  </li>
+  <li><strong>Instance</strong>
+    <ul>
+      <li>Describes a specific instance of a specific type (usually Operator or Function) during runtime. Multiple instances of the same operator or function can run in parallel to process different partitions of the data, enhancing scalability and performance.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Application</strong>
+    <ul>
+      <li>A Java application that submits one or multiple Flink Jobs from the main() method (or by other means). Applications are submitted to Flink clusters for execution. They can either run in session clusters, application clusters, or job clusters.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Job</strong>
+    <ul>
+      <li>The runtime representation of a logical graph (also often called a dataflow graph) that is created and submitted by calling execute() in a Flink Application. Jobs define the end-to-end data processing workflow and include all necessary transformations and computations.</li>
+    </ul>
+  </li>
+  <li><strong>JobGraph</strong>
+    <ul>
+      <li>See Logical Graph. Represents the logical dataflow graph of a Flink job, consisting of operators and the data flow between them.</li>
+    </ul>
+  </li>
+  <li><strong>Flink JobManager</strong>
+    <ul>
+      <li>The orchestrator of a Flink Cluster. It contains three distinct components: Flink Resource Manager, Flink Dispatcher, and one Flink JobMaster per running Flink Job. The JobManager handles job submission, resource allocation, and coordination of distributed tasks. It is critical for maintaining the state and progress of Flink jobs.</li>
+    </ul>
+  </li>
+  <li><strong>Flink JobMaster</strong>
+    <ul>
+      <li>A component running in the JobManager responsible for supervising the execution of the Tasks of a single job. Each JobMaster manages the lifecycle of a job, including task scheduling, state management, and fault tolerance mechanisms.</li>
+    </ul>
+  </li>
+  <li><strong>JobResultStore</strong>
+    <ul>
+      <li>A Flink component that persists the results of globally terminated (i.e., finished, canceled, or failed) jobs to a filesystem, allowing the results to outlive a finished job. Ensures that job results are retained and can be accessed even after the job has completed, useful for auditing, recovery, and debugging.</li>
+    </ul>
+  </li>
+  <li><strong>Logical Graph</strong>
+    <ul>
+      <li>A directed graph where the nodes are Operators and the edges define input/output relationships of the operators and correspond to data streams or data sets. Logical graphs represent the high-level data processing logic before being translated into a physical execution plan.</li>
+    </ul>
+  </li>
+  <li><strong>Managed State</strong>
+    <ul>
+      <li>Application state that has been registered with the framework. For Managed State, Apache Flink will take care of persistence and rescaling among other things. Managed state is automatically backed up and restored by Flink, facilitating reliable and consistent stateful stream processing.</li>
+    </ul>
+  </li>
+  <li><strong>Operator</strong>
+    <ul>
+      <li>Node of a Logical Graph. An Operator performs a certain operation, usually executed by a Function. Sources and Sinks are special Operators for data ingestion and data egress. Operators include transformations like map, filter, reduce, and custom user-defined functions.</li>
+    </ul>
+  </li>
+  <li><strong>Operator Chain</strong>
+    <ul>
+      <li>Consists of two or more consecutive Operators without any repartitioning in between. Operator chains optimize execution by reducing overhead, as operators within the same chain forward records directly to each other.</li>
+    </ul>
+  </li>
+  <li><strong>Partition</strong>
+    <ul>
+      <li>An independent subset of the overall data stream or data set. Data is divided into partitions to parallelize processing. Each partition is processed independently by a sub-task.</li>
+    </ul>
+  </li>
+  <li><strong>Physical Graph</strong>
+    <ul>
+      <li>The result of translating a Logical Graph for execution in a distributed runtime. Nodes are tasks, and edges indicate input/output relationships or partitions. Represents the actual execution plan on the Flink cluster.</li>
+    </ul>
+  </li>
+  <li><strong>Record</strong>
+    <ul>
+      <li>Constituent elements of a data set or data stream. Records are processed by operators and functions. In stream processing, records typically correspond to individual events.</li>
+    </ul>
+  </li>
+  <li><strong>(Runtime) Execution Mode</strong>
+    <ul>
+      <li>DataStream API programs can be executed in one of two execution modes: BATCH or STREAMING. Batch mode processes finite datasets, while streaming mode processes unbounded data streams continuously.</li>
+    </ul>
+  </li>
+  <li><strong>Flink Session Cluster</strong>
+    <ul>
+      <li>A long-running Flink Cluster that accepts multiple Flink Jobs for execution. The cluster remains active beyond the lifetime of any single job, suitable for environments with frequent job submissions.</li>
+    </ul>
+  </li>
+  <li><strong>State Backend</strong>
+    <ul>
+      <li>Determines how state is stored on each TaskManager. Options include in-memory storage or RocksDB for large state, impacting performance and scalability of stateful operations.</li>
+    </ul>
+  </li>
+  <li><strong>Sub-Task</strong>
+    <ul>
+      <li>A Task responsible for processing a partition of the data stream. Emphasizes the parallel nature of Flink, with multiple sub-tasks processing different partitions concurrently.</li>
+    </ul>
+  </li>
+  <li><strong>Table Program</strong>
+    <ul>
+      <li>Pipelines declared with Flink’s relational APIs (Table API or SQL). Allows for declarative data processing using SQL-like syntax, simplifying complex data transformations.</li>
+    </ul>
+  </li>
+  <li><strong>Task</strong>
+    <ul>
+      <li>Node of a Physical Graph, representing the basic unit of work executed by Flink’s runtime. Encapsulates one parallel instance of an Operator or Operator Chain, executed on a TaskManager.</li>
+    </ul>
+  </li>
+  <li><strong>Flink TaskManager</strong>
+    <ul>
+      <li>The worker processes of a Flink Cluster. Execute tasks, manage local state, and communicate with each other to exchange data between tasks. Each TaskManager runs multiple task slots.</li>
+    </ul>
+  </li>
+  <li><strong>Transformation</strong>
+    <ul>
+      <li>Applied on one or more data streams or data sets, resulting in one or more output data streams or data sets. Transformations include operations like map, filter, and reduce, defining how data is processed and transformed in a Flink job.</li>
+    </ul>
+  </li>
+  <li><strong>UID</strong>
+    <ul>
+      <li>A unique identifier of an Operator, provided by the user or determined from the structure of the job. Ensures consistent identification of operators, crucial for state management and job recovery.</li>
+    </ul>
+  </li>
+  <li><strong>UID hash</strong>
+    <ul>
+      <li>A unique identifier of an Operator at runtime, also known as “Operator ID” or “Vertex ID”. Used in logs, REST API, metrics, and for identifying operators within savepoints.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="stream-processing-log-analysis">Stream Processing: Log Analysis</h3>
+<ul>
+  <li>One of the primary uses of Flink is stream processing. Imagine you’re tasked with analyzing server logs in real time to detect unusual activity, such as potential security breaches or system failures.</li>
+</ul>
+
+<p><strong>Example:</strong>
+You can set up Flink to continuously read logs as they are generated, using its DataStream API. Each log entry is treated as an event. Flink’s robust stream processing capabilities allow you to apply transformations and filters on the fly. For instance, you might want to filter out logs that show user login activities and apply a pattern detection algorithm to identify repeated failed login attempts from the same IP address within a short time span, indicating a possible brute force attack.</p>
+
+<p><strong>Flink Setup:</strong></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">logStream</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">readTextFile</span><span class="o">(</span><span class="s">"path/to/log"</span><span class="o">);</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">logStream</span>
+    <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">log</span> <span class="o">-&gt;</span> <span class="n">log</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"Failed login"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">log</span> <span class="o">-&gt;</span> <span class="n">log</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">)[</span><span class="mi">1</span><span class="o">])</span> <span class="c1">// Key by IP address</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">BruteForceDetector</span><span class="o">());</span>
+</code></pre></div></div>
+<p>In this snippet, <code class="language-plaintext highlighter-rouge">BruteForceDetector</code> is a custom function that checks if the count of failed attempts exceeds a certain threshold within each one-minute window, potentially triggering an alert or an automatic security response.</p>
+
+<h3 id="event-time-processing-e-commerce-order-processing">Event Time Processing: E-commerce Order Processing</h3>
+
+<p>Flink’s handling of event time is crucial for ensuring correct order processing in an e-commerce application, especially when dealing with out-of-order events due to network latency or service interruptions.</p>
+
+<p><strong>Example:</strong>
+Suppose your application takes orders from multiple geographical locations. Due to varying network conditions, these orders might reach your processing system at different times, not necessarily in the order they were placed. Using Flink’s event time capabilities, you can timestamp each order at the source (when the order was actually made), and Flink will process these orders in the correct sequence.</p>
+
+<p><strong>Flink Setup:</strong></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">&gt;</span> <span class="n">orders</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"orders"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">&gt;</span> <span class="n">sortedOrders</span> <span class="o">=</span> <span class="n">orders</span>
+    <span class="o">.</span><span class="na">assignTimestampsAndWatermarks</span><span class="o">(</span><span class="nc">WatermarkStrategy</span><span class="o">.</span><span class="na">forBoundedOutOfOrderness</span><span class="o">(</span><span class="nc">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="mi">5</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">order</span> <span class="o">-&gt;</span> <span class="n">order</span><span class="o">.</span><span class="na">getUserId</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">5</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">aggregate</span><span class="o">(</span><span class="k">new</span> <span class="nc">OrderAggregator</span><span class="o">());</span>
+</code></pre></div></div>
+<ul>
+  <li>Here, <code class="language-plaintext highlighter-rouge">OrderAggregator</code> might be aggregating total spend per user over 5-minute windows, ensuring that no matter when the data arrives, the orders are accounted for in the period they actually occurred.</li>
+</ul>
+
+<h3 id="state-management-and-fault-tolerance-user-session-analysis">State Management and Fault Tolerance: User Session Analysis</h3>
+
+<p>Flink’s state management and fault tolerance features are especially useful when analyzing user behavior across sessions in applications like online media streaming services.</p>
+
+<p><strong>Example:</strong>
+In a streaming platform, you could use Flink to track user interactions (play, pause, stop) to provide personalized content recommendations. Each user session could be analyzed to determine the most watched genres or content types, adjusting recommendations in real time.</p>
+
+<p><strong>Flink Setup:</strong></p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Event</span><span class="o">&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"events"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">UserProfile</span><span class="o">&gt;</span> <span class="n">userProfiles</span> <span class="o">=</span> <span class="n">events</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">event</span> <span class="o">-&gt;</span> <span class="n">event</span><span class="o">.</span><span class="na">getUserId</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">mapWithState</span><span class="o">((</span><span class="n">event</span><span class="o">,</span> <span class="n">state</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="nc">UserProfile</span> <span class="n">updatedProfile</span> <span class="o">=</span> <span class="n">updateProfileBasedOnEvent</span><span class="o">(</span><span class="n">event</span><span class="o">,</span> <span class="n">state</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+        <span class="k">return</span> <span class="nc">Tuple2</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">updatedProfile</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="n">updatedProfile</span><span class="o">));</span>
+    <span class="o">});</span>
+</code></pre></div></div>
+<p>In this setup, <code class="language-plaintext highlighter-rouge">mapWithState</code> allows you to maintain and update a user’s profile based on their actions, leveraging Flink’s managed state and automatic checkpointing to ensure state consistency across failures.</p>
+
+<h2 id="datastream-api">DataStream API</h2>
+
+<p><img src="../assets/flink/7.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>The DataStream API is a core component of Apache Flink designed for processing real-time data streams. This API allows developers to build applications that can process continuous flows of data, such as sensor outputs, user interactions on websites, or financial transactions, as they occur.</p>
+  </li>
+  <li>
+    <p>Stream Execution Environment</p>
+  </li>
+</ul>
+
+<p><strong>1. Setting Up the Execution Environment:</strong></p>
+
+<p>Every Flink application requires a specific type of execution environment to run. For streaming applications, this is provided by the <code class="language-plaintext highlighter-rouge">StreamExecutionEnvironment</code>. This environment is where all operations on your data streams are configured and executed.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="nc">StreamExecutionEnvironment</span> <span class="n">env</span> <span class="o">=</span> <span class="nc">StreamExecutionEnvironment</span><span class="o">.</span><span class="na">getExecutionEnvironment</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p><strong>2. Building a Job Graph:</strong></p>
+
+<p>When you develop a streaming application using the DataStream API, you essentially construct a job graph. This graph consists of various data stream transformations that define how your data is processed. Each transformation you apply (like filtering, aggregating, or joining data) adds a node to this graph.</p>
+
+<p><strong>3. Executing the Stream:</strong></p>
+
+<p>To run your application, you need to call <code class="language-plaintext highlighter-rouge">env.execute()</code>. This method packages your job graph and submits it to the Flink cluster.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">env</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="s">"My Flink Job"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p><strong>Job Manager:</strong>
+Once executed, the job graph is sent to the <strong>JobManager</strong>. This component is responsible for breaking down the job into smaller tasks and allocating these tasks to available <strong>Task Managers</strong>. The JobManager orchestrates the execution of different parts of your streaming application.</p>
+  </li>
+  <li>
+    <p><strong>Task Managers:</strong>
+Task Managers are the workers that actually execute the tasks assigned to them. Each task is processed in what’s called a “task slot.” Task slots are the parallel units of execution within a Task Manager, allowing for concurrent execution of multiple parts of your application.</p>
+  </li>
+  <li>
+    <p><strong>Task Execution:</strong>
+The Job Manager ensures that the tasks are distributed and balanced among available Task Managers, optimizing the use of resources and parallelizing the workload as much as possible. This distribution is crucial for handling large volumes of data efficiently.</p>
+  </li>
+  <li>
+    <p>Important Note: If you do not call <code class="language-plaintext highlighter-rouge">env.execute()</code>, your Flink application is set up but never actually starts processing the data. It’s essential to include this call to kick off the execution of your data processing logic.</p>
+  </li>
+</ul>
+
+<h3 id="1-datastream-api">1. <strong>DataStream API</strong></h3>
+<p>The DataStream API is the core of Flink’s stream processing capabilities. It allows you to define data transformations, operations, and the flow of data through various stages of a pipeline.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">StreamExecutionEnvironment</span> <span class="n">env</span> <span class="o">=</span> <span class="nc">StreamExecutionEnvironment</span><span class="o">.</span><span class="na">getExecutionEnvironment</span><span class="o">();</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">text</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">readTextFile</span><span class="o">(</span><span class="s">"path/to/textfile.txt"</span><span class="o">);</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">wordCounts</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="k">new</span> <span class="nc">Tokenizer</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="o">.</span><span class="na">f0</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+
+<span class="n">wordCounts</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+<span class="n">env</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="s">"Word Count Example"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h3 id="2-event-time">2. <strong>Event Time</strong></h3>
+<p>Event time is the actual time when an event occurs, as recorded by the event producer. It is crucial for ensuring accurate event-time processing and analytics, especially in scenarios where the timing of events is significant.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Event</span><span class="o">&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">EventSource</span><span class="o">());</span>
+
+<span class="nc">WatermarkStrategy</span><span class="o">&lt;</span><span class="nc">Event</span><span class="o">&gt;</span> <span class="n">strategy</span> <span class="o">=</span> <span class="nc">WatermarkStrategy</span>
+    <span class="o">.&lt;</span><span class="nc">Event</span><span class="o">&gt;</span><span class="n">forBoundedOutOfOrderness</span><span class="o">(</span><span class="nc">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="mi">20</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withTimestampAssigner</span><span class="o">((</span><span class="n">event</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">event</span><span class="o">.</span><span class="na">timestamp</span><span class="o">);</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Event</span><span class="o">&gt;</span> <span class="n">withTimestampsAndWatermarks</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="na">assignTimestampsAndWatermarks</span><span class="o">(</span><span class="n">strategy</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h3 id="3-windows">3. <strong>Windows</strong></h3>
+<p>Windows in Flink allow for the aggregation of events over specified periods. This is useful for summarizing data over time, such as computing averages or counts over time intervals.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">maxBy</span><span class="o">(</span><span class="s">"temperature"</span><span class="o">);</span>
+
+<span class="n">maxReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h3 id="4-window-functions">4. <strong>Window Functions</strong></h3>
+<p>Window functions operate on the events within a window to perform computations, such as aggregations or custom logic.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">MaxTemperature</span><span class="o">());</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">MaxTemperature</span> <span class="kd">extends</span> <span class="nc">ProcessWindowFunction</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">,</span> <span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;,</span> <span class="nc">String</span><span class="o">,</span> <span class="nc">TimeWindow</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">process</span><span class="o">(</span><span class="nc">String</span> <span class="n">key</span><span class="o">,</span> <span class="nc">Context</span> <span class="n">context</span><span class="o">,</span> <span class="nc">Iterable</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">elements</span><span class="o">,</span> <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">out</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="n">maxTemp</span> <span class="o">=</span> <span class="nc">Double</span><span class="o">.</span><span class="na">MIN_VALUE</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">SensorReading</span> <span class="n">r</span> <span class="o">:</span> <span class="n">elements</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">maxTemp</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">max</span><span class="o">(</span><span class="n">maxTemp</span><span class="o">,</span> <span class="n">r</span><span class="o">.</span><span class="na">temperature</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="k">new</span> <span class="nc">Tuple3</span><span class="o">&lt;&gt;(</span><span class="n">key</span><span class="o">,</span> <span class="n">context</span><span class="o">.</span><span class="na">window</span><span class="o">().</span><span class="na">getEnd</span><span class="o">(),</span> <span class="n">maxTemp</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="5-late-events">5. <strong>Late Events</strong></h3>
+<p>Late events are events that arrive after the watermark has passed. Flink allows handling late events by configuring allowed lateness or using side outputs to collect them.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">lateReadingsTag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;(</span><span class="s">"late-readings"</span><span class="o">)</span> <span class="o">{};</span>
+
+<span class="nc">SingleOutputStreamOperator</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">allowedLateness</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">sideOutputLateData</span><span class="o">(</span><span class="n">lateReadingsTag</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">MaxTemperature</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">lateReadings</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="na">getSideOutput</span><span class="o">(</span><span class="n">lateReadingsTag</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h3 id="6-connectors">6. <strong>Connectors</strong></h3>
+<p>Flink connectors integrate Flink with various data sources and sinks, enabling seamless data ingestion and output to systems like Kafka, Cassandra, and JDBC.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">kafkaStream</span> <span class="o">=</span> <span class="n">env</span>
+    <span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="s">"topic"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SimpleStringSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">));</span>
+
+<span class="n">kafkaStream</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">value</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">addSink</span><span class="o">(</span><span class="k">new</span> <span class="nc">FlinkKafkaProducer</span><span class="o">&lt;&gt;(</span><span class="s">"output-topic"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Tuple2SerializationSchema</span><span class="o">(),</span> <span class="n">properties</span><span class="o">,</span> <span class="nc">FlinkKafkaProducer</span><span class="o">.</span><span class="na">Semantic</span><span class="o">.</span><span class="na">EXACTLY_ONCE</span><span class="o">));</span>
+</code></pre></div></div>
+
+<h3 id="7-fault-tolerance">7. <strong>Fault Tolerance</strong></h3>
+<p>Flink provides fault tolerance through distributed snapshots and checkpointing. This ensures that the system can recover to a consistent state after a failure.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">StreamExecutionEnvironment</span> <span class="n">env</span> <span class="o">=</span> <span class="nc">StreamExecutionEnvironment</span><span class="o">.</span><span class="na">getExecutionEnvironment</span><span class="o">();</span>
+<span class="n">env</span><span class="o">.</span><span class="na">enableCheckpointing</span><span class="o">(</span><span class="mi">10000</span><span class="o">);</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">text</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">readTextFile</span><span class="o">(</span><span class="s">"path/to/textfile.txt"</span><span class="o">);</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">wordCounts</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="k">new</span> <span class="nc">Tokenizer</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="o">.</span><span class="na">f0</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+
+<span class="n">wordCounts</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+<span class="n">env</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="s">"Fault Tolerant Word Count Example"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h3 id="8-state-management">8. <strong>State Management</strong></h3>
+<p>State management in Flink allows the system to keep track of information across operator instances. This state can be keyed, meaning it is partitioned by key, or operator state, which is scoped to the operator instance.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">CountWithTimeoutFunction</span> <span class="kd">extends</span> <span class="nc">RichFlatMapFunction</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;,</span> <span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">&gt;&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">transient</span> <span class="nc">ValueState</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">&gt;</span> <span class="n">countState</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">flatMap</span><span class="o">(</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">,</span> <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">Tuple2</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">&gt;&gt;</span> <span class="n">out</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="nc">Long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">countState</span><span class="o">.</span><span class="na">value</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">count</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0L</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="n">countState</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">count</span><span class="o">);</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="k">new</span> <span class="nc">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">value</span><span class="o">.</span><span class="na">f0</span><span class="o">,</span> <span class="n">count</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">open</span><span class="o">(</span><span class="nc">Configuration</span> <span class="n">parameters</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ValueStateDescriptor</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">&gt;</span> <span class="n">descriptor</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ValueStateDescriptor</span><span class="o">&lt;&gt;(</span>
+                <span class="s">"count"</span><span class="o">,</span> <span class="nc">Long</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">0L</span><span class="o">);</span>
+        <span class="n">countState</span> <span class="o">=</span> <span class="n">getRuntimeContext</span><span class="o">().</span><span class="na">getState</span><span class="o">(</span><span class="n">descriptor</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="windows">Windows</h3>
+
+<p>Windows in Flink allow for the aggregation of events over specified periods. This is essential for summarizing data over time, such as computing averages, counts, or other statistics within a time frame. Windows can be defined in various ways:</p>
+
+<ol>
+  <li><strong>Tumbling Windows</strong>: Fixed-size, non-overlapping time windows.</li>
+  <li><strong>Sliding Windows</strong>: Fixed-size windows that overlap with a specified slide interval.</li>
+  <li><strong>Session Windows</strong>: Dynamic size, defined by a gap of inactivity between events.</li>
+</ol>
+
+<h4 id="tumbling-windows-example">Tumbling Windows Example</h4>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">maxBy</span><span class="o">(</span><span class="s">"temperature"</span><span class="o">);</span>
+
+<span class="n">maxReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h4 id="sliding-windows-example">Sliding Windows Example</h4>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">SlidingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">10</span><span class="o">),</span> <span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">maxBy</span><span class="o">(</span><span class="s">"temperature"</span><span class="o">);</span>
+
+<span class="n">maxReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h4 id="session-windows-example">Session Windows Example</h4>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">EventTimeSessionWindows</span><span class="o">.</span><span class="na">withGap</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">30</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">maxBy</span><span class="o">(</span><span class="s">"temperature"</span><span class="o">);</span>
+
+<span class="n">maxReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h3 id="surprises">Surprises</h3>
+
+<p>Some aspects of Flink’s windowing API may not behave as expected. Based on frequently asked questions and common pitfalls, here are some surprising facts about windows in Flink:</p>
+
+<ol>
+  <li><strong>Sliding Windows Make Copies</strong>:
+    <ul>
+      <li>Sliding window assigners can create numerous window objects, and each event can be copied into every relevant window. For instance, if you have sliding windows every 15 minutes that are 24 hours long, each event will be copied into 4 * 24 = 96 windows.</li>
+    </ul>
+  </li>
+  <li><strong>Time Windows are Aligned to the Epoch</strong>:
+    <ul>
+      <li>Time windows (like hour-long processing-time windows) are aligned to the epoch (start of time). If you start your application at 12:05, the first window will close at 1:00, not 1:05. However, tumbling and sliding window assigners take an optional offset parameter to change window alignment.</li>
+    </ul>
+  </li>
+  <li><strong>Windows Can Follow Windows</strong>:
+    <ul>
+      <li>You can create a chain of window operations. For example, you can first aggregate events with a window function and then further process the aggregated results in another window.
+        <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stream</span>
+  <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">t</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="na">key</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">hours</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+  <span class="o">.</span><span class="na">reduce</span><span class="o">(</span><span class="k">new</span> <span class="nc">MyReduceFunction</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">windowAll</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">hours</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+  <span class="o">.</span><span class="na">reduce</span><span class="o">(</span><span class="k">new</span> <span class="nc">MyReduceFunction</span><span class="o">());</span>
+</code></pre></div>        </div>
+      </li>
+      <li>Events produced by a time window have timestamps marking the end of the window. Subsequent windows consuming those events should have the same duration or a multiple of the previous window’s duration.</li>
+    </ul>
+  </li>
+  <li><strong>No Results for Empty TimeWindows</strong>:
+    <ul>
+      <li>Windows are created only when events are assigned to them. If there are no events in a given time frame, no results will be reported for that window.</li>
+    </ul>
+  </li>
+  <li><strong>Late Events Can Cause Late Merges</strong>:
+    <ul>
+      <li>Session windows can merge if a late event bridges the gap between two previously separate sessions, causing a late merge. This can lead to unexpected results if not properly handled.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="example-code-to-handle-windows-and-late-events">Example Code to Handle Windows and Late Events</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Define the watermark strategy for event time processing</span>
+<span class="nc">WatermarkStrategy</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">watermarkStrategy</span> <span class="o">=</span> <span class="nc">WatermarkStrategy</span>
+    <span class="o">.&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span><span class="n">forBoundedOutOfOrderness</span><span class="o">(</span><span class="nc">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="mi">20</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withTimestampAssigner</span><span class="o">((</span><span class="n">event</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">event</span><span class="o">.</span><span class="na">getTimestamp</span><span class="o">());</span>
+
+<span class="c1">// Create a data stream with watermarks</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">sensorData</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">SensorSource</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">assignTimestampsAndWatermarks</span><span class="o">(</span><span class="n">watermarkStrategy</span><span class="o">);</span>
+
+<span class="c1">// Apply a tumbling window</span>
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Double</span><span class="o">&gt;&gt;</span> <span class="n">maxReadings</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">maxBy</span><span class="o">(</span><span class="s">"temperature"</span><span class="o">);</span>
+
+<span class="c1">// Handling late events using side outputs</span>
+<span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">lateReadingsTag</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;(</span><span class="s">"late-readings"</span><span class="o">)</span> <span class="o">{};</span>
+
+<span class="nc">SingleOutputStreamOperator</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">sensorData</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="n">r</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">allowedLateness</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">sideOutputLateData</span><span class="o">(</span><span class="n">lateReadingsTag</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">MaxTemperature</span><span class="o">());</span>
+
+<span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">SensorReading</span><span class="o">&gt;</span> <span class="n">lateReadings</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="na">getSideOutput</span><span class="o">(</span><span class="n">lateReadingsTag</span><span class="o">);</span>
+
+<span class="c1">// Print the results</span>
+<span class="n">maxReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+<span class="n">lateReadings</span><span class="o">.</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h2 id="key-flink-concepts-and-examples">Key Flink Concepts and Examples</h2>
+
+<h3 id="event-driven-applications">Event-driven Applications</h3>
+
+<h3 id="process-functions">Process Functions</h3>
+<p>A <code class="language-plaintext highlighter-rouge">ProcessFunction</code> combines event processing with timers and state, making it a powerful tool for building event-driven applications. It is similar to a <code class="language-plaintext highlighter-rouge">RichFlatMapFunction</code> but includes timers.</p>
+
+<h4 id="keyedprocessfunction-example">KeyedProcessFunction Example</h4>
+<p>Here’s an example of using <code class="language-plaintext highlighter-rouge">KeyedProcessFunction</code> to compute the sum of tips for each driver in hour-long windows:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;&gt;</span> <span class="n">hourlyTips</span> <span class="o">=</span> <span class="n">fares</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">((</span><span class="nc">TaxiFare</span> <span class="n">fare</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">fare</span><span class="o">.</span><span class="na">driverId</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">PseudoWindow</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">hours</span><span class="o">(</span><span class="mi">1</span><span class="o">)));</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">PseudoWindow</span> <span class="kd">extends</span> <span class="nc">KeyedProcessFunction</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">TaxiFare</span><span class="o">,</span> <span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;&gt;</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">durationMsec</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">PseudoWindow</span><span class="o">(</span><span class="nc">Time</span> <span class="n">duration</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">durationMsec</span> <span class="o">=</span> <span class="n">duration</span><span class="o">.</span><span class="na">toMilliseconds</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">transient</span> <span class="nc">MapState</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;</span> <span class="n">sumOfTips</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">open</span><span class="o">(</span><span class="nc">Configuration</span> <span class="n">conf</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">MapStateDescriptor</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;</span> <span class="n">sumDesc</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="nc">MapStateDescriptor</span><span class="o">&lt;&gt;(</span><span class="s">"sumOfTips"</span><span class="o">,</span> <span class="nc">Long</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nc">Float</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">sumOfTips</span> <span class="o">=</span> <span class="n">getRuntimeContext</span><span class="o">().</span><span class="na">getMapState</span><span class="o">(</span><span class="n">sumDesc</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">processElement</span><span class="o">(</span>
+            <span class="nc">TaxiFare</span> <span class="n">fare</span><span class="o">,</span>
+            <span class="nc">Context</span> <span class="n">ctx</span><span class="o">,</span>
+            <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;&gt;</span> <span class="n">out</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+
+        <span class="kt">long</span> <span class="n">eventTime</span> <span class="o">=</span> <span class="n">fare</span><span class="o">.</span><span class="na">getEventTime</span><span class="o">();</span>
+        <span class="nc">TimerService</span> <span class="n">timerService</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">timerService</span><span class="o">();</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">eventTime</span> <span class="o">&lt;=</span> <span class="n">timerService</span><span class="o">.</span><span class="na">currentWatermark</span><span class="o">())</span> <span class="o">{</span>
+            <span class="c1">// This event is late; its window has already been triggered.</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="na">output</span><span class="o">(</span><span class="n">lateFares</span><span class="o">,</span> <span class="n">fare</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="c1">// Round up eventTime to the end of the window containing this event.</span>
+            <span class="kt">long</span> <span class="n">endOfWindow</span> <span class="o">=</span> <span class="o">(</span><span class="n">eventTime</span> <span class="o">-</span> <span class="o">(</span><span class="n">eventTime</span> <span class="o">%</span> <span class="n">durationMsec</span><span class="o">)</span> <span class="o">+</span> <span class="n">durationMsec</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+
+            <span class="c1">// Schedule a callback for when the window has been completed.</span>
+            <span class="n">timerService</span><span class="o">.</span><span class="na">registerEventTimeTimer</span><span class="o">(</span><span class="n">endOfWindow</span><span class="o">);</span>
+
+            <span class="c1">// Add this fare's tip to the running total for that window.</span>
+            <span class="nc">Float</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">sumOfTips</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">endOfWindow</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">sum</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="no">F</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">fare</span><span class="o">.</span><span class="na">tip</span><span class="o">;</span>
+            <span class="n">sumOfTips</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">endOfWindow</span><span class="o">,</span> <span class="n">sum</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTimer</span><span class="o">(</span>
+            <span class="kt">long</span> <span class="n">timestamp</span><span class="o">,</span> 
+            <span class="nc">OnTimerContext</span> <span class="n">context</span><span class="o">,</span> 
+            <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;&gt;</span> <span class="n">out</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+
+        <span class="kt">long</span> <span class="n">driverId</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getCurrentKey</span><span class="o">();</span>
+        <span class="c1">// Look up the result for the hour that just ended.</span>
+        <span class="nc">Float</span> <span class="n">sumOfTips</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">sumOfTips</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">timestamp</span><span class="o">);</span>
+
+        <span class="nc">Tuple3</span><span class="o">&lt;</span><span class="nc">Long</span><span class="o">,</span> <span class="nc">Long</span><span class="o">,</span> <span class="nc">Float</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">Tuple3</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">driverId</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">,</span> <span class="n">sumOfTips</span><span class="o">);</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">sumOfTips</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">timestamp</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="key-concepts-to-be-aware-of">Key Concepts to Be Aware Of</h3>
+
+<ol>
+  <li><strong>KeyedProcessFunction</strong>:
+    <ul>
+      <li>A <code class="language-plaintext highlighter-rouge">KeyedProcessFunction</code> is a type of <code class="language-plaintext highlighter-rouge">ProcessFunction</code> where the state is partitioned by key.</li>
+      <li>Two main callbacks to implement: <code class="language-plaintext highlighter-rouge">processElement</code> and <code class="language-plaintext highlighter-rouge">onTimer</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">processElement</code>: Called for each incoming event.</li>
+      <li><code class="language-plaintext highlighter-rouge">onTimer</code>: Called when a timer fires, useful for windowing operations.</li>
+    </ul>
+  </li>
+  <li><strong>Managed Keyed State</strong>:
+    <ul>
+      <li>Allows for efficient state management.</li>
+      <li><code class="language-plaintext highlighter-rouge">MapState</code> is used to manage keyed state with entries for each window, keyed by the window’s end time.</li>
+    </ul>
+  </li>
+  <li><strong>Timers</strong>:
+    <ul>
+      <li>Can be either event time or processing time.</li>
+      <li>Used to schedule callbacks for window completions or other time-based operations.</li>
+    </ul>
+  </li>
+  <li><strong>Handling Late Events</strong>:
+    <ul>
+      <li>Late events are those that arrive after the watermark.</li>
+      <li>Can be managed by emitting them to side outputs for separate processing.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="performance-considerations">Performance Considerations</h3>
+<ul>
+  <li><strong>State Types</strong>: Flink provides optimized state types like <code class="language-plaintext highlighter-rouge">MapState</code> and <code class="language-plaintext highlighter-rouge">ListState</code> that are more efficient than using a <code class="language-plaintext highlighter-rouge">ValueState</code> with collections.</li>
+  <li><strong>RocksDB</strong>: Flink’s RocksDB state backend optimizes state storage and access.</li>
+</ul>
+
+<h3 id="side-outputs">Side Outputs</h3>
+<p>Side outputs allow an operator to have multiple output streams, useful for handling exceptions, late events, or other special cases.</p>
+
+<h4 id="side-outputs-example">Side Outputs Example</h4>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">TaxiFare</span><span class="o">&gt;</span> <span class="n">lateFares</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">OutputTag</span><span class="o">&lt;</span><span class="nc">TaxiFare</span><span class="o">&gt;(</span><span class="s">"lateFares"</span><span class="o">)</span> <span class="o">{};</span>
+
+<span class="nc">SingleOutputStreamOperator</span> <span class="n">hourlyTips</span> <span class="o">=</span> <span class="n">fares</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">((</span><span class="nc">TaxiFare</span> <span class="n">fare</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">fare</span><span class="o">.</span><span class="na">driverId</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">PseudoWindow</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">hours</span><span class="o">(</span><span class="mi">1</span><span class="o">)));</span>
+
+<span class="n">hourlyTips</span><span class="o">.</span><span class="na">getSideOutput</span><span class="o">(</span><span class="n">lateFares</span><span class="o">).</span><span class="na">print</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>In the <code class="language-plaintext highlighter-rouge">processElement</code> method:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span><span class="n">eventTime</span> <span class="o">&lt;=</span> <span class="n">timerService</span><span class="o">.</span><span class="na">currentWatermark</span><span class="o">())</span> <span class="o">{</span>
+    <span class="c1">// This event is late; its window has already been triggered.</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">output</span><span class="o">(</span><span class="n">lateFares</span><span class="o">,</span> <span class="n">fare</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+    <span class="c1">// Regular processing</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="summary">Summary</h3>
+<ol>
+  <li><strong>Process Functions</strong>: Combining event processing with state and timers.</li>
+  <li><strong>Managed State</strong>: Efficient state management using <code class="language-plaintext highlighter-rouge">MapState</code> and <code class="language-plaintext highlighter-rouge">ListState</code>.</li>
+  <li><strong>Timers</strong>: Scheduling callbacks for time-based operations.</li>
+  <li><strong>Handling Late Events</strong>: Using side outputs to manage late events.</li>
+  <li><strong>Performance</strong>: Using optimized state types and backend storage.</li>
+</ol>
+
+<h2 id="interview-questions">Interview Questions</h2>
+
+<h3 id="easy-questions">Easy Questions</h3>
+
+<ol>
+  <li><strong>What is Apache Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Apache Flink is an open-source stream processing framework designed for real-time data processing and batch processing. It provides high-throughput, low-latency processing with features like event time processing, state management, and fault tolerance.</li>
+    </ul>
+  </li>
+  <li><strong>How does Apache Flink handle stateful computations?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink manages state using state backends, which can be either in-memory or disk-based (e.g., RocksDB). It ensures fault tolerance through periodic snapshots and distributed checkpoints, allowing the system to recover state consistently in case of failures.</li>
+    </ul>
+  </li>
+  <li><strong>What is event time in Apache Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Event time refers to the time at which an event actually occurred, as opposed to the time it was processed (processing time) or ingested into the system (ingestion time). Flink supports event time processing with watermarks to handle late-arriving events and ensure accurate time-based computations.</li>
+    </ul>
+  </li>
+  <li><strong>What are watermarks in Apache Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Watermarks are special markers in Flink that help track the progress of event time within a data stream. They indicate that no events with a timestamp older than the watermark will arrive, allowing Flink to handle out-of-order events and manage event-time windows effectively.</li>
+    </ul>
+  </li>
+  <li><strong>Explain the difference between Keyed and Non-Keyed streams in Flink.</strong>
+    <ul>
+      <li><strong>Answer:</strong> Keyed streams are partitioned based on a key, allowing state to be maintained per key and operations to be applied on a per-key basis (e.g., aggregations). Non-keyed streams treat the entire stream as a single entity, applying operations globally without maintaining per-key state.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="medium-questions">Medium Questions</h3>
+
+<ol>
+  <li><strong>Describe the fault tolerance mechanism in Apache Flink.</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink uses distributed snapshots and checkpointing to ensure fault tolerance. Periodically, Flink creates snapshots of the state and position in the data streams, which are stored in a durable storage (e.g., HDFS, S3). In case of a failure, Flink can restore the state from the latest snapshot and resume processing from the correct position in the stream.</li>
+    </ul>
+  </li>
+  <li><strong>What are window functions in Apache Flink, and why are they used?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Window functions in Flink allow for the aggregation of data over specified time intervals. Types of windows include tumbling windows, sliding windows, and session windows. They are used to group events based on time or other criteria to perform operations like sums, averages, or other aggregations within those windows.</li>
+    </ul>
+  </li>
+  <li><strong>How does Flink handle backpressure?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink handles backpressure through a combination of techniques, including throttling and buffering. When downstream operators cannot keep up with the incoming data rate, backpressure signals are propagated upstream, causing sources to slow down and intermediate operators to buffer data until the system can catch up.</li>
+    </ul>
+  </li>
+  <li><strong>What is the purpose of the <code class="language-plaintext highlighter-rouge">KeyedStateFunction</code> in Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> The <code class="language-plaintext highlighter-rouge">KeyedStateFunction</code> is used in keyed streams to apply stateful transformations on a per-key basis. It allows users to access and manipulate the state associated with specific keys, enabling fine-grained state management and custom stateful processing logic.</li>
+    </ul>
+  </li>
+  <li><strong>Explain how Flink integrates with Apache Kafka.</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink integrates with Apache Kafka through specialized connectors. The <code class="language-plaintext highlighter-rouge">FlinkKafkaConsumer</code> is used to consume data from Kafka topics, and the <code class="language-plaintext highlighter-rouge">FlinkKafkaProducer</code> is used to produce data to Kafka topics. These connectors enable seamless data flow between Kafka and Flink, supporting both exactly-once and at-least-once delivery semantics.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="difficult-questions">Difficult Questions</h3>
+
+<ol>
+  <li><strong>What are some strategies for optimizing the performance of Flink jobs?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Optimizing Flink jobs can involve several strategies:
+        <ul>
+          <li><strong>Parallelism:</strong> Increasing the parallelism of tasks to fully utilize available resources.</li>
+          <li><strong>State Backend Configuration:</strong> Choosing an appropriate state backend (in-memory vs. RocksDB) based on the workload characteristics.</li>
+          <li><strong>Task Slot Configuration:</strong> Configuring task slots to ensure efficient resource utilization and task execution.</li>
+          <li><strong>Serialization:</strong> Optimizing data serialization and deserialization to reduce overhead.</li>
+          <li><strong>Minimize Checkpoint Overheads:</strong> Tuning checkpoint intervals and state size to reduce the performance impact of checkpoints.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>How would you implement a custom window function in Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Implementing a custom window function involves extending the <code class="language-plaintext highlighter-rouge">WindowFunction</code> or <code class="language-plaintext highlighter-rouge">ProcessWindowFunction</code> interfaces. You need to define the logic for applying your custom function to the elements within a window and handle the input parameters like the window context, iterable of elements, and out collector for emitting results.</li>
+    </ul>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyCustomWindowFunction</span> <span class="kd">implements</span> <span class="nc">WindowFunction</span><span class="o">&lt;</span><span class="nc">MyType</span><span class="o">,</span> <span class="nc">MyResultType</span><span class="o">,</span> <span class="nc">Tuple</span><span class="o">,</span> <span class="nc">TimeWindow</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">apply</span><span class="o">(</span><span class="nc">Tuple</span> <span class="n">key</span><span class="o">,</span> <span class="nc">TimeWindow</span> <span class="n">window</span><span class="o">,</span> <span class="nc">Iterable</span><span class="o">&lt;</span><span class="nc">MyType</span><span class="o">&gt;</span> <span class="n">input</span><span class="o">,</span> <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">MyResultType</span><span class="o">&gt;</span> <span class="n">out</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Custom logic to process elements in the window</span>
+        <span class="nc">MyResultType</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MyResultType</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">MyType</span> <span class="n">element</span> <span class="o">:</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Process each element</span>
+        <span class="o">}</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Describe how Flink’s state backend works and how you would configure it for large-scale stateful applications.</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink’s state backend defines how state is stored and managed during job execution. The two primary state backends are the MemoryStateBackend and the RocksDBStateBackend. For large-scale stateful applications, the RocksDBStateBackend is preferred due to its ability to handle large state sizes efficiently by storing state on disk. Configuration involves setting the state backend in the execution environment and tuning parameters like checkpoint intervals, incremental checkpoints, and memory allocation.</li>
+    </ul>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">StreamExecutionEnvironment</span> <span class="n">env</span> <span class="o">=</span> <span class="nc">StreamExecutionEnvironment</span><span class="o">.</span><span class="na">getExecutionEnvironment</span><span class="o">();</span>
+<span class="n">env</span><span class="o">.</span><span class="na">setStateBackend</span><span class="o">(</span><span class="k">new</span> <span class="nc">RocksDBStateBackend</span><span class="o">(</span><span class="s">"hdfs://path/to/checkpoints"</span><span class="o">));</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>How do you ensure exactly-once processing semantics in Flink?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Exactly-once processing semantics in Flink are ensured through a combination of checkpointing and two-phase commit protocols. Flink periodically takes consistent snapshots of the state and the positions in the input streams. During recovery, it restores the state and reprocesses the data from the last successful checkpoint. For output sinks, the two-phase commit protocol ensures that data is written exactly once by preparing the data during the first phase and committing it during the second phase only if all steps succeed.</li>
+    </ul>
+  </li>
+  <li><strong>What are Flink’s handling mechanisms for handling late-arriving data, and how do you implement them?</strong>
+    <ul>
+      <li><strong>Answer:</strong> Flink handles late-arriving data using watermarks and allowed lateness. Watermarks indicate the progress of event time and help manage out-of-order events. Allowed lateness specifies how long to wait for late events after the watermark has passed. Late events can be redirected to a side output for separate processing.</li>
+    </ul>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">DataStream</span><span class="o">&lt;</span><span class="nc">MyType</span><span class="o">&gt;</span> <span class="n">stream</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="n">stream</span>
+    <span class="o">.</span><span class="na">assignTimestampsAndWatermarks</span><span class="o">(</span><span class="k">new</span> <span class="nc">BoundedOutOfOrdernessTimestampExtractor</span><span class="o">&lt;</span><span class="nc">MyType</span><span class="o">&gt;(</span><span class="nc">Time</span><span class="o">.</span><span class="na">seconds</span><span class="o">(</span><span class="mi">10</span><span class="o">))</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">long</span> <span class="nf">extractTimestamp</span><span class="o">(</span><span class="nc">MyType</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="na">getTimestamp</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">})</span>
+    <span class="o">.</span><span class="na">keyBy</span><span class="o">(&lt;</span><span class="n">keySelector</span><span class="o">&gt;)</span>
+    <span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="nc">TumblingEventTimeWindows</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">allowedLateness</span><span class="o">(</span><span class="nc">Time</span><span class="o">.</span><span class="na">minutes</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">sideOutputLateData</span><span class="o">(</span><span class="n">lateOutputTag</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nc">MyProcessFunction</span><span class="o">());</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<ul>
+  <li>In this example, late events arriving within 5 minutes after the watermark will still be processed, and events arriving later will be sent to a side output.</li>
+</ul>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/infra/flink/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:22 GMT -->
+</html>

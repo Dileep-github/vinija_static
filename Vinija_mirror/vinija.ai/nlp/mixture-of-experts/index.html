@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/nlp/mixture-of-experts/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:59:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Primers • Mixture of Experts</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Primers • Mixture of Experts</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#mixture-of-experts-moe-the-classic-approach" id="markdown-toc-mixture-of-experts-moe-the-classic-approach">Mixture-of-Experts (MoE): The Classic Approach</a>    <ul>
+      <li><a href="#intuition" id="markdown-toc-intuition">Intuition</a>        <ul>
+          <li><a href="#gate-functionality" id="markdown-toc-gate-functionality">Gate Functionality</a></li>
+        </ul>
+      </li>
+      <li><a href="#hands-on-exercise-how-does-an-moe-model-work" id="markdown-toc-hands-on-exercise-how-does-an-moe-model-work">Hands-On Exercise: How does an MoE model work?</a>        <ul>
+          <li><a href="#key-benefits" id="markdown-toc-key-benefits">Key Benefits</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#the-deep-learning-way-sparsely-gated-moe" id="markdown-toc-the-deep-learning-way-sparsely-gated-moe">The Deep Learning Way: Sparsely-Gated MoE</a></li>
+  <li><a href="#expert-choice-routing" id="markdown-toc-expert-choice-routing">Expert Choice Routing</a></li>
+  <li><a href="#implications-and-outlooks" id="markdown-toc-implications-and-outlooks">Implications and Outlooks</a></li>
+  <li><a href="#the-how-behind-moe" id="markdown-toc-the-how-behind-moe">The “How” Behind MoE</a></li>
+  <li><a href="#moe-implementation" id="markdown-toc-moe-implementation">MoE Implementation</a>    <ul>
+      <li><a href="#overview-1" id="markdown-toc-overview-1">Overview</a></li>
+      <li><a href="#components" id="markdown-toc-components">Components</a>        <ul>
+          <li><a href="#feedforward-class" id="markdown-toc-feedforward-class"><code class="language-plaintext highlighter-rouge">FeedForward</code> Class</a></li>
+          <li><a href="#mixtureofexpertslayer-class" id="markdown-toc-mixtureofexpertslayer-class"><code class="language-plaintext highlighter-rouge">MixtureOfExpertsLayer</code> Class</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#expert-specialization" id="markdown-toc-expert-specialization">Expert Specialization</a></li>
+  <li><a href="#whats-next" id="markdown-toc-whats-next">What’s Next?</a></li>
+  <li><a href="#related-papers" id="markdown-toc-related-papers">Related Papers</a>    <ul>
+      <li><a href="#outrageously-large-neural-networks-the-sparsely-gated-mixture-of-experts-layer" id="markdown-toc-outrageously-large-neural-networks-the-sparsely-gated-mixture-of-experts-layer">Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</a></li>
+      <li><a href="#scaling-vision-with-sparse-mixture-of-experts" id="markdown-toc-scaling-vision-with-sparse-mixture-of-experts">Scaling Vision with Sparse Mixture of Experts</a></li>
+      <li><a href="#modeling-task-relationships-in-multi-task-learning-with-multi-gate-mixture-of-experts" id="markdown-toc-modeling-task-relationships-in-multi-task-learning-with-multi-gate-mixture-of-experts">Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts</a></li>
+      <li><a href="#mixture-of-experts-meets-instruction-tuning-a-winning-combination-for-large-language-models" id="markdown-toc-mixture-of-experts-meets-instruction-tuning-a-winning-combination-for-large-language-models">Mixture-of-Experts Meets Instruction Tuning: A Winning Combination for Large Language Models</a></li>
+      <li><a href="#from-sparse-to-soft-mixtures-of-experts" id="markdown-toc-from-sparse-to-soft-mixtures-of-experts">From Sparse to Soft Mixtures of Experts</a></li>
+      <li><a href="#switch-transformers" id="markdown-toc-switch-transformers">Switch Transformers</a></li>
+      <li><a href="#qmoe-practical-sub-1-bit-compression-of-trillion-parameter-models" id="markdown-toc-qmoe-practical-sub-1-bit-compression-of-trillion-parameter-models">QMoE: Practical Sub-1-Bit Compression of Trillion-Parameter Models</a></li>
+      <li><a href="#megablocks-efficient-sparse-training-with-mixture-of-experts" id="markdown-toc-megablocks-efficient-sparse-training-with-mixture-of-experts">MegaBlocks: Efficient Sparse Training with Mixture-of-Experts</a></li>
+      <li><a href="#moe-llava-mixture-of-experts-for-large-vision-language-models" id="markdown-toc-moe-llava-mixture-of-experts-for-large-vision-language-models">MoE-LLaVA: Mixture of Experts for Large Vision-Language Models</a></li>
+      <li><a href="#mixture-of-lora-experts" id="markdown-toc-mixture-of-lora-experts">Mixture of LoRA Experts</a></li>
+      <li><a href="#jetmoe-reaching-llama2-performance-with-01m-dollars" id="markdown-toc-jetmoe-reaching-llama2-performance-with-01m-dollars">JetMoE: Reaching Llama2 Performance with 0.1M Dollars</a></li>
+    </ul>
+  </li>
+  <li><a href="#moe-models" id="markdown-toc-moe-models">MoE Models</a>    <ul>
+      <li><a href="#gpt-4" id="markdown-toc-gpt-4">GPT-4</a></li>
+      <li><a href="#mixtral-mistrals-8x7b-moe-model" id="markdown-toc-mixtral-mistrals-8x7b-moe-model">Mixtral: Mistral’s 8x7B MoE Model</a>        <ul>
+          <li><a href="#results" id="markdown-toc-results">Results</a></li>
+        </ul>
+      </li>
+      <li><a href="#openmoe" id="markdown-toc-openmoe">OpenMoE</a></li>
+    </ul>
+  </li>
+  <li><a href="#further-reading" id="markdown-toc-further-reading">Further Reading</a></li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Artificial neural networks have emerged as the cornerstone of deep learning, offering a remarkable way of drawing valuable insights from a plethora of data. However, the efficacy of these neural networks hinges heavily on their parameter count. Mixture-of-Experts (MoE) presents an efficient approach to dramatically increasing a model’s capabilities without introducing a proportional amount of computational overhead.</li>
+  <li>Originally <a href="https://www.cs.toronto.edu/~hinton/absps/jjnh91.pdf">proposed</a> in 1991 by Robert A. Jacobs et al., MoE adopts a conditional computation paradigm by only selecting parts of an ensemble, referred to as experts, and activating them depending on the data at hand. The MoE structure appeared long before the popularization of deep learning.</li>
+  <li>The infographic below <a href="https://www.linkedin.com/in/sflender/">(source)</a> outlines the significant milestones in the development of Sparse Mixtures of Experts (MoE) technology, which has been instrumental in the advancements of machine learning and particularly in the scaling of large language models (LLMs) like OpenAI’s GPT-4 and Google’s Switch Transformer.
+    <ul>
+      <li>Starting with the first milestone in 1991, we have <a href="#">“Mixture of Experts” by Jacobs et al.</a>, which introduced the foundational concepts of “gating” and “experts”. This approach models predictions by using a weighted sum of experts’ opinions, with the weights determined by a gating function.</li>
+      <li>Moving to 2017, <a href="#">“Top-k routing” by Shazeer et al.</a> was introduced. It streamlined the process by running inputs over the k most suitable experts to reduce computational costs. Additionally, the paper introduced load balancing losses to enhance training efficiency.</li>
+      <li>In 2022, the <a href="#">“Switch Transformer” by Fedus et al.</a> pushed top-k routing further by selecting only the most relevant expert for each token, streamlining the architecture of transformer models significantly and allowing them to scale up to unprecedented levels.</li>
+      <li>Finally, also in 2022, <a href="#">“Dropless MoE” by Gale et al.</a> reformulated sparse MoE as a block-sparse matrix multiplication, which allowed scaling up transformer models without the load balancing losses or capacity limitations seen in previous works. This led to one of the fastest sparse MoE implementations in the industry, referred to as MegaBlocks.</li>
+      <li>The figure emphasizes that these innovations have been part of a journey that has spanned over three decades, suggesting that the field has a robust foundation of research and development. It indicates optimism for future innovations that will continue to make sparse MoE more efficient, paving the way for even larger and more precise machine learning models across various domains.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/mixture-of-experts/MoE_overview.jpg" alt="" /></p>
+
+<h2 id="mixture-of-experts-moe-the-classic-approach">Mixture-of-Experts (MoE): The Classic Approach</h2>
+
+<ul>
+  <li>The MoE concept is a type of ensemble learning technique initially developed within the field of artificial neural networks. It introduces the idea of training experts on specific subtasks of a complex predictive modeling problem.</li>
+  <li>In a typical ensemble scenario, all models are trained on the same dataset, and their outputs are combined through simple averaging, weighted mean, or majority voting. However, in Mixture-of-Experts (MoE), each “expert” model within the ensemble is only trained on a subset of data where it can achieve optimal performance, thus narrowing the model’s focus. Put simply, MoE is an architecture that divides input data into multiple sub-tasks and trains a group of experts to specialize in each sub-task. These experts can be thought of as smaller, specialized models that are better at solving their respective sub-tasks.</li>
+  <li>The popularity of MoE only rose recently as the appearance of Large Language Models (LLMs) and transformer-based models in general swept through the machine learning field. Consequently, this is because of modern datasets’ increased complexity and size. Each dataset contains different regimes with vastly different relationships between the features and the labels.</li>
+  <li>To appreciate the essence of MoE, it is crucial to understand its architectural elements:
+    <ol>
+      <li><strong>Division of dataset into local subsets:</strong> First, the predictive modeling problem is divided into subtasks. This division often requires domain knowledge or employs an unsupervised clustering algorithm. It’s important to clarify that clustering is not based on the feature vectors’ similarities. Instead, it’s executed based on the correlation among the relationships that the features share with the labels.</li>
+      <li><strong>Expert Models:</strong> These are the specialized neural network layers or experts that are trained to excel at specific sub-tasks. Each expert receives the same input pattern and processes it according to its specialization. Put simply, an expert is trained for each subset of the data. Typically, the experts themselves can be any model, from Support Vector Machines (SVM) to neural networks. Each expert model receives the same input pattern and makes a prediction.</li>
+      <li><strong>Gating Network (Router):</strong> The gating network, also called the router, is responsible for selecting which experts to use for each input data. It works by estimating the compatibility between the input data and each expert, and then outputs a softmax distribution over the experts. This distribution is used as the weights to combine the outputs of the expert layers. Put simply, this model helps interpret predictions made by each expert and decide which expert to trust for a given input.</li>
+      <li><strong>Pooling Method:</strong> Finally, an aggregation mechanism is needed to make a prediction based on the output from the gating network and the experts.</li>
+    </ol>
+  </li>
+  <li>The gating network and expert layers are jointly trained to minimize the overall loss function of the MoE model. The gating network learns to route each input to the most relevant expert layer(s), while the expert layers specialize in their assigned sub-tasks.</li>
+  <li>This divide-and-conquer approach effectively delegates complex tasks to experts, enabling efficient processing and improved accuracy. Together, these components ensure that the right expert handles the right task. The gating network effectively routes each input to the most appropriate expert(s), while the experts focus on their specific areas of strength. This collaborative approach leads to a more versatile and capable overall model.</li>
+</ul>
+
+<blockquote>
+  <p>Put simply, a Mixture of Experts (MoE) is how an ensemble of AI models decides as one. It’s basically multiple “experts”, i.e., individual models, in a “trend coat”.</p>
+</blockquote>
+
+<h3 id="intuition">Intuition</h3>
+
+<ul>
+  <li>This section seeks to answer exactly how the experts specialize, and in what? Also, how exactly does gating work, and what does it do under the hood?</li>
+  <li>Recent research has started to give us some insights. Here’s a neat visualization from the paper “<a href="https://arxiv.org/abs/2208.02813">Towards Understanding the Mixture-of-Experts Layer in Deep Learning</a>” by Chen et. al (2022), which shows how a 4-expert MoE model learns to solve a binary classification problem on a toy dataset that’s segmented into 4 clusters.</li>
+  <li>Initially, the experts (shown as different colors) are all over the place, but as training proceeds, different experts “specialize” in different clusters until there’s almost a 1:1 correspondence. That specialization is entirely random, and only driven by the small initial random perturbations. Meanwhile, the gate is learning to (1) cluster the data and (2) map experts to clusters.</li>
+</ul>
+
+<p><img src="../assets/mixture-of-experts/clustr.jpg" alt="" /></p>
+
+<ul>
+  <li>Another important take-away from this toy experiment is that non-linearity appears to be the key to the success of MoE. Experts with linear activation simply don’t work as well as those with non-linear (cubic in this work) activation.</li>
+</ul>
+
+<h4 id="gate-functionality">Gate Functionality</h4>
+
+<ul>
+  <li>refers to two distinct but interconnected functions of the “gate” in a Mixture of Experts (MoE) model:
+    <ol>
+      <li><strong>Clustering the Data</strong>: In the context of an MoE model, clustering the data means that the gate is learning to identify and group together similar data points. This is not clustering in the traditional unsupervised learning sense, where the algorithm discovers clusters without any external labels. Instead, the gate is using the training process to recognize patterns or features in the data that suggest which data points are similar to each other and should be treated similarly. This is a crucial step because it determines how the data is organized and interpreted by the model.</li>
+      <li><strong>Mapping Experts to Clusters</strong>: Once the gate has identified clusters within the data, its next role is to assign or map each cluster to the most appropriate expert within the MoE model. Each expert in the model is specialized to handle different types of data or different aspects of the problem. The gate’s function here is to direct each data point (or each group of similar data points) to the expert that is best suited to process it. This mapping is dynamic and is based on the strengths and specialties of each expert as they evolve during the training process.</li>
+    </ol>
+  </li>
+  <li>In summary, the gate in an MoE model is responsible for organizing the incoming data into meaningful groups (clustering) and then efficiently allocating these groups to the most relevant expert models within the MoE system for further processing. This dual role of the gate is critical for the overall performance and efficiency of the MoE model, enabling it to handle complex tasks by leveraging the specialized skills of its various expert components.</li>
+</ul>
+
+<h3 id="hands-on-exercise-how-does-an-moe-model-work">Hands-On Exercise: How does an MoE model work?</h3>
+
+<ul>
+  <li>Credits to <a href="https://www.linkedin.com/in/tom-yeh?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAAD1V7ABSoHPrWi3L_G0ivIOw29nEBQ1uKQ&amp;lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3Bip616P99S4%2B9S%2Fi%2F3dqcQw%3D%3D">Tom Yeh</a> for this exercise.</li>
+  <li>Let’s calculate an MoE model by hand, with the following config: (i) number of experts: 2, (ii) tokens: 2, (iii) sparse.</li>
+  <li>Step-by-step walkthrough:
+    <ol>
+      <li>The MoE block receives two tokens (blue, orange).</li>
+      <li>Gate Network processes \(X_1\) (blue) and determined \(\text{Expert}_2\) should be activated.</li>
+      <li>\(\text{Expert}_2\) processes \(X_1\) (blue).</li>
+      <li>Gate Network processes \(X_2\) (orange) and determined \(\text{Expert}_1\) should be activated.</li>
+      <li>\(\text{Expert}_1\) processes \(X_2\) (orange).</li>
+      <li>ReLU activation function processes the outputs of the experts and produces the final output.</li>
+    </ol>
+  </li>
+</ul>
+
+<p><img src="../assets/mixture-of-experts/hoe.gif" alt="" /></p>
+
+<h4 id="key-benefits">Key Benefits</h4>
+
+<ul>
+  <li><strong>Size:</strong> The model can get really large (while still being efficient, as highlighted in the next point) simply by adding more experts. In this example, adding one more expert means adding 16 more weight parameters.</li>
+  <li><strong>Efficiency:</strong> The gate network will select a subset of experts to actually compute, in the above exercise: one expert. In other words, only 50% of the parameters are involved in processing a token.</li>
+</ul>
+
+<h2 id="the-deep-learning-way-sparsely-gated-moe">The Deep Learning Way: Sparsely-Gated MoE</h2>
+
+<ul>
+  <li>In 2017, an <a href="https://arxiv.org/abs/1701.06538">extension</a> of the MoE paradigm suited for deep learning was proposed by Noam Shazeer et al.</li>
+  <li>In most deep learning models, increasing model capacity generally translates to improved performance when datasets are sufficiently large. Generally, when the entire model is activated by every example, it can lead to “a roughly quadratic blow-up in training costs, as both the model size and the number of training examples increase”, stated by Shazeer et al.</li>
+  <li>Although the disadvantages of dense models are clear, there have been various challenges for an effective conditional computation method targeted toward modern deep learning models, mainly for the following reasons:
+    <ol>
+      <li>Modern computing devices like GPUs and TPUs perform better in arithmetic operations than in network branching.</li>
+      <li>Larger batch sizes benefit performance but are reduced by conditional computation.</li>
+      <li>Network bandwidth can limit computational efficiency, notably affecting embedding layers.</li>
+      <li>Some schemes might need loss terms to attain required sparsity levels, impacting model quality and load balance.</li>
+      <li>Model capacity is vital for handling vast data sets, a challenge that current conditional computation literature doesn’t adequately address.</li>
+    </ol>
+  </li>
+  <li>The MoE technique presented by Shazeer et al. aims to achieve conditional computation while addressing the abovementioned issues. They could increase model capacity by more than a thousandfold while only sustaining minor computational efficiency losses.</li>
+  <li>The authors introduced a new type of network layer called the “Sparsely-Gated MoE Layer.” They are built on previous iterations of MoE and aim to provide a general-purpose neural network component that can be adapted to different types of tasks.</li>
+  <li>The Sparsely-Gated MoE architecture (henceforth, referred to as the MoE architecture), consists of numerous expert networks, each being a simple feed-forward neural network and a trainable gating network. The gating network is responsible for selecting a sparse combination of these experts to process each input.</li>
+</ul>
+
+<p><img src="../assets/mixture-of-experts/moe.jpg" alt="" /></p>
+
+<ul>
+  <li>The fascinating feature here is the use of sparsity in the gating function. This means that for every input instance, the gating network only selects a few experts for processing, keeping the rest inactive. This sparsity and expert selection is achieved dynamically for each input, making the entire process highly flexible and adaptive. Notably, the computational efficiency is preserved since inactive parts of the network are not processed.</li>
+  <li>The MoE layer can be stacked hierarchically, where the primary MoE selects a sparsely weighted combination of “experts.” Each combination utilizes a MoE layer.</li>
+  <li>Moreover, the authors also introduced an innovative technique called Noisy Top-\(K\) Gating. This mechanism adds a tunable Gaussian noise to the gating function, retains only the top \(k\) values, and assigns the rest to negative infinity, translating to a zero gating value. Such an approach ensures the sparsity of the gating network while maintaining robustness against potential discontinuities in the gating function output. Interestingly, it also aids in load balancing across the expert networks.</li>
+  <li>In their framework, both the gating network and the experts are trained jointly via back-propagation, the standard training mechanism for neural networks. The output from the gating network is a sparse, n-dimensional vector, which serves as the gate values for the n-expert networks. The output from each expert is then weighted by the corresponding gating value to produce the final model output.</li>
+  <li>The Sparse MoE architecture has been a game-changer in LLMs, allowing us to scale up modeling capacity with almost constant computational complexity, resulting breakthroughs such as the Switch Transformer, GPT-4, Mixtral-8x7b, and more.</li>
+</ul>
+
+<h2 id="expert-choice-routing">Expert Choice Routing</h2>
+
+<ul>
+  <li>Despite the popularity of MoE in recent transformer-based models demonstrated by the <a href="https://arxiv.org/abs/2101.03961">Switch Transformer</a>, <a href="https://arxiv.org/abs/2112.06905">GLaM</a>, <a href="https://arxiv.org/abs/2106.05974">V-MoE</a>, and <a href="https://arxiv.org/abs/2305.14705">FLAN-MoE</a>, improvements and research potentials remain in the area.</li>
+  <li>In any case of a MoE scheme, the routing or gating function may cause specific experts to be undertrained as it overfits other experts. Regularization has been introduced to avoid too many examples being routed to a single or a particular subset of experts. Additionally, Google Research proposed <a href="https://ai.googleblog.com/2022/11/mixture-of-experts-with-expert-choice.html?m=1">“Expert Choice Routing”</a> in November 2022, aiming to improve upon the potential flaw and explicitly targeting language models.</li>
+  <li>Unlike traditional MoE models, the EC routing method is founded on a different approach to assigning “experts” to “tokens” within an MoE model. Instead of assigning tokens to experts as traditional MoE models do, EC reverses this process, assigning experts to tokens based on their importance or difficulty.</li>
+  <li>EC routing sets an “expert capacity” value to regulate how many tokens an expert can handle simultaneously. It’s calculated as the average number of tokens per expert in a batch of input sequences, which is then multiplied by a “capacity factor”. The capacity factor is a variable that determines the average number of experts each token can be assigned to. By adjusting the capacity factor, researchers can control how many experts work on each token, providing flexibility in allocating computation resources.</li>
+  <li>To decide which tokens should be assigned to which experts, the EC method uses a “token-to-expert score matrix.” This matrix scores the compatibility between each token and each expert, ranking which experts would best fit each token. Based on these scores, the most relevant tokens for each expert are selected via a “top-k function”. The k here refers to the number of tokens chosen for each expert.</li>
+  <li>Once the most relevant tokens have been identified for each expert, a permutation function is applied to arrange the data. This means reshuffling the data so that each expert gets its assigned tokens, allowing for efficient parallel computation across all the experts.</li>
+</ul>
+
+<h2 id="implications-and-outlooks">Implications and Outlooks</h2>
+
+<ul>
+  <li>Incorporating MoE into deep learning is a relatively new development, gaining traction only as models for NLP and computer vision tasks began to scale significantly. Before this, the demand for conditional computation was less pronounced than it is for contemporary Large Language Models (LLM) and intricate CNNs.</li>
+  <li>In 2021, Meta AI conducted a dedicated study for MoE models trained on language data, comparing how MoE models scale in comparison with dense models. They found that other than fine-tuning, MoE-based models can match the performance of dense models with a quarter of the computing. They could scale MoE models up to a trillion parameters (this was long before GPT-4 was released) and consistently outperform their dense model counterparts.</li>
+  <li>The same year, Google Brain proposed V-MoE, a vision transformer utilizing sparse MoE layers. They found that V-MoE can match the performance of state-of-the-art models with as little as half of the computational resources required.</li>
+  <li>More famously, GPT-4 was also leaked to be adopting a MoE scheme with 8 local models, each containing 220 billion parameters, totaling a whopping 1.7 trillion parameters.</li>
+</ul>
+
+<h2 id="the-how-behind-moe">The “How” Behind MoE</h2>
+
+<ul>
+  <li>Although the success of MoE is clear in the deep learning field, as with most things in deep learning, our understanding of how it can perform so well is rather unclear.</li>
+  <li>Notably, each expert model is initialized and trained in the same manner, and the gating network is typically configured to dispatch data equally to each expert. Unlike traditional MoE methods, all experts are trained jointly with the MoE layer on the same dataset. It is fascinating how each expert can become “specialized” in their own task, and experts in MoE do not collapse into a single model.</li>
+  <li>The paper “Towards Understanding Mixture of Experts in Deep Learning” by Zixiang Chen et al. attempts to interpret the “how” behind the MoE layers. They conclude that the “cluster structure of the underlying problem and the non-linearity of the expert is pivotal to the success of MoE.”</li>
+  <li>Although the conclusion does not provide a direct answer, it helps to gain more insight into the simple yet effective approach of MoE.</li>
+</ul>
+
+<h2 id="moe-implementation">MoE Implementation</h2>
+
+<ul>
+  <li>Credits to the following section go to <a href="https://www.linkedin.com/company/the-aiedge-newsletter/">The AIEdge</a>.</li>
+  <li>The Mixture of Experts architecture is relatively straightforward to implement. An implementation that closely aligns with the one found in Mistral 7B is presented below.</li>
+</ul>
+
+<p><img src="../assets/mixture-of-experts/impl.jpg" alt="" /></p>
+
+<h3 id="overview-1">Overview</h3>
+
+<ul>
+  <li>The architecture, as implemented in the above code, uses a routing mechanism to direct each input token to the most relevant experts. The router, implemented as a linear layer in the <code class="language-plaintext highlighter-rouge">gate</code> variable, transforms hidden states into logits that are subsequently converted into selection probabilities. These probabilities determine which experts contribute to the output for each token. The final output for each token is a weighted sum of the outputs from the selected experts, ensuring that each part of the input data is processed by the most suitable parts of the network. This method enhances the model’s efficiency and scalability by leveraging specialized networks (experts) only when they are most relevant.</li>
+</ul>
+
+<h3 id="components">Components</h3>
+
+<h4 id="feedforward-class"><code class="language-plaintext highlighter-rouge">FeedForward</code> Class</h4>
+
+<ul>
+  <li>This class defines an individual expert, which is a basic feed-forward network. It consists of three linear layers:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">w1</code> and <code class="language-plaintext highlighter-rouge">w2</code> transform the input tensor, and</li>
+      <li><code class="language-plaintext highlighter-rouge">w3</code> combines these transformations.</li>
+    </ul>
+  </li>
+  <li>The <code class="language-plaintext highlighter-rouge">forward</code> method computes the output of this feed-forward network by applying the sequence of transformations and non-linear activations (SiLU, also known as Swish).</li>
+</ul>
+
+<h4 id="mixtureofexpertslayer-class"><code class="language-plaintext highlighter-rouge">MixtureOfExpertsLayer</code> Class</h4>
+
+<ul>
+  <li>This class orchestrates the interaction of multiple experts to process the input data.
+    <ul>
+      <li><strong>Initialization (<code class="language-plaintext highlighter-rouge">__init__</code>)</strong>:
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">num_experts</code>: Total number of expert networks.</li>
+          <li><code class="language-plaintext highlighter-rouge">n_experts_per_token</code>: Number of experts that should process each token.</li>
+          <li><code class="language-plaintext highlighter-rouge">experts</code>: A list of expert networks.</li>
+          <li><code class="language-plaintext highlighter-rouge">gate</code>: A linear layer that acts as the router, which computes logits (pre-softmax scores) that determine how much each expert contributes to processing each token.</li>
+        </ul>
+      </li>
+      <li><strong>Forward Pass (<code class="language-plaintext highlighter-rouge">forward</code>)</strong>:
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">gate_logits</code>: The router outputs logits for each token.</li>
+          <li><code class="language-plaintext highlighter-rouge">weights, selected_experts</code>: Using <code class="language-plaintext highlighter-rouge">torch.topk</code>, the top <code class="language-plaintext highlighter-rouge">n_experts_per_token</code> experts are selected based on the highest logits for each token, indicating which experts are most relevant for each token.</li>
+          <li><code class="language-plaintext highlighter-rouge">weights</code>: Normalized using softmax to convert logits into probabilities indicating the importance of each selected expert’s contribution.</li>
+          <li><code class="language-plaintext highlighter-rouge">out</code>: Initializes an output tensor with zeros, having the same shape as the input <code class="language-plaintext highlighter-rouge">x</code>.</li>
+          <li>For each expert, the method computes the weighted contribution of the expert’s output to the final output tensor. This is done only for selected experts for each token.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="expert-specialization">Expert Specialization</h2>
+
+<h2 id="whats-next">What’s Next?</h2>
+
+<ul>
+  <li>Theoretically, a deeper understanding of MoE architectures and their working principles is needed. As we saw in Chen et al.’s paper, the reasons behind the success of MoE layers are still partially obscure. Therefore, more theoretical and empirical research is required to demystify the intrinsic mechanics of these models, potentially leading to their optimization and better generalization.</li>
+  <li>Additionally, how to design more effective gating mechanisms and expert models is an open question with great potential for future exploration. While Expert Choice Routing offers a promising direction, other innovative approaches might enhance the routing mechanism.</li>
+  <li>Lastly, while MoE has shown impressive results in domains like NLP and computer vision, there is considerable room to explore its utility in other domains, such as reinforcement learning, tabular data domains, and more.</li>
+  <li>The journey of MoE is in its infancy in the realm of deep learning, with many milestones yet to be achieved. However, its potential for transforming how we understand and deploy deep learning models is enormous. With the current state of computing, it’s unlikely that we will see significant improvements to hardware as rapidly as we see improvements to modeling techniques. By leveraging the inherent strength of the MoE paradigm—the division of complex tasks into simpler subtasks handled by specialized expert models—we may continue to push the boundaries of what is achievable with deep learning. And that, indeed, is an exciting prospect to look forward to.</li>
+</ul>
+
+<h2 id="related-papers">Related Papers</h2>
+
+<h3 id="outrageously-large-neural-networks-the-sparsely-gated-mixture-of-experts-layer"><a href="https://arxiv.org/abs/1701.06538">Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</a></h3>
+
+<ul>
+  <li>The capacity of a neural network to absorb information is limited by its number of parameters. Conditional computation, where parts of the network are active on a per-example basis, has been proposed in theory as a way of dramatically increasing model capacity without a proportional increase in computation. In practice, however, there are significant algorithmic and performance challenges. Also, static neural network architectures apply the same function to every example. In contrast, input dependent models attempt to tailor the function to each example. While it is straightforward for a human to manually specify a single static architecture, it is infeasible to specify every input-dependent function by hand. Instead, the input-dependent function must be automatically inferred by the model, which introduces an extra level of complexity in optimization.</li>
+  <li>Given the need to automatically infer architectures for each example, a natural solution is to define a single large model (supernetwork) with a numerous sub-networks (experts), and route examples through a path in the supernetwork. The figure below from <a href="#diversity-and-depth-in-per-example-routing-models">Ramachandran and Le (2019)</a> visualizes an example of a routing network.. Intuitively, similar examples can be routed through similar paths and dissimilar examples can be routed through different paths. The example-dependent routing also encourages expert specialization, in which experts devote their representational capacity to transforming a chosen subset of examples.</li>
+</ul>
+
+<p><img src="../../images/papers/Router.html" alt="" /></p>
+
+<ul>
+  <li>Learning to route examples to well-matched experts is critical for good performance. Effective routing can be achieved by training another small neural network (router) that learns to route examples through the supernetwork. The router takes the example as input and outputs the next expert to use. The router can take advantage of the intermediate representations of the example produced in the supernetwork.</li>
+  <li>This paper by Shazeer et al. in ICLR 2017 addresses these challenges and finally realize the promise of conditional computation, achieving greater than 1000x improvements in model capacity with only minor losses in computational efficiency on modern GPU clusters.</li>
+  <li>They introduce a Sparsely-Gated Mixture-of-Experts layer (MoE), consisting of up to thousands of feed-forward sub-networks. A trainable gating network determines a sparse combination of these experts to use for each example. In this per-example routing setup, different examples are processed by different subcomponents, or experts, inside a larger model, a.k.a. a supernetwork.</li>
+  <li>Specifically, the proposed MoE layer takes as an input a token representation \(x\) and then routes this to the best determined top-\(k\) experts, selected from a set \(\left\{E_i(x)\right\}_{i=1}^N\) of \(N\) experts. The router variable \(W_r\) produces logits \(h(x)=W_r \cdot x\) which are normalized via a softmax distribution over the available \(N\) experts at that layer. The gate-value for expert \(i\) is given by,</li>
+</ul>
+
+\[p_i(x)=\frac{e^{h(x)_i}}{\sum_j^N e^{h(x)_j}}\]
+
+<ul>
+  <li>The top-\(k\) gate values are selected for routing the token \(x\). If \(\mathcal{T}\) is the set of selected top-\(k\) indices then the output computation of the layer is the linearly weighted combination of each expert’s computation on the token by the gate value,</li>
+</ul>
+
+\[y=\sum_{i \in \mathcal{T}} p_i(x) E_i(x)\]
+
+<ul>
+  <li>They apply the MoE to the tasks of language modeling and machine translation, where model capacity is critical for absorbing the vast quantities of knowledge available in the training corpora. We present model architectures in which a MoE with up to 137 billion parameters is applied convolutionally between stacked LSTM layers. On large language modeling and machine translation benchmarks, these models achieve significantly better results than state-of-the-art at lower computational cost.</li>
+  <li>The following diagram from the paper illustrates a Mixture of Experts (MoE) layer embedded within a recurrent language model. In this case, the sparse gating function selects two experts to perform computations. Their outputs are modulated by the outputs of the gating network.</li>
+</ul>
+
+<p><img src="../../images/papers/MoE.html" alt="" /></p>
+
+<h3 id="scaling-vision-with-sparse-mixture-of-experts"><a href="https://arxiv.org/abs/2106.05974">Scaling Vision with Sparse Mixture of Experts</a></h3>
+
+<ul>
+  <li>Almost all prevalent computer vision models networks are “dense,” that is, every input is processed by every parameter.</li>
+  <li>This paper by Riquelme et al. from Google Brain introduces the Vision Mixture of Experts (V-MoE), a novel approach for scaling vision models. The V-MoE is a sparsely activated version of the Vision Transformer (ViT) that demonstrates scalability and competitiveness with larger dense networks in image recognition tasks.</li>
+  <li>The paper proposes a sparse variant of the Vision Transformer (ViT) that uses a mixture-of-experts architecture. This approach routes each image patch to a subset of experts, making it possible to scale up to 15B parameters while matching the performance of state-of-the-art dense models.</li>
+  <li>An innovative extension to the routing algorithm is presented, allowing prioritization of subsets of each input across the entire batch. This adaptive per-image compute leads to a trade-off between performance and computational efficiency during inference.</li>
+  <li>The figure below from the paper shows an overview of the architecture. V-MoE is composed of \(L\) ViT blocks. In some, we replace the MLP with a sparsely activated mixture of MLPs. Each MLP (the expert) is stored on a separate device, and processes a fixed number of tokens. The communication of these tokens between devices is shown in this example, which depicts the case when \(k=1\) expert is selected per token. Here each expert uses a capacity ratio \(C=\frac{4}{3}\): the sparse MoE layer receives 12 tokens per device, but each expert has capacity for \(16\left(\frac{16 \cdot 1}{12}=\frac{4}{3}\right.\)). Non-expert components of V-MoE such as routers, attention layers and normal MLP blocks are replicated identically across devices.</li>
+</ul>
+
+<p><img src="../../images/papers/V-MoE.html" alt="" /></p>
+
+<ul>
+  <li>The V-MoE shows impressive scalability, successfully trained up to 15B parameters, and demonstrates strong performance, including 90.35% accuracy on ImageNet.</li>
+  <li>The paper explores the transfer learning abilities of V-MoE, showing its adaptability and effectiveness across different tasks and datasets, even with limited data.</li>
+  <li>A detailed analysis of the V-MoE’s routing decisions and the behavior of its experts is provided, offering insights into the model’s internal workings and guiding future improvements.</li>
+  <li>V-MoE models require less computational resources than dense counterparts, both in training and inference, thanks to their sparsely activated nature and the efficient use of the Batch Prioritized Routing algorithm.</li>
+  <li>The paper concludes with the potential of sparse conditional computation in vision tasks, emphasizing the environmental benefits due to reduced CO2 emissions and the promising directions for future research in large-scale multimodal or video modeling.</li>
+  <li>The paper represents a significant advancement in the field of computer vision, particularly in the development of scalable and efficient vision models.</li>
+</ul>
+
+<h3 id="modeling-task-relationships-in-multi-task-learning-with-multi-gate-mixture-of-experts"><a href="https://doi.org/10.1145/3219819.3220007">Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts</a></h3>
+
+<ul>
+  <li>This paper by Ma et al. published in KDD 2018, introduces a novel approach to multi-task learning called Multi-gate Mixture-of-Experts (MMoE). The method aims to enhance the performance of multi-task learning models by better handling the relationships between different tasks.</li>
+  <li>The MMoE model adapts the Mixture-of-Experts (MoE) framework to multi-task learning by sharing expert submodels across all tasks and using a gating network optimized for each task. This design allows the model to dynamically allocate shared and task-specific resources, efficiently handling tasks with varying degrees of relatedness.</li>
+  <li>The paper presents experiments using synthetic data and real datasets, including a binary classification benchmark and a large-scale content recommendation system at Google. These experiments demonstrate MMoE’s effectiveness in scenarios where tasks have low relatedness and its superiority over traditional shared-bottom multi-task models in terms of both performance and trainability.</li>
+  <li>MMoE’s architecture consists of multiple experts (feed-forward networks) and a gating network for each task, which determines the contribution of each expert to the task. This setup allows the model to learn nuanced relationships between tasks and allocate computation resources more effectively.</li>
+  <li>The following figure from the paper shows a (a) shared-Bottom model, (b) one-gate MoE model, (c) multi-gate MoE model.</li>
+</ul>
+
+<p><img src="../../images/papers/MMoE.html" alt="" /></p>
+
+<ul>
+  <li>In the experiments with the Census-income dataset, a UCI benchmark dataset, the task was to predict whether an individual’s income exceeds $50,000 based on census data. The dataset contains demographic and employment-related information. MMoE’s application to this dataset involved addressing the challenge of binary classification using multiple socio-economic factors as input features.</li>
+  <li>On synthetic data, MMoE showed better performance, especially when task correlation is low, and demonstrated improved trainability with less variance in model performance across runs. On real-world datasets, including the UCI Census-income dataset and Google’s content recommendation system, MMoE consistently outperformed baseline models in terms of accuracy and robustness.</li>
+  <li>MMoE offers computational efficiency by using lightweight gating networks and shared expert networks, making it suitable for large-scale applications. The experiments on Google’s recommendation system highlighted MMoE’s ability to improve both engagement and satisfaction metrics in live experiments compared to single-task and shared-bottom models.</li>
+</ul>
+
+<h3 id="mixture-of-experts-meets-instruction-tuning-a-winning-combination-for-large-language-models"><a href="https://arxiv.org/abs/2305.14705">Mixture-of-Experts Meets Instruction Tuning: A Winning Combination for Large Language Models</a></h3>
+
+<ul>
+  <li>The paper titled “Mixture-of-Experts Meets Instruction Tuning: A Winning Combination for Large Language Models” presents an innovative approach to enhancing the performance and scalability of Large Language Models (LLMs) by combining Sparse Mixture-of-Experts (MoE) architecture with instruction tuning. - Sparse MoE is a neural architecture that adds learnable parameters to LLMs without increasing inference costs. In contrast, instruction tuning trains LLMs to follow instructions more effectively.</li>
+  <li>The authors advocate for the combination of these two approaches, demonstrating that MoE models benefit significantly more from instruction tuning compared to their dense model counterparts.</li>
+  <li>The paper presents three experimental setups: direct finetuning on individual downstream tasks without instruction tuning; instruction tuning followed by few-shot or zero-shot generalization on downstream tasks; and instruction tuning supplemented by further finetuning on individual tasks.</li>
+  <li>The findings indicate that MoE models generally underperform compared to dense models of the same computational capacity in the absence of instruction tuning. However, this changes with the introduction of instruction tuning, where MoE models outperform dense models.</li>
+  <li>The paper introduces the FLAN-MOE32B model, which outperforms FLAN-PALM62B on four benchmark tasks while using only a third of the FLOPs. This highlights the efficiency and effectiveness of the FLAN-MOE approach.</li>
+  <li>The authors conduct a comprehensive series of experiments to compare the performance of various MoE models subjected to instruction tuning. These experiments include evaluations in natural language understanding, reasoning, and question-answering tasks. The study also explores the impact of different routing strategies and the number of experts on the performance of FLAN-MOE models, showing that performance scales with the number of tasks rather than the number of experts.</li>
+  <li>The following image from the paper shows the effect of instruction tuning on MOE models versus dense counterparts for base-size models (same flops across all models in this figure). They perform single-task finetuning for each model on held-out benchmarks. Compared to dense models, MoE models benefit more from instruction-tuning, and are more sensitive to the number of instruction-tuning tasks. Overall, the performance of MoE models scales better with respect to the number of tasks, than the number of experts.</li>
+</ul>
+
+<p><img src="../../images/papers/MOEIT.html" alt="" /></p>
+
+<ul>
+  <li>The paper discusses the challenge of adapting MoE models to multilingual benchmarks and highlights the importance of incorporating diverse linguistic data during training to ensure effective language coverage.</li>
+  <li>Overall, the paper “Mixture-of-Experts Meets Instruction Tuning” by Sheng Shen et al. presents significant advancements in the scalability and efficiency of LLMs through the novel integration of MoE architecture and instruction tuning, setting new standards in the field of natural language processing.</li>
+</ul>
+
+<h3 id="from-sparse-to-soft-mixtures-of-experts"><a href="https://arxiv.org/abs/2308.00951">From Sparse to Soft Mixtures of Experts</a></h3>
+
+<ul>
+  <li>Sparse Mixture of Experts (MoE) architectures scale model capacity without large increases in training or inference costs. MoE allows us to dramatically scale model sizes without significantly increasing inference latency. In short, each “expert” can separately attend to a different subset of tasks via different data subsets before they are combined via an input routing mechanism. Thus, the model can learn a wide variety of tasks, but still specialize when appropriate. Despite their success, MoEs suffer from a number of issues: training instability, token dropping, inability to scale the number of experts, or ineffective finetuning.</li>
+  <li>This paper by Puigcerver et al. from Google DeepMind proposes Soft MoE, a fully-differentiable sparse Transformer that addresses these challenges, while maintaining the benefits of MoEs.</li>
+  <li>Extra-large models like Google’s PaLM (540B parameters) or OpenAI’s GPT-4 use Sparse MoE under the hood, which suffers from training instabilities, because it’s not fully differentiable. Soft-MoE replaces the non-differentiable expert routing with a differentiable layer. The end-to-end model is fully differentiable again, can be trained with ordinary SGD-like optimizers, and the training instabilities go away.</li>
+  <li>Soft MoE performs an implicit soft assignment by passing different weighted combinations of all input tokens to each expert. As in other MoE works, experts in Soft MoE only process a subset of the (combined) tokens, enabling larger model capacity at lower inference cost.</li>
+  <li>The following figure from the paper illustrates the main differences between Sparse and Soft MoE layers. While the router in Sparse MoE layers (left) learns to assign individual input tokens to each of the available slots, in Soft MoE layers (right) each slot is the result of a (different) weighted average of all the input tokens. Learning to make discrete assignments introduces several optimization and implementation issues that Soft MoE sidesteps.</li>
+</ul>
+
+<p><img src="../../images/papers/Soft-Experts.html" alt="" /></p>
+
+<ul>
+  <li>They propose a fully-differentiable sparse vision transformer (ViT) that addresses aforementioned challenges such as training instability, token dropping, and inefficient finetuning. In the context of visual recognition, Soft MoE greatly outperforms the standard ViT and popular MoE variants (Tokens Choice and Experts Choice). Soft MoE scales ViT models to &gt;50B parameters with little effect on inference latency. For example, Soft MoE-Base/16 requires 10.5x lower inference cost (5.7x lower wall-clock time) than ViT-Huge/14 while matching its performance after similar training. Soft MoE also scales well: Soft MoE Huge/14 with 128 experts in 16 MoE layers has over 40x more parameters than ViT Huge/14, while inference time cost grows by only 2%, and it performs substantially better.</li>
+  <li>The following figure from the paper illustrates the Soft MoE routing algorithm. Soft MoE first computes scores or logits for every pair of input token and slot, based on some learnable per-slot parameters. These logits are then normalized per slot (columns) and every slot computes a linear combination of all the input tokens based on these weights (in green). Each expert (an MLP in this work) then processes its slots (e.g. 2 slots per expert, in this diagram). Finally, the same original logits are normalized per token (i.e., by row) and used to combine all the slot outputs, for every input token (in blue). Dashed boxes represent learnable parameters.</li>
+</ul>
+
+<p><img src="../../images/papers/Soft-Experts2.html" alt="" /></p>
+
+<ul>
+  <li>The following infographic <a href="https://www.linkedin.com/in/sebastianraschka/">(source)</a> presents an overview of their results:</li>
+</ul>
+
+<p><img src="../../images/papers/Soft-Experts3.html" alt="" /></p>
+
+<ul>
+  <li>PyTorch <a href="https://github.com/fkodom/soft-mixture-of-experts">implementation</a>.</li>
+</ul>
+
+<h3 id="switch-transformers"><a href="https://arxiv.org/abs/2101.03961">Switch Transformers</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/2101.03961">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a>.</li>
+  <li>In deep learning, models typically reuse the same parameters for all inputs. Mixture of Experts (MoE) defies this and instead selects different parameters for each incoming example. The result is a sparsely-activated model – with outrageous numbers of parameters – but a constant computational cost.</li>
+  <li>This paper by Fedus et al. from Google in JMLR 2022 introduces the Switch Transformer which seeks to address the lack of widespread adoption of MoE which has been hindered by complexity, communication costs, and training instability.</li>
+  <li>They simplify the MoE routing algorithm and design intuitive improved models with reduced communication and computational costs. Our proposed training techniques help wrangle the instabilities and they show large sparse models may be trained, for the first time, with lower precision (bfloat16) formats.</li>
+  <li>The guiding design principle for Switch Transformers is to maximize the parameter count of a Transformer model (Vaswani et al., 2017) in a simple and computationally efficient way. The benefit of scale was exhaustively studied in Kaplan et al. (2020) which uncovered powerlaw scaling with model size, data set size and computational budget. Importantly, this work advocates training large models on relatively small amounts of data as the computationally optimal approach. Heeding these results, they investigate a fourth axis: increase the parameter count while keeping the floating point operations (FLOPs) per example constant. Our hypothesis is that the parameter count, independent of total computation performed, is a separately important axis on which to scale. They achieve this by designing a sparsely activated model that efficiently uses hardware designed for dense matrix multiplications such as GPUs and TPUs. In their distributed training setup, their sparsely activated layers split unique weights on different devices. Therefore, the weights of the model increase with the number of devices, all while maintaining a manageable memory and computational footprint on each device.</li>
+  <li>Their switch routing proposal reimagines MoE. <a href="#outrageously-large-neural-networks-the-sparsely-gated-mixture-of-experts-layer">Shazeer et al. (2017)</a> conjectured that routing to \(k &gt; 1\) experts was necessary in order to have non-trivial gradients to the routing functions. The authors intuited that learning to route would not work without the ability to compare at least two experts. <a href="#diversity-and-depth-in-per-example-routing-models">Ramachandran and Le (2018)</a> went further to study the top-\(k\) decision and found that higher \(k\)-values in lower layers in the model were important for models with many routing layers. Contrary to these ideas, they instead use a simplified strategy where they route to only a single expert. They show this simplification preserves model quality, reduces routing computation and performs better. This \(k = 1\) routing strategy is later referred to as a Switch layer.</li>
+  <li>The following figure from the paper illustrates the Switch Transformer encoder block. We replace the dense feed forward network (FFN) layer present in the Transformer with a sparse Switch FFN layer (light blue). The layer operates independently on the tokens in the sequence. They diagram two tokens (\(x_1\) = “More” and \(x_2\) = “Parameters” below) being routed (solid lines) across four FFN experts, where the router independently routes each token. The switch FFN layer returns the output of the selected FFN multiplied by the router gate value (dotted-line).</li>
+</ul>
+
+<p><img src="../../images/papers/SwitchT.html" alt="" /></p>
+
+<ul>
+  <li>They design models based off T5-Base and T5-Large to obtain up to 7x increases in pre-training speed with the same computational resources. These improvements extend into multilingual settings where they measure gains over the mT5-Base version across all 101 languages.</li>
+  <li>Finally, they advance the current scale of language models by pre-training up to trillion parameter models on the “Colossal Clean Crawled Corpus” and achieve a 4x speedup over the T5-XXL model.</li>
+  <li><a href="https://huggingface.co/google/switch-c-2048">Code</a>.</li>
+</ul>
+
+<h3 id="qmoe-practical-sub-1-bit-compression-of-trillion-parameter-models"><a href="https://arxiv.org/abs/2310.16795">QMoE: Practical Sub-1-Bit Compression of Trillion-Parameter Models</a></h3>
+
+<ul>
+  <li>This paper by Frantar and Alistarh from the Institute of Science and Technology Austria and Neural Magic Inc. presents QMoE, a framework designed to address the memory challenges in deploying large language models (LLMs) with Mixture-of-Experts (MoE) architectures.</li>
+  <li>The key problem QMoE addresses is the massive memory requirement of large models, exemplified by the 1.6 trillion-parameter SwitchTransformer-c2048 model, which typically requires 3.2TB of memory. QMoE effectively compresses such models to less than 1 bit per parameter, enabling their execution on commodity hardware with minor runtime overheads.</li>
+  <li>QMoE employs a scalable algorithm and a custom compression format paired with GPU decoding kernels. It compresses the SwitchTransformer-c2048 model to less than 160GB (0.8 bits per parameter) with minor accuracy loss in under a day on a single GPU.</li>
+  <li>The implementation includes a highly scalable compression algorithm and a bespoke compression format, facilitating efficient end-to-end compressed inference. The framework enables running trillion-parameter models on affordable hardware, like servers equipped with NVIDIA GPUs, at less than 5% runtime overhead compared to ideal uncompressed execution.</li>
+  <li>The paper discusses the challenges in compressing MoE models, including conceptual issues with existing post-training compression methods and practical scaling challenges. It overcomes these by introducing a custom compression format and highly-efficient decoding algorithms optimized for GPU accelerators.</li>
+  <li>The technical contributions include a novel approach to handling massive activation sets and a unique system design for optimized activation offloading, expert grouping, and robustness modifications, ensuring efficient application of data-dependent compression to massive MoEs.</li>
+  <li>The framework significantly reduces the size of large models, with QMoE compressed models achieving over 20x compression rates compared to 16-bit precision models. This reduction in size is accompanied by minor increases in loss on pretraining validation and zero-shot data.</li>
+  <li>The paper also discusses the system design and optimizations made to address memory costs, GPU utilization, and reliability requirements. These include techniques like optimized activation offloading, list buffer data structures, lazy weight fetching, and expert grouping.</li>
+  <li>The following figure from the paper illustrates the offloading execution for the sparse part of a Transformer block. An expert \(E_2\) and its corresponding input
+tokens \(X_E\) are fetched to GPU memory to produce \(E_2′\), which together with the corresponding outputs \(Y_E\) are written back to CPU again.</li>
+</ul>
+
+<p><img src="../../images/papers/QMoE.html" alt="" /></p>
+
+<ul>
+  <li>The experiments demonstrate that QMoE effectively compresses MoE models while maintaining performance. The system was tested on various datasets, including Arxiv, GitHub, StackExchange, and Wikipedia, showing good performance preservation even for highly compressed models.</li>
+  <li>The paper provides detailed insights into the encoding and decoding processes and the kernel implementation for the GPU, highlighting the challenges and solutions for achieving sub-1-bit per parameter compression.</li>
+  <li>The QMoE framework is a significant step towards practical deployment of massive-scale MoE models, addressing key limitations of MoE architectures and facilitating further research and understanding of such models.</li>
+  <li>The paper’s findings are significant as they make it feasible to deploy and research trillion-parameter models on more accessible hardware, potentially democratizing access to high-performance LLMs and spurring further innovation in the field.</li>
+</ul>
+
+<h3 id="megablocks-efficient-sparse-training-with-mixture-of-experts"><a href="https://arxiv.org/abs/2211.15841">MegaBlocks: Efficient Sparse Training with Mixture-of-Experts</a></h3>
+
+<ul>
+  <li>This paper by Gale et al. from Stanford University, Microsoft Research, and Google Research, introduces Dropless Mixture-of-Experts (MoE), a novel system for efficient MoE training on GPUs.</li>
+  <li>The system, named MegaBlocks, addresses the limitations of current frameworks that restrict dynamic routing in MoE layers, often leading to a tradeoff between model quality and hardware efficiency due to the necessity of dropping tokens or wasting computation on excessive padding. Token dropping leads to information loss, as it involves selectively ignoring part of the input data, while padding adds redundant data to make the varying input sizes uniform, which increases computational load without contributing to model learning. This challenge arises from the difficulty in efficiently handling the dynamic routing and load-imbalanced computation characteristic of MoE architectures, especially in the context of deep learning hardware and software constraints.</li>
+  <li>MegaBlocks innovatively reformulates MoE computations as block-sparse operations, developing new GPU kernels specifically for this purpose. These kernels efficiently manage dynamic, load-imbalanced computations inherent in MoEs without resorting to token dropping. This results in up to 40% faster end-to-end training compared to MoEs trained with the Tutel library, and 2.4 times speedup over DNNs trained with Megatron-LM.</li>
+  <li>The system’s core contributions include high-performance GPU kernels for block-sparse matrix multiplication, leveraging blocked-CSR-COO encoding and transpose indices. This setup enables efficient handling of sparse inputs and outputs in both transposed and non-transposed forms.</li>
+  <li>Built upon the Megatron-LM library for Transformer model training, MegaBlocks supports distributed MoE training with data and expert model parallelism. Its unique ability to avoid token dropping through block-sparse computation provides a fresh approach to MoE algorithms as a form of dynamic structured activation sparsity.</li>
+  <li>The figure below from the paper shows a Mixture-of-Experts Layer. Shown for <code class="language-plaintext highlighter-rouge">num experts=3</code>, <code class="language-plaintext highlighter-rouge">top k=1</code> and <code class="language-plaintext highlighter-rouge">capacity factor=1</code> with the prevalent, token dropping formulation. First (1), tokens are mapped to experts by the router. Along with expert assignments, the router produces probabilities that reflect the confidence of the assignments. Second (2), the feature vectors are permuted to group tokens by expert assignment. If the number of tokens assigned to an expert exceeds its capacity, extra tokens are dropped. Third (3), the expert layers are computed for the set of tokens they were assigned as well as any padding needed for unused capacity. Lastly (4), the results of the expert computation are un-permuted and weighted by the router probabilities. The outputs for dropped tokens are shown here set to zero.</li>
+</ul>
+
+<p><img src="../../images/papers/MegaBlocks.html" alt="" /></p>
+
+<ul>
+  <li>Experiments demonstrate that MegaBlocks enables significant end-to-end training speedups for MoE models compared to existing approaches, especially as model size increases. The system also reduces the computational overhead and memory requirements associated with MoE layers, leading to more efficient utilization of hardware resources. Furthermore, the approach decreases the number of hyperparameters that need to be re-tuned for each model and task, simplifying the process of training large MoE models.</li>
+  <li>The paper provides detailed insights into the design and performance of the block-sparse kernels, including analyses of throughput relative to cuBLAS batched matrix multiplication and discussions on efficient routing and permutation for MoEs. The results show that MegaBlocks’ kernels perform comparably to cuBLAS, achieving an average of 98.6% of cuBLAS’s throughput with minimal variations across different configurations.</li>
+  <li><a href="https://github.com/stanford-futuredata/megablocks">Code</a></li>
+</ul>
+
+<h3 id="moe-llava-mixture-of-experts-for-large-vision-language-models"><a href="https://arxiv.org/abs/2401.15947">MoE-LLaVA: Mixture of Experts for Large Vision-Language Models</a></h3>
+
+<ul>
+  <li>This paper by Lin et al. from Peking University, Sun Yat-sen University, FarReel Ai Lab, Tencent Data Platform, and Peng Cheng Laboratory introduces MoE-LLaVA, a novel training strategy for Large Vision-Language Models (LVLMs). The strategy, known as MoE-tuning, constructs a sparse model with a large number of parameters while maintaining constant computational costs and effectively addressing performance degradation in multi-modal learning and model sparsity.</li>
+  <li>MoE-LLaVA uniquely activates only the top-k experts through routers during deployment, keeping the remaining experts inactive. This approach results in impressive visual understanding capabilities and reduces hallucinations in model outputs. Remarkably, with 3 billion sparsely activated parameters, MoE-LLaVA performs comparably to the LLaVA-1.5-7B and surpasses the LLaVA-1.5-13B in object hallucination benchmarks.</li>
+  <li>The architecture of MoE-LLaVA includes a vision encoder, a visual projection layer (MLP), a word embedding layer, multiple stacked LLM blocks, and MoE blocks. The MoE-tuning process involves three stages: In Stage I, an MLP adapts visual tokens to the LLM. Stage II trains the whole LLM’s parameters except for the Vision Encoder (VE), and in Stage III, FFNs are used to initialize the experts in MoE, and only the MoE layers are trained.</li>
+  <li>The following image from the paper illustrates MoE-tuning. The MoE-tuning consists of three stages. In stage I, only the MLP is trained. In stage II, all parameters are trained except for the Vision Encoder (VE). In stage III, FFNs are used to initialize the experts in MoE, and only the MoE layers are trained. For each MoE layer, only two experts are activated for each token, while the other experts remain silent.</li>
+</ul>
+
+<p><img src="../../images/papers/MoE-LLaVA.html" alt="" /></p>
+
+<ul>
+  <li>The model was evaluated on various visual understanding datasets, demonstrating its efficiency and effectiveness. MoE-LLaVA’s performance was on par with or even superior to state-of-the-art models with fewer activated parameters. The paper also includes extensive ablation studies and visualizations to illustrate the effectiveness of the MoE-tuning strategy and the MoE-LLaVA architecture.</li>
+  <li>The paper provides a significant contribution to the field of multi-modal learning systems, offering insights for future research in developing more efficient and effective systems.</li>
+  <li><a href="https://github.com/PKU-YuanGroup/MoE-LLaVA">Code</a></li>
+</ul>
+
+<h3 id="mixture-of-lora-experts"><a href="https://arxiv.org/abs/2404.13628">Mixture of LoRA Experts</a></h3>
+
+<ul>
+  <li>This paper by Wu et al. from MSR Asia and Tsinghua University, published in ICLR 2024, proposes Mixture of LoRA Experts (MOLE), focusing on efficient composition of Low-Rank Adaptation (LoRA) techniques. It addresses the challenge of effectively integrating multiple trained LoRAs, a method previously developed to fine-tune large pre-trained models with minimal computational overhead.</li>
+  <li><strong>MOLE</strong> employs a hierarchical weight control approach where each layer of a LoRA is treated as an expert. By integrating a learnable gating function within each layer, MOLE determines optimal composition weights tailored to specific domain objectives. This method enhances the performance of LoRA compositions and preserves their flexibility, addressing the limitations of linear arithmetic and reference tuning-based compositions which either diminish generative capabilities or involve high training costs.</li>
+  <li>The figure below from the paper illustrates an overview of LoRA composition methods: (a) Linear arithmetic composition, which commonly applies the same composition weight \(\boldsymbol{W}_i\) to all layers of the \(i^{\text {th}}\) LoRA. (b) Reference tuning-based composition involves retraining a large model by integrating outputs from multiple LoRAs using manually-crafted mask information. (c) Our MoLE, which learns a distribution \(\Upsilon^j\) for the \(j^{\text {th}}\) layer of LoRAs to determine the composition weight \(\boldsymbol{W}_i^j\).</li>
+</ul>
+
+<p><img src="../../images/papers/MOLE.html" alt="" /></p>
+
+<ul>
+  <li>During the training phase, MOLE predicts weights for each expert using a gating function while keeping other parameters frozen, resulting in minimal computational costs. In the inference phase, MOLE can utilize all trained LoRAs with preserved characteristics or allow for manual masking of LoRAs to adjust weights dynamically without retraining.</li>
+  <li>The architecture incorporates gating functions at various hierarchical levels to effectively manage the contributions of different LoRA layers. The paper details two distinct inference modes facilitated by MOLE, enhancing its adaptability across various scenarios and tasks in both NLP and Vision &amp; Language domains.</li>
+  <li>The figure below from the paper illustrates the orkflow of MOLE. In the training phase, MOLE predicts weights for multiple LoRAs. In the inference phase, MOLE can allocate weights to multiple LoRAs, or, without altering the gating weights, achieve a more flexible LoRA composition by masking out undesired LoRAs and recalculating and distributing weights proportionally.</li>
+</ul>
+
+<p><img src="../../images/papers/MOLE2.html" alt="" /></p>
+
+<ul>
+  <li>Extensive experiments demonstrate that MOLE outperforms existing LoRA composition methods in terms of both qualitative and quantitative measures. Results from NLP and Vision &amp; Language tasks illustrate that MOLE consistently achieves superior performance compared to traditional composition methods, validating its approach in a real-world setting.</li>
+  <li><a href="https://github.com/yushuiwx/MoLE">Code</a></li>
+</ul>
+
+<h3 id="jetmoe-reaching-llama2-performance-with-01m-dollars"><a href="https://arxiv.org/abs/2404.07413">JetMoE: Reaching Llama2 Performance with 0.1M Dollars</a></h3>
+
+<ul>
+  <li>This paper by Shen et al. from MIT-IBM Watson AI Lab, MIT EECS, Princeton University, and MyShell.ai &amp; MIT introduces JetMoE-8B, a cost-effective large language model developed at the MIT-IBM Watson AI Lab, outperforming established models like Llama2-7B and Llama2-13B-Chat. JetMoE-8B extends the concept of sparse activation to both the attention and feed-forward layers. Despite being trained on a tight budget of under $100,000, JetMoE-8B employs 8 billion parameters, leveraging a Sparsely-gated Mixture-of-Experts (SMoE) architecture that activates only 2 billion parameters per input token. This architecture reduces inference computation by approximately 70% compared to Llama2-7B.</li>
+  <li>JetMoE-8B is trained using the Megatron framework with Megablock enhancements, using pipeline parallelism to optimize computational costs and load balance during training. Notably, it incorporates innovations like shared KV projection in attention layers and a frequency-based auxiliary loss for training efficiency.</li>
+  <li>The figure below from the paper illustrates the JetMoE architecture.</li>
+</ul>
+
+<p><img src="../../images/papers/JetMoE.html" alt="" /></p>
+
+<ul>
+  <li>For pretraining, JetMoE-8B utilized a mixture of real-world and synthetic datasets, totaling 1.25 trillion tokens. Datasets include RefinedWeb, StarCoder, and various components from The Pile, combined with synthetic datasets like OpenHermes 2.5 for diverse training inputs.</li>
+  <li>Utilized a two-phase training approach, incorporating a mix of real and synthetic datasets with adjustments in data weighting during the learning rate decay phase to enhance model performance.</li>
+  <li>The model underwent Distilled Supervised Fine-Tuning (dSFT) and Distilled Direct Preference Optimization (dDPO), refining model responses based on preferences from a teacher model to improve alignment with human-like conversational abilities.</li>
+  <li>JetMoE-8B’s performance was benchmarked against other models in tasks like ARC-challenge, Hellaswag, and MMLU, showing superior performance in many areas, particularly in code-related benchmarks like MBPP and HumanEval.</li>
+  <li>The training parameters, model configurations, and data mixtures are fully documented and made open-source to foster further academic and practical advancements in efficient LLM training methodologies.</li>
+  <li><a href="https://github.com/myshell-ai/JetMoE">Code</a></li>
+</ul>
+
+<h2 id="moe-models">MoE Models</h2>
+
+<h3 id="gpt-4"><a href="https://openai.com/research/gpt-4">GPT-4</a></h3>
+
+<ul>
+  <li>Read our GPT-4 primer <a href="../GPT-4.html">here</a>.</li>
+  <li>Per a <a href="https://www.reddit.com/r/mlscaling/comments/14eowmw/gpt4_rumors_a_mixtureofexperts_w8_gpt3220bs/">rumor</a>, GPT-4 might be an 8-way Mixture-of-Experts (MoE) model with 8 220B parameters (a total of 1.76T parameters).</li>
+  <li>A Mixture of Experts (MoE) model essentially revolves around a router that directs questions to the appropriate expert. If GPT-4 does adopt the MoE approach, it would consist of eight specialist models each trained in a specific domain, like mathematics, history, storytelling, etc. When a question is posed, the router analyses it and seamlessly forwards it to the most suitable expert.</li>
+  <li>The concept of MoE is quite prevalent (refer <a href="../../papers/index.html#outrageously-large-neural-networks-the-sparsely-gated-mixture-of-experts-layer">Outrageously Large Neural Networks: the Sparsely-Gated Mixture-of-Experts Layer</a>), with Langchain’s high-level implementation of an <a href="https://python.langchain.com/docs/modules/chains/foundational/router">LLMRouterChain</a>, and notable low-level integrated examples like Google’s Switch Transformer (refer <a href="../../papers/index.html#switch-transformers-scaling-to-trillion-parameter-models-with-simple-and-efficient-sparsity">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a>).</li>
+  <li>Per yet another <a href="https://archive.is/2RQ8X#selection-449.1-1067.86">rumor</a>, here are the specifics:
+    <ul>
+      <li><strong>Parameter count:</strong> GPT-4 is more than 10x the size of GPT-3; with a total of ~1.8 trillion parameters across 120 layers.</li>
+      <li><strong>Architecture:</strong> GPT-4 uses an MoE architecture; the main idea behind used an MoE model was to keep costs training/inference reasonable while ensuring great performance. In other words, it is not a dense transformer like, for instance, PaLM (or GPT-3). They utilizes 16 experts within their model, each is about ~111B parameters for MLP. 2 of these experts are routed per forward pass. There roughly ~55B shared parameters for attention.</li>
+      <li><strong>MoE routing:</strong> While the literature talks a lot about advanced routing algorithms for choosing which experts to route each token to, OpenAI’s is allegedly quite simple, for the current GPT-4 model.</li>
+      <li><strong>Inference:</strong> Each forward pass inference (generation of 1 token) only utilizes ~280B parameters and ~560 TFLOPs. This contrasts with the ~1.8 trillion parameters and ~3,700 TFLOP that would be required per forward pass of a purely dense model (vs. the MoE architecture that’s used).</li>
+      <li><strong>Dataset:</strong> GPT-4 is trained on ~13T tokens. These are not unique tokens, but the total amount of tokens seen over all epochs. There are millions of instruction fine-tuning data samples from ScaleAI &amp; internally (probably acquired through ChatGPT + their API before they changed the policy).</li>
+      <li><strong>Training epochs:</strong> 2 epochs for text-based data and 4 for code-based data.</li>
+      <li><strong>Training paradigm:</strong> For pre-training GPT-4 32K, they utilized an 8K context length. The 32K context version of GPT-4 was based on fine-tuning of the 8K after the pre-training. <a href="https://kaiokendev.github.io/context">Extending context is hard… but not impossible</a> is a good reference on how to achieve this.</li>
+      <li><strong>Batch size:</strong> The batch size was gradually ramped up over a number of days on the cluster, but by the end, OpenAI was using a batch size of 60 million! This, of course, is “only” a batch size of 7.5 million tokens per expert due to not every expert seeing all tokens. For the real batch size:** Divide this number by the context width to get the real batch size.</li>
+      <li><strong>Parallelism strategies:</strong> To parallelize across all their A100s GPUs, they utilized 8-way tensor parallelism as that is the limit for NVLink. Beyond that, they used 15-way pipeline parallelism. Also apparently they used DeepSpeed ZeRo Stage 1 or block-level FSDP.</li>
+      <li><strong>Training cost</strong>: OpenAI’s training FLOPS for GPT-4 is ~2.15e25, on ~25,000 A100s for 90 to 100 days at about 32% to 36% MFU. Part of this extremely low utilization is due to an absurd number of failures requiring checkpoints that needed to be restarted from. If their cost in the cloud was about $1 per A100 hour, the training costs for this run alone would be about $63 million. Had H100s been used, pre-training could be done with ~8,192 H100s in ~55 days for $21.5 million at $2 per H100 hour.</li>
+      <li><strong>MoE tradeoffs</strong>: There are multiple MoE tradeoffs taken; for example, MoE is incredibly difficult to deal with on inference because not every part of the model is utilized on every token generation. This means some parts may sit dormant when other parts are being used. When serving users, this really hurts utilization rates. Researchers have shown that using 64 to 128 experts achieves better loss than 16 experts, but that’s purely research. There are multiple reasons to go with fewer experts. One reason for OpenAI choosing 16 experts is because more experts are difficult to generalize at many tasks. More experts can also be more difficult to achieve convergence with. With such a large training run, OpenAI instead chose to be more conservative on the number of experts.</li>
+      <li><strong>GPT-4 inference cost</strong>: GPT-4 costs 3x that of the 175B parameter DaVinci. This is largely due to the larger clusters required for GPT-4 and much lower utilization achieved. An estimate of it’s costs is $0.0049 cents per 1K tokens for 128 A100s to inference GPT-4 8K context width and $0.0021 cents per 1K tokens for 128 H100s to inference GPT-4 8K context width. It should be noted that they assume decent high utilization and keep batch sizes large.</li>
+      <li><strong>Multi-Query Attention</strong>: GPT-4 uses MQA instead of MHA (MQA is a classic choice at this point). Because of that only 1 head is needed and memory capacity can be significantly reduced for the KV cache. Even then, the 32K context width GPT-4 definitely cannot run on 40GB A100s, and the 8K is capped on max batch size.</li>
+      <li><strong>Continuous batching</strong>: OpenAI implements both variable batch sizes and continuous batching. This is so as to allow some level of maximum latency as well optimizing the inference costs.</li>
+      <li><strong>Vision multi-modal</strong>: They have a separate vision encoder from the text encoder, with cross-attention. The architecture is similar to Google DeepMind’s <a href="../../papers/index.html#flamingo-a-visual-language-model-for-few-shot-learning">Flamingo</a>. This adds more parameters on top of the 1.8T text-only GPT-4. It is fine-tuned with another ~2 trillion tokens, after the text only pre-training. On the vision model, OpenAI wanted to train it from scratch, but it wasn’t mature enough, so they wanted to derisk it by starting with text. One of the primary purposes of this vision capability is for autonomous agents able to read web pages and transcribe what’s in images and video. Some of the data they train on is joint data (rendered LaTeX/text), screenshots of web pages, YouTube videos: sampling frames, and run Whisper around it to get transcript.</li>
+      <li><strong>Speculative decoding</strong>: OpenAI might be using speculative decoding on GPT-4’s inference. The idea is to use a smaller faster model to decode several tokens in advance, and then feeds them into a large oracle model as a single batch. If the small model was right about its predictions (i.e., the larger model agrees), we can decode several tokens in a single batch. But if the larger model rejects the tokens predicted by the draft model then the rest of the batch is discarded. And we continue with the larger model. <strong>The conspiracy theory that the new GPT-4 quality had been deteriorated might be simply because they are letting the oracle model accept lower probability sequences from the speculative decoding model.</strong>
+        <ul>
+          <li>Per <a href="https://twitter.com/karpathy/status/1697318534555336961">Andrej Karpathy</a>, speculative sampling/decoding/execution for LLMs is an excellent inference-time optimization. It hinges on the following unintuitive observation: forwarding an LLM on a single input token takes about as much time as forwarding an LLM on \(K\) input tokens in a batch (for larger \(K\) than what might be obvious). This unintuitive fact is because sampling is heavily memory bound: most of the “work” is not doing compute, it is reading in the weights of the transformer from VRAM into on-chip cache for processing. So if you’re going to do all that work of reading in all those weights, you might as well apply them to a whole batch of input vectors.
+            <ul>
+              <li>At batch_size=1 (i.e. just generating a single stream of prediction on your computer), the inference is super duper memory-bound. The on-chip compute units are twiddling their thumbs while sucking model weights through a straw from DRAM. Every individual weight that is expensively loaded from DRAM onto the chip is only used for a single instant multiply to process each new input token. So the stat to look at is not FLOPS but the memory bandwidth.</li>
+              <li>Let’s take a look:
+                <ul>
+                  <li>A100: 1935 GB/s memory bandwidth, 1248 TOPS</li>
+                  <li>MacBook M2: 100 GB/s, 7 TFLOPS</li>
+                </ul>
+              </li>
+              <li>The compute is ~200X but the memory bandwidth only ~20X. So the little M2 chip that could will only be about ~20X slower than a mighty A100. This is ~10X faster than you might naively expect just looking at ops.</li>
+              <li>The situation becomes a lot more different when you inference at a very high batch size (e.g. ~160+), such as when you’re hosting an LLM engine simultaneously serving a lot of parallel requests. Or in training, where you aren’t forced to go serially token by token and can parallelize across both batch and time dimension, because the next token targets (labels) are known. In these cases, once you load the weights into on-chip cache and pay that large fixed cost, you can re-use them across many input examples and reach ~50%+ utilization, actually making those FLOPS count.</li>
+              <li>In summary, why is LLM inference surprisingly fast on your MacBook? If all you want to do is batch 1 inference (i.e. a single “stream” of generation), only the memory bandwidth matters. And the memory bandwidth gap between chips is a lot smaller, and has been a lot harder to scale compared to flops.</li>
+            </ul>
+          </li>
+          <li>The reason we can’t naively use this fact to sample in chunks of \(K\) tokens at a time is that every \(N^{th}\) token depends on what token we sample at time at step \(N-1\). There is a serial dependency, so the baseline implementation just goes one by one left to right.</li>
+          <li>Now the clever idea is to use a small and cheap draft model to first generate a candidate sequence of \(K\) tokens – a “draft”. Then we feed all of these together through the big model in a batch. This is almost as fast as feeding in just one token, per the above. Then we go from left to right over the logits predicted by the model and sample tokens. Any sample that agrees with the draft allows us to immediately skip forward to the next token. If there is a disagreement then we throw the draft away and eat the cost of doing some throwaway work (sampling the draft and the forward passing for all the later tokens).</li>
+          <li>The reason this works in practice is that most of the time the draft tokens get accepted, because they are easy, so even a much smaller draft model gets them. As these easy tokens get accepted, we skip through those parts in leaps. The hard tokens where the big model disagrees “fall back” to original speed, but actually a bit slower because of all the extra work.</li>
+          <li>In summary, this one weird trick works because LLMs are memory bound at inference time, in the “batch size 1” setting of sampling a single sequence of interest, that a large fraction of “local LLM” use cases fall into. And because most tokens are “easy”.</li>
+          <li>More on this here: <a href="https://arxiv.org/abs/1811.03115">Blockwise Parallel Decoding for Deep Autoregressive Models</a>, <a href="https://arxiv.org/abs/2302.01318">Accelerating Large Language Model Decoding with Speculative Sampling</a>, and <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a></li>
+        </ul>
+      </li>
+      <li><strong>Inference architecture</strong>: The inference runs on a cluster of 128 GPUs. There are multiple of these clusters in multiple datacenters in different locations. It is done in 8-way tensor parallelism and 16-way pipeline parallelism. Each node of 8 GPUs has only ~130B parameters, or less than 30GB per GPU at FP16 and less than 15GB at FP8/int8. The model has 120 layers, so it fits in 15 different nodes. (Possibly the there are less layers on the first node since it needs to also compute the embeddings). According to these numbers: OpenAI should have trained on 2x the tokens if they were trying to go by Chinchilla’s optimal. This goes to show that they are struggling to get high quality data.</li>
+      <li><strong>Why no Fully Sharded Data Parallel (FSDP)?</strong> A possible reason for this could be that some of the hardware infra they secured is of an older generation. This is pretty common at local compute clusters as the organisation usually upgrade the infra in several “waves” to avoid a complete pause of operation. With such a high amount of pipeline parallelism it is very likely that they suffer from the “batch bubble”: slight idle time between batches.</li>
+      <li><strong>Dataset mixture</strong>: They trained on 13T tokens. CommonCrawl &amp; RefinedWeb are both 5T. Remove the duplication of tokens from multiple epochs and we get to a much reasonable number of “unaccounted for” tokens: the “secret” data – parts of it probably came from Twitter, Reddit, and YouTube. Some speculations are: LibGen (4M+ books), Sci-Hub (80M+ papers), all of GitHub. Part of the missing dataset could also be custom dataset of college textbooks collected by hand for as much courses as possible. This is very easy to convert to text form and than use <a href="../../papers/index.html#self-instruct-aligning-language-model-with-self-generated-instructions">Self-Instruct</a> to transform it into instruction form. This creates the “illusion” that GPT-4 “is smart” no matter who uses it: for computer scientists, it can help you with your questions about P!=NP; for a philosophy major, it can totally talk to you about epistemology. There are also papers that try to extract by force memorized parts of books from GPT-4 to understand what it trained on. There are some books it knows so well that it had seen them for sure. Moreover, it even knows the unique ids of project Euler problems.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="mixtral-mistrals-8x7b-moe-model">Mixtral: Mistral’s 8x7B MoE Model</h3>
+
+<ul>
+  <li>Mixtral 8x7B (56B params) from Mistral follows a Mixture of Experts (MoE) architecture, consisting of 8x 7B experts. With 8 experts and a router network that selects two of them at every layer for the inference of each token, it looks directly inspired from rumors about GPT-4’s architecture. This information can be derived from the model metadata:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="s">"dim"</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span> <span class="s">"n_layers"</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s">"head_dim"</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span> <span class="s">"hidden_dim"</span><span class="p">:</span> <span class="mi">14336</span><span class="p">,</span> <span class="s">"n_heads"</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s">"n_kv_heads"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s">"norm_eps"</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span> <span class="s">"vocab_size"</span><span class="p">:</span> <span class="mi">32000</span><span class="p">,</span> <span class="s">"moe"</span><span class="p">:</span> <span class="p">{</span><span class="s">"num_experts_per_tok"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">"num_experts"</span><span class="p">:</span> <span class="mi">8</span><span class="p">}}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>From GPT-4 leaks, we can speculate that GPT-4 is a MoE model with 8 experts, each with 111B parameters of their own and 55B shared attention parameters (166B parameters per model). For the inference of each token, also only 2 experts are used.</li>
+  <li>Since the model size (87GB) is smaller than 8x Mistral 7B (8*15GB=120GB), we could assume that the new model uses the same architecture as Mistral 7B but the attention parameters are shared, reducing the naïve 8x7B model size estimation.</li>
+  <li>The conclusion is that (probably) Mistral 8x7B uses a very similar architecture to that of GPT-4, but scaled down:
+    <ul>
+      <li>8 total experts instead of 16 (2x reduction).</li>
+      <li>7B parameters per expert instead of 166B (24x reduction).</li>
+      <li>42B total parameters (estimated) instead of 1.8T (42x reduction).</li>
+      <li>Free to use under Apache 2.0 license</li>
+      <li>Outperforms Llama 2 70B with 6x faster inference.</li>
+      <li>Matches or outperforms GPT-3.5</li>
+      <li>Multilingual: vastly outperforms LLaMA 2 70B on French, Italian, German and Spanish</li>
+      <li>Same 32K context as the original GPT-4.</li>
+    </ul>
+  </li>
+  <li>Each layer in a 8x MoE model has its FFN split into 8 chunks and a router picks 2 of them, while the attention weights are always used in full for each token. This means that if the new mistral model uses 5B parameters for the attention, you will use 5+(42-5)/4 = 14.25B params per forward pass.</li>
+  <li>Mixtral is basically 8 models in a trenchcoat: the feedforward layers of the decoder blocks are divided into 8 experts, and for each token, a router will decide which 2 experts to allocate the processing to. The advantage of this architecture is that even though you have \(7 \times 8B =  47B\) parameters in total (considering shared parameters which are not unique to each expery), the model is much cheaper and fast to run since only \(\frac{2}{8}\) experts are activated for each prediction.</li>
+</ul>
+
+<blockquote>
+  <p>But how do you maintain good performance with only \(\frac{1}{4}^{th}\) of your model running at one time? The image below <a href="https://www.linkedin.com/in/a-roucher/">(source)</a> gives us a view of the answer: there’s a marked specialization between experts, with one being stronger on logic, the other on history, and so on. The router knows which one is good at each subject, and like an excellent TV host, it carefully pick its experts to always get a good answer.</p>
+</blockquote>
+
+<p><img src="../assets/mixture-of-experts/MoEexperts.jpg" alt="" /></p>
+
+<ul>
+  <li>Mistral has also released Mixtral 8x7B Instruct v0.1 trained using supervised fine-tuning and direct preference optimization (DPO). It scores 8.3 on MT-Bench making it the best open-source model, with performance comparable to GPT3.5.</li>
+  <li>Mistral offers three chat endpoints with competitive pricing via Mistral AI La Plateforme:
+    <ul>
+      <li>Mistral-tiny: Mistral 7B Instruct v0.2, upgraded base model with higher context length 8K \(\rightarrow\) 32K and better finetuning, 6.84 \(\rightarrow\) 7.61 on MT Bench.</li>
+      <li>Mistral-small: Mistral 8x7B Instruct v0.1, matches or exceeds GPT-3.5 performance, multilingual.</li>
+      <li>Mistral-medium: Outperforms GPT-3.5 on all metrics, multilingual.</li>
+    </ul>
+  </li>
+  <li>They’ve also announced Mistral-embed, an embedding model with a 1024 embedding dimension, which achieves 55.26 on MTEB.</li>
+  <li>Refer <a href="https://youtu.be/ccBMRryxGog?si=QPmlkNMIDFnRTJGR&amp;t=1038">MoE Explanation</a>.</li>
+  <li><a href="https://mistral.ai/news/mixtral-of-experts/">Blog</a>; <a href="https://mistral.ai/news/la-plateforme/">La Plateforme</a>; <a href="https://huggingface.co/mistralai/Mixtral-8x7B-v0.1">Mixtral-8x7B-v0.1 Base model</a>; <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1">Mixtral-8x7B-v0.1 Instruct model</a>.</li>
+</ul>
+
+<h4 id="results">Results</h4>
+
+<ul>
+  <li>Benchmark results comparing against the other SOTA OSS models as of this writing: LLaMA-2, Yi-34B (from 01.AI led by Kai-Fu Lee), and DeepSeek-67B (a strong model made by a quant trading company).</li>
+</ul>
+
+<p><img src="../assets/LLM/MMoE.jpg" alt="" /></p>
+
+<h3 id="openmoe"><a href="https://github.com/XueFuzhao/OpenMoE">OpenMoE</a></h3>
+
+<ul>
+  <li>OpenMoE is a family of open-sourced MoE LLMs.</li>
+  <li>Colossal AI’s <a href="https://github.com/hpcaitech/ColossalAI/tree/main/examples/language/openmoe">PyTorch OpenMoE implementation</a> including both training and inference with expert parallelism.</li>
+</ul>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<ul>
+  <li><a href="https://huggingface.co/blog/moe">Mixture of Experts Explained</a></li>
+  <li><a href="https://mlfrontiers.substack.com/p/towards-understanding-the-mixtures">Towards Understanding the Mixtures of Experts Model</a></li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2020DistilledLossFunctions,
+  title   = {Loss Functions},
+  author  = {Chadha, Aman and Jain, Vinija},
+  journal = {Distilled AI},
+  year    = {2020},
+  note    = {\url{https://vinija.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/nlp/mixture-of-experts/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:59:25 GMT -->
+</html>

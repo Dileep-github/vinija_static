@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/concepts/model-compression/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:10 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Primers • Model Compression using Inference/Training Optimizations</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Primers • Model Compression using Inference/Training Optimizations</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#background" id="markdown-toc-background">Background</a></li>
+  <li><a href="#quantization" id="markdown-toc-quantization">Quantization</a>    <ul>
+      <li><a href="#background-precision" id="markdown-toc-background-precision">Background: Precision</a></li>
+      <li><a href="#definition" id="markdown-toc-definition">Definition</a></li>
+      <li><a href="#quantization-with-pytorch" id="markdown-toc-quantization-with-pytorch">Quantization with PyTorch</a>        <ul>
+          <li><a href="#dynamicruntime-quantization" id="markdown-toc-dynamicruntime-quantization">Dynamic/Runtime Quantization</a></li>
+          <li><a href="#post-training-static-quantization" id="markdown-toc-post-training-static-quantization">Post-Training Static Quantization</a></li>
+          <li><a href="#static-quantization-aware-training-qat" id="markdown-toc-static-quantization-aware-training-qat">Static Quantization-aware Training (QAT)</a></li>
+        </ul>
+      </li>
+      <li><a href="#device-and-operator-support" id="markdown-toc-device-and-operator-support">Device and Operator Support</a></li>
+      <li><a href="#integration-in-torchvision" id="markdown-toc-integration-in-torchvision">Integration in torchvision</a></li>
+      <li><a href="#choosing-an-approach" id="markdown-toc-choosing-an-approach">Choosing an approach</a></li>
+      <li><a href="#performance-results" id="markdown-toc-performance-results">Performance Results</a></li>
+      <li><a href="#accuracy-results" id="markdown-toc-accuracy-results">Accuracy results</a>        <ul>
+          <li><a href="#computer-vision-model-accuracy" id="markdown-toc-computer-vision-model-accuracy">Computer Vision Model accuracy</a></li>
+          <li><a href="#speech-and-nlp-model-accuracy" id="markdown-toc-speech-and-nlp-model-accuracy">Speech and NLP Model accuracy</a></li>
+        </ul>
+      </li>
+      <li><a href="#conclusion" id="markdown-toc-conclusion">Conclusion</a></li>
+      <li><a href="#quantization-in-other-frameworks-tensorflow-and-coreml" id="markdown-toc-quantization-in-other-frameworks-tensorflow-and-coreml">Quantization in other frameworks: TensorFlow and CoreML</a></li>
+      <li><a href="#how-far-can-we-go" id="markdown-toc-how-far-can-we-go">How far can we go?</a></li>
+      <li><a href="#use-case" id="markdown-toc-use-case">Use-case</a></li>
+      <li><a href="#further-reading" id="markdown-toc-further-reading">Further Reading</a></li>
+    </ul>
+  </li>
+  <li><a href="#knowledge-distillation" id="markdown-toc-knowledge-distillation">Knowledge distillation</a>    <ul>
+      <li><a href="#student-models-loss-function" id="markdown-toc-student-models-loss-function">Student model’s loss function</a></li>
+      <li><a href="#stochastically-two-models-can-never-be-the-same-so-how-do-we-handle-that-in-studentteacher-distillation" id="markdown-toc-stochastically-two-models-can-never-be-the-same-so-how-do-we-handle-that-in-studentteacher-distillation">Stochastically, two models can never be the same, so how do we handle that in student/teacher distillation</a></li>
+      <li><a href="#distillation-in-practice" id="markdown-toc-distillation-in-practice">Distillation in practice</a>        <ul>
+          <li><a href="#distillation-as-semi-supervised-learning" id="markdown-toc-distillation-as-semi-supervised-learning">Distillation as semi-supervised learning</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#pruning" id="markdown-toc-pruning">Pruning</a>    <ul>
+      <li><a href="#structured-vs-unstructured-pruning" id="markdown-toc-structured-vs-unstructured-pruning">Structured vs. Unstructured pruning</a></li>
+      <li><a href="#fine-tuning" id="markdown-toc-fine-tuning">Fine tuning</a></li>
+    </ul>
+  </li>
+  <li><a href="#deepspeed-and-zero-offload" id="markdown-toc-deepspeed-and-zero-offload">DeepSpeed and ZeRO-Offload</a></li>
+  <li><a href="#conclusion-1" id="markdown-toc-conclusion-1">Conclusion</a></li>
+  <li><a href="#mixed-precision-training" id="markdown-toc-mixed-precision-training">Mixed Precision Training</a>    <ul>
+      <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+      <li><a href="#under-the-hood" id="markdown-toc-under-the-hood">Under-the-hood</a>        <ul>
+          <li><a href="#how-mixed-precision-works" id="markdown-toc-how-mixed-precision-works">How mixed precision works</a></li>
+          <li><a href="#how-tensor-cores-work" id="markdown-toc-how-tensor-cores-work">How tensor cores work</a></li>
+        </ul>
+      </li>
+      <li><a href="#how-pytorch-automatic-mixed-precision-works" id="markdown-toc-how-pytorch-automatic-mixed-precision-works">How PyTorch automatic mixed precision works</a>        <ul>
+          <li><a href="#lossgradient-scaling" id="markdown-toc-lossgradient-scaling">Loss/Gradient Scaling</a></li>
+          <li><a href="#autocast-context-manager" id="markdown-toc-autocast-context-manager"><code class="language-plaintext highlighter-rouge">autocast</code> context manager</a></li>
+          <li><a href="#multiple-gpus" id="markdown-toc-multiple-gpus">Multiple GPUs</a></li>
+        </ul>
+      </li>
+      <li><a href="#mixed-precision-with-tensorflow" id="markdown-toc-mixed-precision-with-tensorflow">Mixed Precision with TensorFlow</a></li>
+      <li><a href="#performance-benchmarks" id="markdown-toc-performance-benchmarks">Performance benchmarks</a>        <ul>
+          <li><a href="#what-about-memory" id="markdown-toc-what-about-memory">What about memory?</a></li>
+        </ul>
+      </li>
+      <li><a href="#conclusion-2" id="markdown-toc-conclusion-2">Conclusion</a></li>
+      <li><a href="#key-takeways" id="markdown-toc-key-takeways">Key takeways</a></li>
+      <li><a href="#use-case-1" id="markdown-toc-use-case-1">Use-case</a></li>
+    </ul>
+  </li>
+  <li><a href="#aside-inference-optimizations" id="markdown-toc-aside-inference-optimizations">Aside: Inference optimizations</a></li>
+  <li><a href="#on-device-privacy" id="markdown-toc-on-device-privacy">On-Device Privacy</a></li>
+  <li><a href="#differential-privacy" id="markdown-toc-differential-privacy">Differential Privacy</a></li>
+  <li><a href="#federated-learning" id="markdown-toc-federated-learning">Federated Learning</a></li>
+  <li><a href="#low-rank-decomposition" id="markdown-toc-low-rank-decomposition">Low-rank decomposition</a></li>
+  <li><a href="#further-reading-1" id="markdown-toc-further-reading-1">Further Reading</a></li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+
+<ul>
+  <li>This article covers model inference/training optimization or compression concepts using topics such as model quantization/binarization, pruning, knowledge distillation, mixed precision training, and quantization aware training.</li>
+  <li>Each year, larger and larger models are able to find methods for extracting signal from the noise in machine learning. With the exponential increase in the parameter count of models, the computational requirements have also been blowing up exponentially (in both runtime and memory), which can be both costly when served out to customers or too slow or large to function in edge environments like a phone.</li>
+  <li>Researchers and practitioners have come up with many methods for optimizing neural networks to run faster or with less memory usage, enabling models to run efficiently on device (also called edge AI). This article covers some of the state-of-the-art methods to edge AI.</li>
+  <li>The image below, <a href="http://theaiedge.io/">(source)</a>, does a great job illustrating some of the methods we will see further in the article.</li>
+</ul>
+
+<p><img src="../assets/model-compression/comp.jpg" alt="" /></p>
+
+<h2 id="quantization">Quantization</h2>
+
+<h3 id="background-precision">Background: Precision</h3>
+
+<ul>
+  <li>Before we talk about quantization, let’s learn about precision. From <a href="https://blogs.nvidia.com/blog/2019/11/15/whats-the-difference-between-single-double-multi-and-mixed-precision-computing/">NVIDIA Blog: What’s the Difference Between Single-, Double-, Multi- and Mixed-Precision Computing?</a>, per the IEEE 754 floating point specification, double-precision format uses 64 bits, single-precision format uses 32 bits, while half-precision is 16 bits.</li>
+</ul>
+
+<p><img src="../assets/model-compression/ieee_formats.webp" alt="" /></p>
+
+<h3 id="definition">Definition</h3>
+
+<ul>
+  <li>
+    <p>Quantization generally refers to taking a model with parameters (<strong>weights</strong>, in all cases and <strong>activations</strong>, in most cases) trained at high precision (32 or 64 bits) and reducing the number of bits that each weight takes (for example down to 16, 8, or even fewer). In practice, this usually leads to a speedup of 2-4x (highest for nets with convolutions, based on experience).</p>
+  </li>
+  <li>
+    <p>Model quantization reduces the precision of parameters, usually converting from 32-bit float to 8-bit integer representations. This achieves around 4x model compression. However, lower precision can cause the model to diverge from its original converged state. To address this, “quantization aware training” fine-tunes the model after quantization on additional data to regain performance. “Post training quantization” skips this fine-tuning step and instead applies heuristics to alter the quantized weights directly to try preserving model accuracy. In both cases, the goal of quantization is to dramatically shrink model size with minimal impact on model predictions. The fine-tuning counteracts the performance drops typical of reduced precision, making quantization a valuable model optimization.</p>
+  </li>
+  <li>
+    <p>Why does this work? It turns out that for deep networks to work, we don’t need highly precise values for the network’s weights. With proper hardware support, processing deep learning kernels (a fancy term for mathematical operations) using fewer bits can be faster and more memory efficient simply because there’s fewer bits to compute (<code class="language-plaintext highlighter-rouge">torch.qint8</code> is 8 bits, and <code class="language-plaintext highlighter-rouge">torch.float32</code> is 32 bits, so 4x smaller).</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>Downsides: Depending on the level of quantization attempted, you might find that an operation you want (for example, a particular convolutional op or even something as simple as transpose) might not be implemented. Of course, as with all methods, you might also find that accuracy drops off too much to be useful.</p>
+</blockquote>
+
+<ul>
+  <li>From the TensorFlow docs:</li>
+</ul>
+
+<blockquote>
+  <p>We generally recommend 16-bit floats for GPU acceleration and 8-bit integer for CPU execution.</p>
+</blockquote>
+
+<h3 id="quantization-with-pytorch">Quantization with PyTorch</h3>
+
+<ul>
+  <li>PyTorch has support for special quantized tensors, which in their case corresponds to storing data in 8 or 16 bits. It’s important to understand one specific detail about how this works. If your network has a special structure that means that at some point all of the outputs are between <code class="language-plaintext highlighter-rouge">0</code> and <code class="language-plaintext highlighter-rouge">1</code> (e.g., from a sigmoid), then you might be able to choose a better, more specific quantization. This means that quantization needs to collect some data about how your network runs on representative inputs. In particular, most quantization happens via a method like <code class="language-plaintext highlighter-rouge">round(x * scalar)</code>, where <code class="language-plaintext highlighter-rouge">scalar</code> is a learned parameter (akin to BatchNorm).</li>
+</ul>
+
+<blockquote>
+  <p>Support for some of these operations are in libraries that are “external” to PyTorch (but loaded as required). Think of this like BLAS or MKL for quantized operations. FBGEMM is an implementation for servers, and QNNPACK is an implementation for mobile devices (now inside PyTorch proper).</p>
+</blockquote>
+
+<ul>
+  <li>Quantization occasionally has gotchas - accumulating in higher precision data types is often more stable than using lower precision values, especially if the input data has deep levels of an exponent. Picking the right precision for each operation can be nonobvious, so PyTorch has a <a href="https://pytorch.org/docs/stable/amp.html"><code class="language-plaintext highlighter-rouge">torch.cuda.amp</code></a> package to help you automatically cast different parts of your network to half precision (<code class="language-plaintext highlighter-rouge">torch.float16</code>) where it’s possible. If you want to do this manually, there’s some helpful tips on <a href="https://pytorch.org/docs/stable/amp.html">PyTorch: Automated Mixed Precision</a> page.</li>
+</ul>
+
+<blockquote>
+  <p>One of the very first things you can try is to take your existing model that’s all <code class="language-plaintext highlighter-rouge">torch.float32</code>, and run it using <code class="language-plaintext highlighter-rouge">torch.cuda.amp</code> and see if it still runs with accuracy. Half precision support is still relatively sparse in consumer GPUs, but it works on the very common V100/P100/A100.</p>
+</blockquote>
+
+<ul>
+  <li>
+    <p>If you want more control or want to deploy to a non-CUDA environment, there are three levels of manual quantization (under the label “eager mode quantization”) that you can try, depending on why you’re trying to quantize and how much you’re willing to sweat:</p>
+
+    <ul>
+      <li>Dynamic quantization: weights quantized with activations read/stored in floating point and quantized for compute</li>
+      <li>Static quantization: weights quantized, activations quantized, calibration required post training</li>
+      <li>Static quantization-aware training: weights quantized, activations quantized, quantization numerics modeled during training</li>
+    </ul>
+  </li>
+  <li>
+    <p>Please see <a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch: Introduction to Quantization on Pytorch</a> blog post for a more comprehensive overview of the tradeoffs between these quantization types.</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>Note that layer/operator coverage (Linear/Conv/RNN/LSTM/GRU/Attention) varies between dynamic and static quantization and is captured in the table below. Note that for FX quantization, the corresponding functionals are also supported.</p>
+</blockquote>
+
+<h4 id="dynamicruntime-quantization">Dynamic/Runtime Quantization</h4>
+
+<ul>
+  <li>The easiest method of quantization PyTorch supports is called dynamic quantization. This involves not just converting the weights to <code class="language-plaintext highlighter-rouge">int8</code> - as happens in <strong>all quantization variants</strong> - but also converting the activations to <code class="language-plaintext highlighter-rouge">int8</code> on the fly, just before doing the computation (hence “dynamic”). The computations will thus be performed using efficient <code class="language-plaintext highlighter-rouge">int8</code> matrix multiplication and convolution implementations, resulting in faster compute. However, the activations are read and written to memory in floating point format.</li>
+  <li>In other words, we store the weights of the network in the specified quantization, and then at <strong>runtime</strong>, activations are dynamically converted to the quantized format, combined with the (quantized) weights, then written in memory at full precision. Then the next layer quantizes those, combines with the next quantized weights, and so on. Why does this happen? My understanding is that <code class="language-plaintext highlighter-rouge">scalar</code> can be dynamically determined from the data, which means this is a data-free method.</li>
+  <li>How do we do this in PyTorch? PyTorch offers have a simple API for dynamic quantization in PyTorch. <code class="language-plaintext highlighter-rouge">torch.quantization.quantize_dynamic</code> takes in a model, as well as a couple other arguments, and produces a quantized model! Check out this <a href="https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html">end-to-end tutorial</a> illustrates this for a BERT model. As an example:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># quantize the LSTM and Linear parts of our network
+# and use the torch.qint8 type to quantize
+</span><span class="n">quantized_model</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">quantize_dynamic</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="p">{</span><span class="n">nn</span><span class="p">.</span><span class="n">LSTM</span><span class="p">,</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">},</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">qint8</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>There are many more knobs you can turn to make this better for your model. See more details in this <a href="https://pytorch.org/tutorials/recipes/recipes/dynamic_quantization.html">blog post</a>.</li>
+  <li>See the documentation for the function <a href="https://pytorch.org/docs/stable/quantization.html#torch.quantization.quantize_dynamic">here</a> an end-to-end example in our tutorials <a href="https://pytorch.org/tutorials/advanced/dynamic_quantization_tutorial.html">here</a> and <a href="https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html">here</a>.</li>
+</ul>
+
+<h4 id="post-training-static-quantization">Post-Training Static Quantization</h4>
+
+<ul>
+  <li>Runtime conversion to a full precision type and back is expensive. We can avoid that if we know what the distribution of activations will be, by say, recording real data flowing through the network.</li>
+  <li>One can further improve the performance (latency) by converting networks to use both integer arithmetic and int8 memory accesses. Static quantization performs the additional step of first feeding batches of data through the network and computing the resulting distributions of the different activations (specifically, this is done by inserting “observer” modules at different points that record these distributions). This information is used to determine how specifically the different activations should be quantized at inference time (a simple technique would be to simply divide the entire range of activations into 256 levels, but we support more sophisticated methods as well).</li>
+  <li>Importantly, this additional step allows us to pass quantized values between operations instead of converting these values to floats - and then back to ints - between every operation, resulting in a significant speed-up.</li>
+  <li>
+    <p>The following features are supported that allow users to optimize their static quantization:</p>
+
+    <ul>
+      <li><strong>Observers:</strong> you can customize observer modules which specify how statistics are collected prior to quantization to try out more advanced methods to quantize your data.
+        <ul>
+          <li>Observers are inserted using <code class="language-plaintext highlighter-rouge">torch.quantization.prepare</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Operator fusion:</strong> When you have access to data flowing through your network, PyTorch can also inspect your model and implement extra optimizations such as quantized operator fusion. You can fuse multiple operations into a single operation, saving on memory access while also improving the operation’s numerical accuracy.
+        <ul>
+          <li>To fuse modules, use <code class="language-plaintext highlighter-rouge">torch.quantization.fuse_modules</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Per-channel quantization:</strong> we can independently quantize weights for each output channel in a convolution/linear layer, which can lead to higher accuracy with almost the same speed.
+        <ul>
+          <li>Quantization itself is done using <code class="language-plaintext highlighter-rouge">torch.quantization.convert</code>.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Here’s an example of setting up the observers, running it with some data, and then exporting to a new statically quantized model:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># this is a default quantization config for mobile-based inference (ARM)
+</span><span class="n">model</span><span class="p">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">get_default_qconfig</span><span class="p">(</span><span class="s">'qnnpack'</span><span class="p">)</span>
+<span class="c1"># or set quantization config for server (x86)
+# model.qconfig = torch.quantization.get_default_config('fbgemm')
+</span>
+<span class="c1"># this chain (conv + batchnorm + relu) is one of a few sequences 
+# that are supported by the model fuser 
+</span><span class="n">model_fused</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">fuse_modules</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[[</span><span class="s">'conv'</span><span class="p">,</span> <span class="s">'bn'</span><span class="p">,</span> <span class="s">'relu'</span><span class="p">]])</span>
+
+<span class="c1"># insert observers
+</span><span class="n">model_with_observers</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">model_fused</span><span class="p">)</span>
+
+<span class="c1"># calibrate the model and collect statistics
+</span><span class="n">model_with_observers</span><span class="p">(</span><span class="n">example_batch</span><span class="p">)</span>
+
+<span class="c1"># convert to quantized version
+</span><span class="n">quantized_model</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">convert</span><span class="p">(</span><span class="n">model_with_observers</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="static-quantization-aware-training-qat">Static Quantization-aware Training (QAT)</h4>
+
+<ul>
+  <li>Quantization-aware training (QAT) is the third method, and the one that typically results in highest accuracy of these three. With QAT, all weights and activations are “fake quantized” during both the forward and backward passes of training: that is, float values are rounded to mimic int8 values, but all computations are still done with floating point numbers. Thus, all the weight adjustments during training are made while “aware” of the fact that the model will ultimately be quantized; after quantizing, therefore, this method usually yields higher accuracy than the other two methods.</li>
+  <li>Put simply, if you tell the training method some fact about how the network is used, the network will adapt to this information. How does this work? During the forward and backward passes, the model’s activations are rounded to the picked quantization. This means the model gets gradients based on rounded values, which means it “adjusts” to its limited capacity.</li>
+</ul>
+
+<blockquote>
+  <p>Very importantly, however, the actual backprop (i.e., the gradient descent of the weights) happens in full precision.</p>
+</blockquote>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">torch.quantization.prepare_qat</code> inserts fake quantization modules to model quantization. Mimicking the static quantization API, <code class="language-plaintext highlighter-rouge">torch.quantization.convert</code> actually quantizes the model once training is complete.</p>
+  </li>
+  <li>
+    <p>For example, in the <a href="https://pytorch.org/tutorials/advanced/static_quantization_tutorial.html">end-to-end example</a>, we load in a pre-trained model as <code class="language-plaintext highlighter-rouge">qat_model</code>, then we simply perform quantization-aware training using:</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># specify quantization config for QAT
+</span><span class="n">qat_model</span><span class="p">.</span><span class="n">qconfig</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">get_default_qat_qconfig</span><span class="p">(</span><span class="s">'fbgemm'</span><span class="p">)</span>
+
+<span class="c1"># prepare QAT
+</span><span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">prepare_qat</span><span class="p">(</span><span class="n">qat_model</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># convert to quantized version, removing dropout, to check for accuracy on each
+</span><span class="n">epochquantized_model</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">convert</span><span class="p">(</span><span class="n">qat_model</span><span class="p">.</span><span class="nb">eval</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Note: see the helpful tips under “Model Preparation for Quantization” <a href="https://pytorch.org/docs/stable/quantization.html">here</a> before using PyTorch quantization.</li>
+</ul>
+
+<h3 id="device-and-operator-support">Device and Operator Support</h3>
+
+<ul>
+  <li>
+    <p>Quantization support is restricted to a subset of available operators, depending on the method being used, for a list of supported operators, please see the documentation at <a href="https://pytorch.org/docs/stable/quantization.html">here</a>.</p>
+  </li>
+  <li>
+    <p>The set of available operators and the quantization numerics also depend on the backend being used to run quantized models. Currently quantized operators are supported only for CPU inference in the following backends: x86 and ARM. Both the quantization configuration (how tensors should be quantized and the quantized kernels (arithmetic with quantized tensors) are backend dependent. One can specify the backend by doing:</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">torchbackend</span><span class="o">=</span><span class="s">'fbgemm'</span>
+
+<span class="c1"># 'fbgemm' for server, 'qnnpack' for mobile
+</span><span class="n">my_model</span><span class="p">.</span><span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">quantization</span><span class="p">.</span><span class="n">get_default_qconfig</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="c1"># prepare and convert model
+# Set the backend on which the quantized kernels need to be run
+</span><span class="n">torch</span><span class="p">.</span><span class="n">backends</span><span class="p">.</span><span class="n">quantized</span><span class="p">.</span><span class="n">engine</span><span class="o">=</span><span class="n">backend</span>
+</code></pre></div></div>
+
+<ul>
+  <li>However, quantization aware training occurs in full floating point and can run on either GPU or CPU. Quantization aware training is typically only used in CNN models when post training static or dynamic quantization doesn’t yield sufficient accuracy. This can occur with models that are highly optimized to achieve small size (such as Mobilenet).</li>
+</ul>
+
+<h3 id="integration-in-torchvision">Integration in torchvision</h3>
+
+<ul>
+  <li>
+    <p>PyTorch has also enabled quantization for some of the most popular models in <a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">torchvision</a>: Googlenet, Inception, Resnet, ResNeXt, Mobilenet and Shufflenet. We have upstreamed these changes to torchvision in three forms:</p>
+
+    <ol>
+      <li>Pre-trained quantized weights so that you can use them right away.</li>
+      <li>Quantization ready model definitions so that you can do post-training quantization or quantization aware training.</li>
+      <li>A script for doing quantization aware training — which is available for any of these model though, as you will learn below, we only found it necessary for achieving accuracy with Mobilenet.</li>
+      <li>We also have a <a href="https://pytorch.org/tutorials/intermediate/quantized_transfer_learning_tutorial.html">tutorial</a> showing how you can do transfer learning with quantization using one of the torchvision models.</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="choosing-an-approach">Choosing an approach</h3>
+
+<ul>
+  <li>
+    <p>The choice of which scheme to use depends on multiple factors:</p>
+
+    <ul>
+      <li><strong>Model/Target requirements:</strong> Some models might be sensitive to quantization, requiring quantization aware training.</li>
+      <li><strong>Operator/Backend support:</strong> Some backends require fully quantized operators.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Currently, operator coverage in PyTorch is limited and may restrict the choices listed in the table below. The table below from <a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch: Introduction to Quantization on PyTorch</a> provides a guideline.</p>
+  </li>
+</ul>
+
+<p><img src="../assets/model-compression/archquant.jpg" alt="" /></p>
+
+<h3 id="performance-results">Performance Results</h3>
+
+<ul>
+  <li>Quantization provides a 4x reduction in the model size and a speedup of 2x to 3x compared to floating point implementations depending on the hardware platform and the model being benchmarked. The table below from <a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch: Introduction to Quantization on PyTorch</a> offers some sample results:</li>
+</ul>
+
+<p><img src="../assets/model-compression/perfres.jpg" alt="" /></p>
+
+<h3 id="accuracy-results">Accuracy results</h3>
+
+<ul>
+  <li>The tables below from <a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch: Introduction to Quantization on PyTorch</a> compares the accuracy of static quantized models with the floating point models on Imagenet. For dynamic quantization, we compared the F1 score of BERT on the GLUE benchmark for MRPC.</li>
+</ul>
+
+<h4 id="computer-vision-model-accuracy">Computer Vision Model accuracy</h4>
+
+<p><img src="../assets/model-compression/cvmodelacc.jpg" alt="" /></p>
+
+<h4 id="speech-and-nlp-model-accuracy">Speech and NLP Model accuracy</h4>
+
+<p><img src="../assets/model-compression/speechnlpmodelacc.jpg" alt="" /></p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<ul>
+  <li>To get started on quantizing your models in PyTorch, start with the tutorials on the <a href="https://pytorch.org/tutorials/#model-optimization">PyTorch website</a>.</li>
+  <li>If you are working with sequence data, start with…
+    <ul>
+      <li><a href="https://pytorch.org/tutorials/advanced/dynamic_quantization_tutorial.html">Dynamic quantization for LSTM</a>, or</li>
+      <li><a href="https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html">Dynamic quantization for BERT</a></li>
+    </ul>
+  </li>
+  <li>If you are working with image data then we recommend starting with the <a href="https://pytorch.org/tutorials/intermediate/quantized_transfer_learning_tutorial.html">transfer learning with quantization tutorial</a>. Then you can explore <a href="https://pytorch.org/tutorials/advanced/static_quantization_tutorial.html">static post training quantization</a>.
+    <ul>
+      <li>If you find that the accuracy drop with post training quantization is too high, then try <a href="https://pytorch.org/tutorials/advanced/static_quantization_tutorial.html">quantization aware training</a>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="quantization-in-other-frameworks-tensorflow-and-coreml">Quantization in other frameworks: TensorFlow and CoreML</h3>
+
+<ul>
+  <li>
+    <p>PyTorch-based quantization might not necessarily work in other production environments. In particular, when converting to Apple’s CoreML format, you need to just use their quantization (which might be limited to just 16-bit quantization). When using edge devices, be careful to check that quantization is possible (in Apple’s case the hardware is already computing everything in <code class="language-plaintext highlighter-rouge">fp16</code> on GPU, so you only save possibly the memory of the network’s weights).</p>
+  </li>
+  <li>
+    <p>TensorFlow has a similar set of steps as above, though the examples are focused on TFLite. Essentially, static and dynamic quantization are explained in the <a href="https://www.tensorflow.org/model_optimization/guide/quantization/post_training">Post-training quantization page</a>, and there’s a <a href="https://www.tensorflow.org/model_optimization/guide/quantization/training">QAT</a> page. The tradeoffs appear to be very similar, though there’s always some feature mismatch between PyTorch and TF.</p>
+  </li>
+</ul>
+
+<h3 id="how-far-can-we-go">How far can we go?</h3>
+
+<ul>
+  <li>Apparently down to 1 bit! There have been several <a href="https://arxiv.org/abs/1511.00363">attempts</a> <a href="https://arxiv.org/abs/1603.05279">over the</a> <a href="https://arxiv.org/abs/1909.13863">years</a> to create binary neural networks if you want the most extreme version of the accuracy vs speed tradeoff. For the most part, these are still research projects rather than usable ideas, though <a href="https://arxiv.org/abs/1909.13863">XNOR-Net++</a> seems to have been implemented in PyTorch.</li>
+</ul>
+
+<h3 id="use-case">Use-case</h3>
+
+<ul>
+  <li>Quantization’s goal is to increase inference speed. (In contrast, as we’ll see in the section on <a href="#mixed-precision-training">Mixed Precision Training</a>, Automatic Mixed Precision (AMP)’s main goal is to reduce training time.)</li>
+</ul>
+
+<h3 id="further-reading">Further Reading</h3>
+
+<ul>
+  <li><a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch official documentation: Introduction to Quantization on PyTorch</a></li>
+  <li><a href="https://pytorch.org/tutorials/advanced/static_quantization_tutorial.html">PyTorch official documentation: Advanced Quantization in PyTorch</a></li>
+  <li><a href="https://pytorch.org/docs/stable/quantization.html">PyTorch official documentation: Quantization</a></li>
+  <li><a href="https://coremltools.readme.io/docs/quantization">CoreML Tools documentation: Quantization</a></li>
+</ul>
+
+<h2 id="knowledge-distillation">Knowledge distillation</h2>
+<ul>
+  <li>Knowledge distillation is a technique in machine learning used to compress the knowledge of a large and complex model (teacher) into a smaller, more efficient model (student). This process is particularly valuable in deploying high-performing AI models to environments with limited computational resources, like mobile devices or embedded systems.</li>
+  <li>The paper <a href="https://arxiv.org/pdf/1503.02531.pdf">“Distilling the Knowledge in a Neural Network” by Geoffrey Hinton et al.</a> presents knowledge distillation as a method to transfer knowledge from a large, complex model (teacher) to a smaller, more efficient model (student). Key points include:</li>
+  <li><strong>Distillation Method:</strong> The student model is trained using ‘soft targets’ generated by the teacher model. These soft targets are the class probabilities produced by the teacher, providing richer information than hard targets (actual labels).</li>
+  <li><strong>Loss Function:</strong> The training uses a loss function combining the cross-entropy with soft targets (from the teacher model) and cross-entropy with correct labels. This function also accounts for temperature adjustments in softmax layers, ensuring the student model learns both the general structure and detailed information from the teacher.</li>
+  <li><strong>Empirical Results:</strong> Experiments demonstrate that knowledge distillation allows the student model to closely mimic the teacher’s performance, even with significantly fewer parameters. The approach is shown effective in various applications, including speech recognition and image classification.</li>
+  <li><strong>Theoretical Insights:</strong> The paper explores the rationale behind distillation, suggesting it’s akin to a form of data augmentation, where the student model gains insights from the teacher’s outputs.</li>
+  <li>This approach provides a means to deploy powerful models in resource-constrained environments by distilling knowledge into more compact forms without significant loss of accuracy.</li>
+  <li>The image below <a href="http://theaiedge.io/">(source: AiEdge.io)</a>, does a great job at illustrating this concept.</li>
+</ul>
+
+<p><img src="../assets/model-compression/modeldist.jpg" alt="" /></p>
+
+<h3 id="student-models-loss-function">Student model’s loss function</h3>
+<ul>
+  <li>In knowledge distillation, the loss function of the student model combines two types of cross-entropy: one with soft targets from the teacher model, and another with the correct labels (hard targets).</li>
+  <li>Soft targets are the output probabilities from the teacher model, which provide a richer training signal than hard targets. The function includes temperature adjustments in the softmax layers, which helps in softening the probabilities.</li>
+  <li>This approach enables the student model to learn not just the final output (as indicated by the hard targets) but also the nuances and general structure of the knowledge represented by the teacher model’s softened outputs.</li>
+  <li>The loss function for the student model in knowledge distillation is typically a combination of two components:
+    <ol>
+      <li><strong>Cross-Entropy with Soft Targets:</strong> This part involves the Kullback–Leibler (KL) divergence between the softened outputs of the teacher model and the student model. Soft targets are obtained by applying a temperature \(T\) to the softmax function in the teacher model. The higher the temperature, the softer the probability distribution, providing more information per training case than hard targets.</li>
+      <li><strong>Cross-Entropy with Correct Labels:</strong> This is the traditional cross-entropy loss between the student’s predictions and the actual hard targets (correct labels).</li>
+    </ol>
+  </li>
+  <li>The total loss function is often a weighted sum of these two components, with a temperature factor \(T\) applied to both terms to control the importance of each component. This dual approach allows the student model to learn detailed information from the teacher model’s predictions (soft targets) while still being anchored to the true labels (hard targets).</li>
+  <li>The student model’s loss function in knowledge distillation generally takes the following form:</li>
+</ul>
+
+\[\mathcal{L} = (1 - \alpha) \cdot \text{Cross-Entropy with Hard Targets} + \alpha \cdot T^2 \cdot \text{KL Divergence}(\text{Softened Teacher Outputs}, \text{Softened Student Outputs})\]
+
+<ul>
+  <li><strong>Temperature (T)</strong>: This is a scaling factor applied to the softmax function in both the teacher and student models. A higher temperature results in softer probability distributions, making the outputs less confident and more informative. The factor ( T^2 ) is included when computing the KL divergence component to maintain the gradients’ scale, as the gradients produced by the softened outputs are scaled down by a factor of ( T ).
+    <ul>
+      <li>In the context of knowledge distillation, “temperature” refers to a hyperparameter used in the softmax function during the training process. The softmax function typically outputs probabilities associated with each class in a classification task. By adjusting the temperature, the softmax function can produce a softer probability distribution over the classes. A higher temperature leads to probabilities that are more evenly distributed (softer), providing more information about the relative probabilities of incorrect classes, which is useful for training the student model. Conversely, a lower temperature makes the distribution sharper, closer to hard, one-hot encoded labels. This technique helps in transferring nuanced information from the teacher model to the student model.</li>
+    </ul>
+  </li>
+  <li>This loss function helps the student model learn both the specific (hard targets) and general (soft targets) aspects of the problem, balancing between mimicking the teacher’s behavior and achieving correct predictions on its own.</li>
+  <li>The image below <a href="https://www.v7labs.com/blog/knowledge-distillation-guide">(source)</a> gives a great visual representation of this:
+<img src="../assets/model-compression/1.jpg" alt="" /></li>
+</ul>
+
+<h3 id="stochastically-two-models-can-never-be-the-same-so-how-do-we-handle-that-in-studentteacher-distillation">Stochastically, two models can never be the same, so how do we handle that in student/teacher distillation</h3>
+<ul>
+  <li>In knowledge distillation, the goal is not to make the student model identical to the teacher model, but rather to transfer as much useful knowledge as possible.</li>
+  <li>Given the inherent differences in model architecture and capacity, the student model won’t replicate the teacher model exactly.</li>
+  <li>Instead, the focus is on ensuring the student model learns the underlying patterns and generalizations that the teacher model has learned.</li>
+  <li>The distillation process, especially through the use of softened outputs (soft targets) and a carefully designed loss function, helps in achieving this goal by guiding the student model to approximate the teacher’s decision boundaries and outputs as closely as possible within its capacity constraints.</li>
+</ul>
+
+<h3 id="distillation-in-practice">Distillation in practice</h3>
+<ul>
+  <li>The typical implementation of knowledge distillation involves several key steps:
+    <ul>
+      <li>Teacher Model Training: A large, complex model is trained on a dataset to achieve high accuracy. This model serves as the ‘teacher’.</li>
+      <li>Student Model Training: The student model, which is smaller and less complex, is then trained not only on the original dataset but also on the outputs of the teacher model. The goal is for the student to mimic the teacher’s predictions.</li>
+      <li>Loss Function: The loss function in knowledge distillation often combines traditional loss (like cross-entropy with the true labels) and a distillation loss, which measures how closely the student’s outputs match the teacher’s.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="distillation-as-semi-supervised-learning">Distillation as semi-supervised learning</h4>
+<ul>
+  <li>Knowledge distillation can be leveraged as a form of semi-supervised learning. This involves initially training a large, powerful teacher model on a limited set of labeled data. The teacher model then generates labels for a much larger set of unlabeled data. This expanded dataset, comprising both manually labeled and teacher-generated labels, is used to train a smaller, more efficient student model.</li>
+  <li>You can train a teacher model, which is a much more powerful model than the student, with a small set of labeled data. Next, use the teacher to automatically label unannotated data, which can be used to train a leaner, more efficient “student” network.</li>
+  <li>For e.g., <a href="https://arxiv.org/abs/1904.01624.pdf">Lessons from building acoustic models with a million hours of speech</a> by Parthasarathi and Strom (2019), used a small set of annotated data (green) to train a powerful but impractically slow “teacher” network to convert frequency-level descriptions of audio data into sequences of phones. The teacher, in turn, labeled a much larger set of unannotated data (red). They then used both datasets to train a leaner, more efficient “student” model.</li>
+</ul>
+
+<p><img src="../assets/model-compression/kd.gif" alt="" /></p>
+
+<h2 id="pruning">Pruning</h2>
+
+<ul>
+  <li>
+    <p>Pruning is <strong>removing some weights (i.e., connections) or entire neurons</strong> from a neural network after or during training. In practice, we can often remove <a href="https://arxiv.org/abs/1506.02626">90% of the parameters</a> in large deep neural networks without significantly affecting model performance.</p>
+  </li>
+  <li>Model pruning ultimately looks to remove unimportant weights from the network by learning which weights are actually important. Common techniques for neural network pruning involve analyzing the effect each weight has on the overall loss function. The gradient and second derivative of the loss with respect to each weight gives a sense of impact. Regularization methods like L1 and L2 that drive small magnitude weights to zero are also useful. More advanced “structured pruning” removes entire neurons, layers, or filters based on their cumulative impact, giving better optimization for inference speed. The goal of all these pruning approaches is to reduce redundant or non-essential parts of the model without significantly hurting loss function performance. This results in a slimmer, more efficient model.
+    <ul>
+      <li>The identification of weights with minimal impact in a neural network during pruning is typically based on certain criteria, such as the magnitude of the weights. Weights with smaller absolute values are often considered less important and are more likely to be pruned. The underlying assumption is that smaller weights contribute less to the output of the network. In some approaches, the importance of weights can also be evaluated based on other criteria, like their effect on the loss function. The selected weights are then either set to zero or entirely removed from the network.</li>
+    </ul>
+  </li>
+  <li>Pruning can be done at 3 stages:
+    <ol>
+      <li><strong>Early in Training:</strong>
+        <ul>
+          <li>Lottery Ticket Hypothesis: Involves identifying and retaining a subset of the network’s weights early in training.</li>
+        </ul>
+      </li>
+      <li><strong>Mid-Training:</strong>
+        <ul>
+          <li>Iterative Pruning: Repeatedly trains, prunes, and fine-tunes the network part-way through training.</li>
+        </ul>
+      </li>
+      <li><strong>After Full Training:</strong>
+        <ul>
+          <li>Magnitude-based Pruning: Removes weights with the smallest magnitudes after full training.</li>
+          <li>L1/L2 Norm-based Pruning: Prunes based on the L1/L2 norm of the weights.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>Why does this work? Let’s imagine that your model is a fully connected neural network with just one hidden layer, such that the input is size 1024, the hidden size is 100, and the output is 20 dimensions. Then the number of parameters (without bias) is 104400. If there’s a neuron in the hidden layer that never fires (or is ignored downstream) then removing it from the network saves 1044 parameters. Why not just train the smaller network right away? The most compelling explanation is something called the <a href="https://arxiv.org/abs/1803.03635">lottery ticket hypothesis</a>:</li>
+</ul>
+
+<blockquote>
+  <p>Any large network that trains successfully contains a subnetwork that is initialized such that - when trained in isolation - it can match the accuracy of the original network in at most the same number of training iterations.</p>
+</blockquote>
+
+<h3 id="structured-vs-unstructured-pruning">Structured vs. Unstructured pruning</h3>
+
+<ul>
+  <li>
+    <p>Removing neurons or choosing a subnetwork is what people consider <strong>structured pruning</strong>. However, a lot of methods (including TensorFlow’s <code class="language-plaintext highlighter-rouge">tensorflow_model_optimization</code> toolkit at this time and PyTorch’s <code class="language-plaintext highlighter-rouge">torch.nn.utils.prune</code>) are focused on sparsifying model weights so that they are more compressible (usually called <strong>unstructured pruning</strong>). This means the matrices are the same size, but some values are set to 0. This can save disk space using compression algorithms (such as run-length encoding or <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">byte-pair encoding</a>). When sparse model support fully lands in the various frameworks (i.e., you can multiply a sparse vector and a sparse matrix faster than the dense ones) you might be able to speed up inference as well.</p>
+  </li>
+  <li>
+    <p>For that reason, unstructured pruning (currently) doesn’t seem that useful, but essentially you can prune during or after training, and you pick a certain target sparsity (e.g., 80% of the weights of your network will be zeroed out). However, there’s <a href="https://arxiv.org/abs/2003.03033">a lot of confusion in this area</a> which makes it hard to recommend anything. TensorFlow has a a <a href="https://www.tensorflow.org/model_optimization/guide/pruning/">few guides</a> on pruning both during and after training and PyTorch has a <a href="https://pytorch.org/tutorials/intermediate/pruning_tutorial.html">tutorial</a> on pruning using some set of heuristics after training.</p>
+  </li>
+  <li>
+    <p>In the space of structured pruning, there’s still active research and no clear API. We can pick a metric to compute a relevance score for each neuron, and then remove the ones that have the least information content. Metrics that might be useful here are the <a href="https://christophm.github.io/interpretable-ml-book/shapley.html">Shapley value</a>, a Taylor approximation of the loss functions sensitivity to a neuron’s activation, or even a random neuron. Before you begin, check out <a href="https://www.tensorflow.org/model_optimization/guide/pruning/">PyTorch: Pruning Tutorial</a>. The <a href="https://github.com/marcoancona/TorchPruner">TorchPruner</a> library implements some of these automatically for <code class="language-plaintext highlighter-rouge">nn.Linear</code> and convolutions (nn.Conv1D, nn.Conv2D, etc) modules. Another library <a href="https://github.com/vainf/torch-pruning">Torch-Pruning</a> has support for a few more operations. One of the most well-known <a href="ons.html">older works</a> in this area prunes filters from a convnet using the L1 norm of the filter’s weights. However, this is still an active area of research.</p>
+  </li>
+</ul>
+
+<h3 id="fine-tuning">Fine tuning</h3>
+
+<ul>
+  <li>It’s standard practice to retrain the network after applying the pruning. Currently, the <a href="https://arxiv.org/pdf/2003.02389.pdf">best method</a> is basically to reset the learning rate (learning rate rewinding) and start retraining the network. If you’d like, you can use weight rewinding, which is resetting the weights for the unpruned parts of the network to their value earlier in training (e.g., 1/3 trained weights). My intuition on this is that it’s essentially training the lottery ticket subnetwork now that we’ve identified it.</li>
+  <li>Pruning removes weights or neurons, which can disrupt the learned patterns and the overall balance of the network. Without retraining, the network might not be able to compensate for the loss of these components, leading to a decrease in accuracy or effectiveness in performing its tasks. Essentially, the network would be operating with an architecture that it wasn’t trained to optimize, resulting in suboptimal performance.
+    <blockquote>
+      <p>Overall, a practitioner who is really interested in trying this should start with TorchPruner or <a href="https://github.com/vainf/torch-pruning">Torch-Pruning</a> and then try fine tuning the resulting network with learning rate rewinding. However, for most architectures (including ResNets because of skip connections) it’ll be pretty non-obvious how to trim the rest of the network around this.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="deepspeed-and-zero-offload">DeepSpeed and ZeRO-Offload</h2>
+
+<ul>
+  <li>Essentially, <a href="https://www.deepspeed.ai/">DeepSpeed</a> is a library that helps train large to extremely large models (e.g., 1bn+ parameters) faster and using less GPU memory. This works by exploiting smart parallelism and better caching. It comes in the form of an extension to PyTorch.</li>
+</ul>
+
+<h2 id="conclusion-1">Conclusion</h2>
+
+<ul>
+  <li>
+    <p>Deep learning researchers have spent a lot of time distilling large models using model-specific methods, and if you need to gain some performance, you might be able to find a pre-trained distilled version of the large model you’re currently using. For example, in NLP, HuggingFace makes it easy to access both DistilBert and TinyBert. In computer vision, Facebook Research’s <a href="https://github.com/facebookresearch/d2go">d2go</a> has a bunch of pretrained mobile-ready models, and they’ve specialized some distillation methods in <a href="https://ai.facebook.com/blog/data-efficient-image-transformers-a-promising-new-technique-for-image-classification/">DeiT</a>.</p>
+  </li>
+  <li>
+    <p><a href="https://arxiv.org/abs/1908.08962">Well-Read Students Learn Better: On the Importance of Pre-training Compact Models</a> makes a recommendation (with high quality ablation experiments) that for training BERT architectures, the best approach is:</p>
+
+    <ol>
+      <li>Pre-train a compact model architecture on the masked language model (MLM) objective developed by the original BERT papers (Devlin et al., 2018).</li>
+      <li>Take a large task-specific teacher model (e.g., if the task is NLI, the output is a distribution over the 3 classes (entailment, contradiction, neutral)), and perform basic response-based offline distillation on the pre-trained compact model from step 1.</li>
+      <li>Finally, if required, fine-tune the compact model from step 2 on the task-specific data (e.g., if the task is NER, train over the CoNLL 2003 dataset).</li>
+    </ol>
+  </li>
+  <li>
+    <p>One of the best advantages of this method (which they call Pre-trained Distillation (PD)) is that it’s architecture-agnostic. If you are going to use a compact NLP model in practice, it’s worth skimming the paper, especially section 6.</p>
+  </li>
+</ul>
+
+<h2 id="mixed-precision-training">Mixed Precision Training</h2>
+
+<h3 id="overview">Overview</h3>
+
+<ul>
+  <li>Mixed precision is a technique for substantially reducing neural net training time by performing as many operations as possible in half-precision floating point, <code class="language-plaintext highlighter-rouge">float16</code>, instead of the (PyTorch default) single-precision floating point, <code class="language-plaintext highlighter-rouge">float32</code> – it thus involves the use of both 16-bit and 32-bit floating-point types during training to make it run faster and use less memory. By keeping certain parts of the model in the 32-bit types for numeric stability, the model will have a lower step time and train equally as well in terms of the evaluation metrics such as accuracy.
+    <ul>
+      <li>The term “numeric stability” refers to how a model’s quality is affected by the use of a lower-precision dtype instead of a higher precision dtype. An operation is “numerically unstable” in <code class="language-plaintext highlighter-rouge">float16</code> or <code class="language-plaintext highlighter-rouge">bfloat16</code> if running it in one of those dtypes causes the model to have worse evaluation accuracy or other metrics compared to running the operation in float32.</li>
+    </ul>
+  </li>
+  <li>Today, most models use the <code class="language-plaintext highlighter-rouge">float32</code> dtype, which takes 32 bits of memory. However, there are two lower-precision dtypes, <code class="language-plaintext highlighter-rouge">float16</code> and <code class="language-plaintext highlighter-rouge">bfloat16</code>, each which take 16 bits of memory instead. Modern accelerators can run operations faster in the 16-bit dtypes, as they have specialized hardware to run 16-bit computations and 16-bit dtypes can be read from memory faster.</li>
+  <li>Put simply, the idea behind Automatic Mixed Precision (<a href="https://developer.nvidia.com/automatic-mixed-precision">AMP</a>) is that not all layers and operations require the precision of <code class="language-plaintext highlighter-rouge">float32</code>, hence it’s better to use lower precision. AMP takes care of what precision to use for what operation. It eventually helps speed up the training.</li>
+  <li>Mixed precision tries to match each op to its appropriate datatype, which as a by-product, can reduce your network’s runtime and memory footprint.</li>
+</ul>
+
+<h3 id="under-the-hood">Under-the-hood</h3>
+
+<ul>
+  <li>NVIDIA GPUs can run operations in <code class="language-plaintext highlighter-rouge">float16</code> faster than in <code class="language-plaintext highlighter-rouge">float32</code>, and TPUs can run operations in <code class="language-plaintext highlighter-rouge">bfloat16</code> faster than <code class="language-plaintext highlighter-rouge">float32</code>. Therefore, these lower-precision dtypes should be used whenever possible on those devices. However, variables and a few computations should still be in <code class="language-plaintext highlighter-rouge">float32</code> for numeric reasons so that the model trains to the same quality (cf. numerical stability in the section on <a href="#overview">Mixed Precision Overview</a>).</li>
+  <li>Recent generations of NVIDIA GPUs come loaded with special-purpose tensor cores specially designed for fast <code class="language-plaintext highlighter-rouge">fp16</code> matrix operations. Thus, max performance gains are observed on Tensor Core-enabled GPU architectures as we’ll see below in the section on <a href="#how-tensor-cores-work">How Tensor Cores Work</a>.</li>
+  <li>However, up until now these tensor cores have remained difficult to use, as it has required writing reduced precision operations into your model by hand. This is where the automatic in automatic mixed-precision training comes in. The <code class="language-plaintext highlighter-rouge">[torch.cuda.amp]()</code> API allows you to implement mixed precision training into your training scripts in just five lines of code!</li>
+</ul>
+
+<h4 id="how-mixed-precision-works">How mixed precision works</h4>
+
+<ul>
+  <li>Before we understand how mixed precision training works, let’s review a little bit about floating point numbers.</li>
+  <li>In computer engineering, decimal numbers like 1.0151 or 566132.8 are traditionally represented as floating point numbers. Since we can have infinitely precise numbers (think \(\pi\)), but limited space in which to store them, we have to make a compromise between precision (the number of decimals we can include in a number before we have to start rounding it) and size (how many bits we use to store the number).</li>
+  <li>Building upon what we discussed in the <a href="#background-precision">Background: Precision</a>, the technical standard for floating point numbers, IEEE 754 (for a deep dive please refer to the PyCon 2019 talk “Floats are Friends: making the most of IEEE754.00000000000000002”), sets the following standards:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">fp64</code>, aka double-precision or “double”, max rounding error of ~\(2^-{52}\).</li>
+      <li><code class="language-plaintext highlighter-rouge">fp32</code>, aka single-precision or “single”, max rounding error of ~\(2^-{23}\).</li>
+      <li><code class="language-plaintext highlighter-rouge">fp16</code>, aka half-precision or “half”, max rounding error of ~\(2^-{10}\).</li>
+    </ul>
+  </li>
+  <li>Python uses <code class="language-plaintext highlighter-rouge">fp64</code> for the float type. PyTorch, which is much more memory-sensitive, uses <code class="language-plaintext highlighter-rouge">fp32</code> as its default dtype instead.</li>
+</ul>
+
+<blockquote>
+  <p>The basic idea behind mixed precision training is simple: halve the precision (<code class="language-plaintext highlighter-rouge">fp32</code> \(\rightarrow\) <code class="language-plaintext highlighter-rouge">fp16</code>), halve the training time.</p>
+</blockquote>
+
+<ul>
+  <li>The hard part is doing so safely.</li>
+  <li>Notice that the smaller the floating point, the larger the rounding errors it incurs. Any operation performed on a “small enough” floating point number will round the value to zero! This is known as underflowing, and it’s a problem because many to most gradient update values created during backpropogation are extremely small but nevertheless non-zero. Rounding error accumulation during backpropogation can turn these numbers into zeroes or nans; this creates inaccurate gradient updates and prevents your network from converging.</li>
+  <li>The 2018 ICLR paper <a href="https://arxiv.org/pdf/1710.03740.pdf">Mixed Precision Training</a> found that naively using <code class="language-plaintext highlighter-rouge">fp16</code> everywhere “swallows” gradient updates smaller than \(2^{-24}\) in value — around 5% of all gradient updates made by their example network:</li>
+</ul>
+
+<p><img src="../assets/model-compression/mpt.avif" alt="" /></p>
+
+<ul>
+  <li>Mixed precision training is a set of techniques which allows you to use <code class="language-plaintext highlighter-rouge">fp16</code> without causing your model training to diverge. It’s a combination of three different techniques.
+    <ol>
+      <li>Maintain two copies of the weights matrix, a “master copy” in <code class="language-plaintext highlighter-rouge">fp32</code>, and a half-precision copy of it in <code class="language-plaintext highlighter-rouge">fp16</code>. Gradient updates are calculated using the <code class="language-plaintext highlighter-rouge">fp16</code> matrix but applied to the <code class="language-plaintext highlighter-rouge">fp32</code> matrix. This makes applying the gradient update much safer.</li>
+      <li>Different vector operations accumulate errors at different rates, so treat them differently. Some operations are always safe in <code class="language-plaintext highlighter-rouge">fp16</code>, but others are only reliable in <code class="language-plaintext highlighter-rouge">fp32</code>. Instead of running the entire neural network in <code class="language-plaintext highlighter-rouge">fp16</code>, run some parts in halves and others in singles. This mixture of dtypes is why this technique is called “mixed precision”.</li>
+      <li>Use loss/gradient scaling. Loss scaling means multiplying the output of the loss function by some scalar number (the paper suggests starting with 8) before performing back-propagation. Multiplicative increases in the loss values create multiplicative increases in gradient update values, “lifting” many gradient update values above the \(2^{-24}\) threshold for <code class="language-plaintext highlighter-rouge">fp16</code> safety. Just make sure to undo the loss scaling before applying the gradient update, and don’t pick a loss scaling so large that it produces inf weight updates (<strong>overflowing</strong>), causing the network to diverge in the other direction.</li>
+    </ol>
+  </li>
+  <li>Combining these three techniques in tandem allowed the authors to train a variety of networks to convergence in significantly expedited time. For benchmarks, please refer the <a href="https://arxiv.org/pdf/1710.03740.pdf">paper</a>.</li>
+</ul>
+
+<h4 id="how-tensor-cores-work">How tensor cores work</h4>
+
+<ul>
+  <li>While mixed precision training saves memory everywhere (an <code class="language-plaintext highlighter-rouge">fp16</code> matrix is half the size of a <code class="language-plaintext highlighter-rouge">fp32</code> one), it doesn’t provide a model training speedup without special GPU support. There needs to be something on the chip that accelerates half-precision operations. In recent generations of NVIDIA GPUs, there is: tensor cores.</li>
+  <li>Tensor cores are a new type of processing unit that’s optimized for a single very specific operation: multiplying two 4 x 4 <code class="language-plaintext highlighter-rouge">fp16</code> matrices together and adding the result to a third 4 x 4 <code class="language-plaintext highlighter-rouge">fp16</code> or <code class="language-plaintext highlighter-rouge">fp32</code> matrix (a “fused multiply add”).</li>
+</ul>
+
+<p><img src="../assets/model-compression/tensor.avif" alt="" /></p>
+
+<ul>
+  <li>Larger <code class="language-plaintext highlighter-rouge">fp16</code> matrix multiplication operations can be implemented using this operation as their basic building block. And since most of backpropagation boils down to matrix multiplication, tensor cores are applicable to almost any computationally intensive layer in the network.</li>
+</ul>
+
+<blockquote>
+  <p>The catch: the input matrices must be in <code class="language-plaintext highlighter-rouge">fp16</code>. <strong>If you’re training on a GPU with tensor cores and not using mixed precision training, you’re not getting 100% out of your GPU!</strong> A standard PyTorch model defined in <code class="language-plaintext highlighter-rouge">fp32</code> will never land any <code class="language-plaintext highlighter-rouge">fp16</code> math onto the chip, so all of those <code class="language-plaintext highlighter-rouge">fp16</code> cores will remain idle.</p>
+</blockquote>
+
+<ul>
+  <li>Tensor cores were introduced in late 2017 in the last-gen Volta architecture, saw improvement in current-gen Turing, and will see further refinements in the still-forthcoming Ampere. The two GPUs generally available on the cloud that support are the <a href="https://www.nvidia.com/en-us/data-center/v100/">V100</a> (5120 CUDA cores, 600 tensor cores) and the T4 (2560 CUDA cores, 320 tensor cores).</li>
+  <li>One other piece of the puzzle worth keeping in mind is firmware. Although all versions of CUDA 7.0 or higher supports tensor core operations, early implementations <a href="https://www.reddit.com/r/MachineLearning/comments/bp0wox/d_training_nns_with_`fp16`_in_tensorflow/eno6n1d/">are reputedly very buggy</a>, so it’s important to be on CUDA 10.0 or higher.</li>
+</ul>
+
+<h3 id="how-pytorch-automatic-mixed-precision-works">How PyTorch automatic mixed precision works</h3>
+
+<ul>
+  <li>
+    <p>With that important background out of the way, we’re finally ready to dig into the new PyTorch <code class="language-plaintext highlighter-rouge">amp</code> API.</p>
+  </li>
+  <li>
+    <p>Mixed precision training has technically been possible forever: run sections of your network in <code class="language-plaintext highlighter-rouge">fp16</code> manually and implement loss scaling yourself. The exciting thing in automatic mixed-precision training is the “automatic” part. There’s just a couple of new API primitives to learn: <code class="language-plaintext highlighter-rouge">torch.cuda.amp.GradScalar</code> and <code class="language-plaintext highlighter-rouge">torch.cuda.amp.autocast</code>. Enabling mixed precision training is as simple as slotting these into the right places in your training script!</p>
+  </li>
+  <li>
+    <p>To demonstrate, here’s an excerpt of the training loop for a network using mixed-precision training. <code class="language-plaintext highlighter-rouge"># NEW</code> marks spots where new code got added.</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="bp">self</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">max_lr</span><span class="p">)</span>
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">lr_scheduler</span><span class="p">.</span><span class="n">OneCycleLR</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_lr</span><span class="p">,</span>
+    <span class="n">cycle_momentum</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">n_epochs</span><span class="p">,</span>
+    <span class="n">steps_per_epoch</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span><span class="p">)),</span>
+<span class="p">)</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">DataLoader</span><span class="p">(</span>
+    <span class="n">torch</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">TensorDataset</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+
+<span class="c1"># NEW
+</span><span class="n">scaler</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">amp</span><span class="p">.</span><span class="n">GradScaler</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">n_epochs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">X_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batches</span><span class="p">):</span>
+        <span class="n">X_batch</span> <span class="o">=</span> <span class="n">X_batch</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">y_batch</span> <span class="o">=</span> <span class="n">y_batch</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+        <span class="c1"># NEW
+</span>        <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">amp</span><span class="p">.</span><span class="n">autocast</span><span class="p">():</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_batch</span><span class="p">).</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span>
+
+        <span class="c1"># NEW
+</span>        <span class="n">scaler</span><span class="p">.</span><span class="n">scale</span><span class="p">(</span><span class="n">loss</span><span class="p">).</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">lv</span> <span class="o">=</span> <span class="n">loss</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">cpu</span><span class="p">().</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Epoch </span><span class="si">{</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">n_epochs</span><span class="si">}</span><span class="s">; Batch </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">; Loss </span><span class="si">{</span><span class="n">lv</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1"># NEW
+</span>        <span class="n">scaler</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="n">scaler</span><span class="p">.</span><span class="n">update</span><span class="p">()</span>
+        
+        <span class="n">scheduler</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h4 id="lossgradient-scaling">Loss/Gradient Scaling</h4>
+
+<ul>
+  <li>If the forward pass for a particular op has <code class="language-plaintext highlighter-rouge">float16</code> inputs, the backward pass for that op will produce <code class="language-plaintext highlighter-rouge">float16</code> gradients. Gradient values with small magnitudes may not be representable in <code class="language-plaintext highlighter-rouge">float16</code>. These values will flush to zero (“underflow”), so the update for the corresponding parameters will be lost.</li>
+  <li>To prevent underflow, “gradient scaling” multiplies the network’s loss(es) by a scale factor and invokes a backward pass on the scaled loss(es). Gradients flowing backward through the network are then scaled by the same factor. In other words, gradient values have a larger magnitude, so they don’t flush to zero.</li>
+  <li>
+    <p>The new PyTorch <code class="language-plaintext highlighter-rouge">GradScaler</code> object is PyTorch’s implementation of loss scaling. Recall from the section “How mixed precision works” that some form of loss scaling is necessary to keep gradients from rounding down to 0 during training. The optimal loss multiplier is one sufficiently high to retain very small gradients, but not so high that it causes very large gradients to round up to <code class="language-plaintext highlighter-rouge">inf</code>, creating the opposite problem.</p>
+  </li>
+  <li>
+    <p>However, there is no one loss multiplier that will work for every network. The optimal multiplier is also very likely to change over time, as gradients are typically much larger at the start of training than at the end. How do you find the optimal loss multiplier without giving the user another hyperparameter that they have to tune?</p>
+  </li>
+  <li>
+    <p>PyTorch uses <strong>exponential backoff</strong> to solve this problem. <code class="language-plaintext highlighter-rouge">GradScalar</code> starts with a small loss multiplier, which every so often it doubles. This gradual doubling behavior continues until GradScalar encounters a gradient update containing <code class="language-plaintext highlighter-rouge">inf</code> values. <code class="language-plaintext highlighter-rouge">GradScalar</code> discards this batch (e.g. the gradient update is skipped), halves the loss multiplier, and resets its doubling cooldown.</p>
+  </li>
+  <li>Stepping the loss multiplier up and down in this way allows PyTorch to approximate the appropriate loss multiplier over time. Readers familiar with TCP congestion control should find the core ideas here very familiar! The exact numbers used by the algorithm are configurable, and you can read the defaults right out of the docstring:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">amp</span><span class="p">.</span><span class="n">GradScaler</span><span class="p">(</span>
+    <span class="n">init_scale</span><span class="o">=</span><span class="mf">65536.0</span><span class="p">,</span> <span class="n">growth_factor</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">growth_interval</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">GradScalar</code> needs to exert control over the gradient update calculations (to check for overflow) and over the optimizer (to turn discarded batches into a no-op) to implement its behavior. This is why <code class="language-plaintext highlighter-rouge">loss.backwards()</code> is replaced with <code class="language-plaintext highlighter-rouge">scaler.scale(loss).backwards()</code> and <code class="language-plaintext highlighter-rouge">optimizer.step()</code> is replaced with <code class="language-plaintext highlighter-rouge">scaler.step(optimizer)</code>.</p>
+  </li>
+  <li>
+    <p>It’s notable that <code class="language-plaintext highlighter-rouge">GradScalar</code> will detect and stop overflows (because inf is always bad), but it has no way to detect and stop underflows (because 0 is often a legitimate value). If you pick an <code class="language-plaintext highlighter-rouge">init_scale</code> that’s too low and a <code class="language-plaintext highlighter-rouge">growth_interval</code> that’s too high, your network may underflow and diverge before GradScalar can intervene. For this reason it’s probably a good idea to pick a very large starting value, and with default <code class="language-plaintext highlighter-rouge">init_scale=65536</code> (\(2^{16}\)) that does seem to be the approach that PyTorch is following.</p>
+  </li>
+  <li>Finally, note that GradScalar is a stateful object. Checkpointing a model using this feature will require writing it to and reading it from disk in alongside your model weights. This is easy to do using the <code class="language-plaintext highlighter-rouge">state_dict</code> and <code class="language-plaintext highlighter-rouge">load_state_dict</code> object methods (covered <a href="https://pytorch.org/docs/master/amp.html#torch.cuda.amp.GradScaler.state_dict">here</a> in the PyTorch docs).</li>
+  <li>As an implementation detail, note that in PyTorch, each parameter’s gradient (<code class="language-plaintext highlighter-rouge">.grad</code> attribute) should be unscaled before the optimizer updates the parameters, so the scale factor does not interfere with the learning rate.</li>
+</ul>
+
+<h4 id="autocast-context-manager"><code class="language-plaintext highlighter-rouge">autocast</code> context manager</h4>
+
+<ul>
+  <li>
+    <p>The other half of the automatic mixed-precision training puzzle is the torch.cuda.amp.autocast context manager. Autocast implements <code class="language-plaintext highlighter-rouge">fp32</code> -&gt; <code class="language-plaintext highlighter-rouge">fp16</code> behavior. Recall from “How mixed precision works” that, because different operations accumulate errors at different rates, not all operations are safe to run in <code class="language-plaintext highlighter-rouge">fp16</code>. The following screenshots taken from <a href="https://pytorch.org/docs/master/amp.html#autocast-op-reference">the amp module documentation</a> covers how autocast treats the various operations available in PyTorch:</p>
+  </li>
+  <li>
+    <p>This list predominantly consists of two things, matrix multiplication and convolutions. The simple linear function is also present.</p>
+  </li>
+</ul>
+
+<p><img src="../assets/model-compression/ops_widest.avif" alt="" /></p>
+
+<ul>
+  <li>These operations are safe in <code class="language-plaintext highlighter-rouge">fp16</code>, but have up-casting rules to ensure that they don’t break when given a mixture of <code class="language-plaintext highlighter-rouge">fp16</code> and <code class="language-plaintext highlighter-rouge">fp32</code> input. Note that this list includes two other fundamental linear algebraic operations: matrix/vector dot products and vector cross products.</li>
+</ul>
+
+<p><img src="../assets/model-compression/autocast_f32.avif" alt="" /></p>
+
+<ul>
+  <li>
+    <p>Logarithms, exponents, trigonometric functions, normal functions, discrete functions, and (large) sums are unsafe in <code class="language-plaintext highlighter-rouge">fp16</code> and must be performed in <code class="language-plaintext highlighter-rouge">fp32</code>.</p>
+  </li>
+  <li>
+    <p>Looking through the list, it seems to me that most layers would benefit from autocasting, thanks to their internal reliance on fundamental linear algebra operations, but most activation functions would not. Convolutional layers stand out as potentially the biggest winner.</p>
+  </li>
+  <li>
+    <p>Enabling autocasting is pretty simple. All you need to do is wrap the forward pass of your model using the <code class="language-plaintext highlighter-rouge">autocast</code> context manager:</p>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">amp</span><span class="p">.</span><span class="n">autocast</span><span class="p">():</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_batch</span><span class="p">).</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Wrapping the forward pass in this way automatically enables autocasting on the backwards pass (e.g. <code class="language-plaintext highlighter-rouge">loss.backwards()</code>) as well, so you don’t need to call autocast twice.</li>
+  <li>So long as you follow best practices for using PyTorch (avoiding in-place operations, for example), autocasting basically “just works”.</li>
+</ul>
+
+<h4 id="multiple-gpus">Multiple GPUs</h4>
+
+<ul>
+  <li>Autocasting even works out-of-the-box with the multi-GPU <code class="language-plaintext highlighter-rouge">DistributedDataParallel</code> API (so long as you follow the recommended strategy of using one process per GPU). It works with the <code class="language-plaintext highlighter-rouge">DataParallel</code> multi-GPU API too, <a href="https://pytorch.org/docs/master/notes/amp_examples.html#dataparallel-in-a-single-process">with one small adjustment</a>.</li>
+  <li>The “Working with multiple GPUs” section of the <a href="https://pytorch.org/docs/master/notes/amp_examples.html#working-with-multiple-gpus">Automatic Mixed Precision Examples</a> page in the PyTorch docs is a handy reference on this subject. The one major “gotcha” (IMO) to keep in mind: “<a href="https://pytorch.org/docs/master/amp.html#prefer-binary-cross-entropy-with-logits-over-binary-cross-entropy">prefer binary cross entropy with logits over binary cross entropy</a>”.</li>
+</ul>
+
+<h3 id="mixed-precision-with-tensorflow">Mixed Precision with TensorFlow</h3>
+
+<ul>
+  <li>For a guide on how to do mixed precision with TensorFlow, please refer <a href="https://www.tensorflow.org/guide/mixed_precision">TensorFlow: Mixed Precision</a>.</li>
+</ul>
+
+<h3 id="performance-benchmarks">Performance benchmarks</h3>
+
+<ul>
+  <li>Let’s look at some real-world performance benchmarks over three very different neural networks with and without automatic mixed precision. The training setup involved V100s (last-gen tensor cores) and T4s (current-gen tensor cores), using the <a href="https://spell.ml/docs/run_overview/">Spell API</a> on AWS EC2 instances, <code class="language-plaintext highlighter-rouge">p3.2xlarge</code> and <code class="language-plaintext highlighter-rouge">g4dn.xlarge</code> respectively, and a recent PyTorch build with CUDA 10.0.</li>
+  <li>All of the models converged equally, e.g. none of the models saw any difference in training loss between the mixed precision and vanilla network. The networks trained were:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">Feedforward</code>, a feedforward neural network trained on data from the <a href="https://www.kaggle.com/c/rossmann-store-sales">Rossman Store Samples</a> competition on Kaggle. Get the code <a href="https://github.com/ResidentMario/spell-feedforward-rossman">here</a>.</li>
+      <li><code class="language-plaintext highlighter-rouge">UNet</code>, a medium-sized vanilla <a href="https://arxiv.org/abs/1505.04597">UNet image segmentation net</a> trained on the <a href="https://www.kaggle.com/residentmario/segmented-bob-ross-images">Segmented Bob Ross Images</a> corpus. Get the code <a href="https://github.com/ResidentMario/spell-unet-bob-ross">here</a>.</li>
+      <li><code class="language-plaintext highlighter-rouge">BERT</code>, a large NLP <a href="https://jalammar.github.io/illustrated-transformer/">transformer</a> model using the <code class="language-plaintext highlighter-rouge">bert-base-uncased</code> model backbone (via <a href="https://huggingface.co/bert-base-uncased">huggingface</a>) and data from the <a href="https://www.kaggle.com/c/tweet-sentiment-extraction">Twitter Sentiment Extraction</a> competition on Kaggle. Get the code <a href="https://github.com/ResidentMario/spell-tweet-sentiment-extraction">here</a>.</li>
+    </ul>
+  </li>
+  <li>The results:</li>
+</ul>
+
+<p><img src="../assets/model-compression/amp_time.avif" alt="" /></p>
+
+<ul>
+  <li>Observations from the results:</li>
+  <li>Because the feedforward network is very small, it gets no benefit from mixed precision training.</li>
+  <li>UNet, a medium-sized convolutional model with 7,703,497 total parameters, sees significant benefits from enabling mixed precision training. Interestingly, though the V100 and T4 both benefit from mixed precision training, the benefit to the T4 is much greater: a 5% time save versus a whopping 30% time save.</li>
+  <li>BERT is a large model, and it’s where the time savings of using mixed precision training go from “nice” to “must-have”. Automatic mixed precision will cut training time for large models trained on Volta or Turing GPU by 50 to 60 percent! 🔥</li>
+  <li>This is a huge, huge benefit, especially when you take into account the minimal complexity required — just four or five LOC to your model training script.</li>
+</ul>
+
+<blockquote>
+  <p>Based on the aforementioned training time uplifts, <strong>,ixed precision should be one of the first performance optimization you make to your model training scripts.</strong></p>
+</blockquote>
+
+<h4 id="what-about-memory">What about memory?</h4>
+
+<ul>
+  <li>As explained in the section above on <a href="#how-mixed-precision-works">How mixed precision works</a>, a <code class="language-plaintext highlighter-rouge">fp16</code> matrix is half the size of a <code class="language-plaintext highlighter-rouge">fp32</code> matrix in memory, so another purported advantage of mixed precision training is memory usage. GPU memory is much less of a bottleneck than GPU compute, but it’s still pretty valuable to optimize. The more efficient your memory usage, the larger the batch sizes you can fit on the GPU.</li>
+  <li>
+    <p>PyTorch reserves a certain amount of GPU memory at the beginning of the model training process and holds onto that memory for the duration of the training job. This keeps other processes from reserving too much GPU memory mid-training, forcing the PyTorch training script to crash with an OOM error.</p>
+  </li>
+  <li>Here is the impact that enabling mixed precision training has on the PyTorch memory reservation behavior:</li>
+</ul>
+
+<p><img src="../assets/model-compression/amp_mem.avif" alt="" /></p>
+
+<ul>
+  <li>Interestingly enough, while both of the larger models saw benefit from the swap to mixed precision, UNet benefited from the swap a lot more than BERT did. PyTorch memory allocation behavior is pretty opaque to me, so I have no insight into why this might be the case.</li>
+</ul>
+
+<h3 id="conclusion-2">Conclusion</h3>
+
+<ul>
+  <li>Automatic mixed precision training is an easy-to-use and powerful new feature which promises to speed up larger-scale model training jobs running on recent NVIDIA GPUs by up to 60%.</li>
+  <li>While this technique has been around for a while (see e.g. Chip Huyen’s <a href="https://github.com/chiphuyen/machine-learning-systems-design/blob/master/content/design-a-machine-learning-system.md#scaling">notes on scaling</a>) it’s not been very accessible to the average user because it’s never had a native PyTorch API — until now.</li>
+  <li>To learn more about mixed precision training directly from the source, see the <a href="https://pytorch.org/docs/master/amp.html">automatic mixed precision package</a> and <a href="https://pytorch.org/docs/master/notes/amp_examples.html">automatic mixed precision examples pages</a> in the PyTorch master docs.</li>
+</ul>
+
+<h3 id="key-takeways">Key takeways</h3>
+
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">torch.cuda.amp</code> mixed-precision training module delivers on its promise, delivering speed-ups of 50-60% in large model training jobs with just a handful of new lines of code.</li>
+</ul>
+
+<h3 id="use-case-1">Use-case</h3>
+
+<ul>
+  <li>Automatic Mixed Precision (AMP)’s main goal is to reduce training time. (In contrast, as we saw in the section on <a href="#mixed-precision-training">Quantization</a>, quantization’s main goal is to reduce inference time.)</li>
+  <li>Refer <a href="https://pytorch.org/tutorials/recipes/recipes/amp_recipe.html">PyTorch Automatic Mixed Precision Recipe</a> to learn hands-on usage.</li>
+</ul>
+
+<h2 id="aside-inference-optimizations">Aside: Inference optimizations</h2>
+
+<ul>
+  <li>A list of five techniques to optimize deep neural network model performance during inference.
+    <ul>
+      <li>Parallelization</li>
+      <li>Vectorization</li>
+      <li>Loop tiling</li>
+      <li>Operator fusion</li>
+      <li>Quantization</li>
+    </ul>
+  </li>
+  <li>Note that these techniques don’t change the model architecture.</li>
+  <li>Credits to <a href="https://www.linkedin.com/in/sebastianraschka/">Sebastian Raschka</a> for the infographic below.</li>
+</ul>
+
+<p><img src="../assets/model-compression/inf-opt.jpg" alt="" /></p>
+
+<h2 id="on-device-privacy">On-Device Privacy</h2>
+<ul>
+  <li>On-device privacy, also known as edge computing, involves processing data directly on a user’s device, such as a smartphone or tablet, instead of transferring it to a central server. This method offers a significant increase in privacy and security since user data never leaves the device, thus reducing the risk of exposure during transit or from a compromised server.</li>
+  <li>For NLP and LLM systems, on-device processing means all interactions, including the analysis and generation of responses, happen locally. It is especially important in conversational AI applications where private, personal conversations are common. On-device processing also reduces latency since data doesn’t need to travel over the network, thereby providing a smoother user experience.</li>
+  <li>However, the challenge lies in deploying these typically resource-intensive models to run efficiently on devices with limited computational capacity. Advances in model compression techniques, such as pruning and quantization, have made it increasingly possible to deploy smaller, yet effective models on device.</li>
+</ul>
+
+<h2 id="differential-privacy">Differential Privacy</h2>
+<ul>
+  <li>Differential privacy is a mathematical framework for quantifying the privacy of an individual in a dataset. The main idea is to add a certain amount of random noise to the data, making it statistically challenging to identify specific individuals while preserving the overall distribution and patterns in the dataset.</li>
+  <li>In the context of NLP and LLM, differential privacy ensures that the output of a model does not reveal sensitive information about the training data. For instance, if a language model is trained on a set of medical records, differential privacy will prevent the model from inadvertently generating text that could be traced back to a specific patient.</li>
+  <li>While the principle is robust, implementing differential privacy in complex models like LLMs is not straightforward. Striking the right balance between the level of noise (privacy) and the utility of the model is crucial.</li>
+</ul>
+
+<h2 id="federated-learning">Federated Learning</h2>
+<ul>
+  <li>Federated learning is a machine learning approach that trains a model across multiple devices or servers while keeping data localized. Each device learns a local model that is periodically updated to a global model, but the raw data never leaves the original device.</li>
+  <li>In the world of NLP and conversational AI, federated learning allows models to learn from a diverse range of data sources without compromising privacy. For example, a conversational AI can learn from interactions on millions of devices, gaining the ability to understand a broad array of contexts, dialects, and colloquialisms, but it never sees the raw data of any specific conversation.</li>
+  <li>The challenge with federated learning lies in coordinating and aggregating the local model updates in an efficient and secure way. Also, issues like device availability, differing computational capacities, and network connectivity can affect the process.</li>
+</ul>
+
+<h2 id="low-rank-decomposition">Low-rank decomposition</h2>
+<ul>
+  <li>Low-rank decomposition is based on the principle that the weight matrices within a neural network can be approximated by the multiplication of matrices with smaller dimensions.</li>
+  <li>In simpler terms, a matrix of size N x N can be essentially broken down into the product of two matrices, each of size N x 1. This translates to a significant reduction in space complexity, specifically from quadratic (O(N^2)) to linear (O(N)), thereby enhancing computational efficiency significantly!</li>
+</ul>
+
+<h2 id="further-reading-1">Further Reading</h2>
+
+<ul>
+  <li><a href="https://pytorch.org/docs/stable/quantization.html">PyTorch: Quantization</a></li>
+  <li><a href="https://pytorch.org/blog/introduction-to-quantization-on-pytorch/">PyTorch: Introduction to Quantization on PyTorch</a></li>
+  <li><a href="https://www.tensorflow.org/model_optimization/guide/pruning/">TensorFlow: Pruning Tutorial</a></li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://stackoverflow.com/questions/70503585/pytorch-model-optimization-automatic-mixed-precision-vs-quantization">Pytorch Model Optimization: Automatic Mixed Precision vs Quantization</a></li>
+  <li><a href="https://rachitsingh.com/deep-learning-model-compression/">Deep Learning Model Compression by Rachit Singh</a></li>
+  <li><a href="https://spell.ml/blog/mixed-precision-training-with-pytorch-Xuk7YBEAACAASJam">A developer-friendly guide to mixed precision training with PyTorch</a></li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2020DistilledModelCompression,
+  title   = {Model Compression},
+  author  = {Chadha, Aman},
+  journal = {Distilled AI},
+  year    = {2020},
+  note    = {\url{https://aman.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/concepts/model-compression/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:14 GMT -->
+</html>

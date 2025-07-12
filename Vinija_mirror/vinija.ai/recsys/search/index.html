@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/recsys/search/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:18 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Recommendation Systems • Search</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Recommendation Systems • Search</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a>    <ul>
+      <li><a href="#lexical-search" id="markdown-toc-lexical-search">Lexical Search</a>        <ul>
+          <li><a href="#key-techniques" id="markdown-toc-key-techniques">Key Techniques</a></li>
+          <li><a href="#strengths" id="markdown-toc-strengths">Strengths</a></li>
+          <li><a href="#limitations" id="markdown-toc-limitations">Limitations</a></li>
+        </ul>
+      </li>
+      <li><a href="#indexing-in-search-systems" id="markdown-toc-indexing-in-search-systems">Indexing in Search Systems</a>        <ul>
+          <li><a href="#forward-index" id="markdown-toc-forward-index">Forward Index</a>            <ul>
+              <li><a href="#example" id="markdown-toc-example">Example</a></li>
+            </ul>
+          </li>
+          <li><a href="#inverted-index" id="markdown-toc-inverted-index">Inverted Index</a>            <ul>
+              <li><a href="#example-1" id="markdown-toc-example-1">Example</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#neural-search" id="markdown-toc-neural-search">Neural Search</a>        <ul>
+          <li><a href="#key-techniques-1" id="markdown-toc-key-techniques-1">Key Techniques</a></li>
+          <li><a href="#strengths-1" id="markdown-toc-strengths-1">Strengths</a></li>
+          <li><a href="#limitations-1" id="markdown-toc-limitations-1">Limitations</a></li>
+        </ul>
+      </li>
+      <li><a href="#hybrid-search" id="markdown-toc-hybrid-search">Hybrid Search</a>        <ul>
+          <li><a href="#how-it-works" id="markdown-toc-how-it-works">How It Works</a></li>
+          <li><a href="#strengths-2" id="markdown-toc-strengths-2">Strengths</a></li>
+        </ul>
+      </li>
+      <li><a href="#search-engine-architecture" id="markdown-toc-search-engine-architecture">Search Engine Architecture</a></li>
+      <li><a href="#evaluation-metrics" id="markdown-toc-evaluation-metrics">Evaluation Metrics</a>        <ul>
+          <li><a href="#precision" id="markdown-toc-precision">Precision</a></li>
+          <li><a href="#recall" id="markdown-toc-recall">Recall</a></li>
+          <li><a href="#f1-score" id="markdown-toc-f1-score">F1-Score</a></li>
+          <li><a href="#mean-reciprocal-rank-mrr" id="markdown-toc-mean-reciprocal-rank-mrr">Mean Reciprocal Rank (MRR)</a></li>
+          <li><a href="#mean-average-precision-map" id="markdown-toc-mean-average-precision-map">Mean Average Precision (MAP)</a></li>
+          <li><a href="#ndcg-normalized-discounted-cumulative-gain" id="markdown-toc-ndcg-normalized-discounted-cumulative-gain">NDCG (Normalized Discounted Cumulative Gain)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#challenges-in-search-and-information-retrieval" id="markdown-toc-challenges-in-search-and-information-retrieval">Challenges in Search and Information Retrieval</a></li>
+  <li><a href="#frequently-asked-questions-faqs" id="markdown-toc-frequently-asked-questions-faqs">Frequently Asked Questions (FAQs)</a>    <ul>
+      <li><a href="#are-contextual-bandits-used-in-personalized-search" id="markdown-toc-are-contextual-bandits-used-in-personalized-search">Are contextual bandits used in personalized search?</a>        <ul>
+          <li><a href="#how-contextual-bandits-work-in-personalized-search" id="markdown-toc-how-contextual-bandits-work-in-personalized-search">How Contextual Bandits Work in Personalized Search</a></li>
+          <li><a href="#example-of-personalized-search-using-contextual-bandits" id="markdown-toc-example-of-personalized-search-using-contextual-bandits">Example of Personalized Search Using Contextual Bandits</a></li>
+        </ul>
+      </li>
+      <li><a href="#benefits-of-using-contextual-bandits-in-personalized-search" id="markdown-toc-benefits-of-using-contextual-bandits-in-personalized-search">Benefits of Using Contextual Bandits in Personalized Search</a></li>
+      <li><a href="#practical-applications-in-personalized-search" id="markdown-toc-practical-applications-in-personalized-search">Practical Applications in Personalized Search</a></li>
+      <li><a href="#are-bandits-used-for-non-personalized-search" id="markdown-toc-are-bandits-used-for-non-personalized-search">Are bandits used for non-personalized search?</a>        <ul>
+          <li><a href="#practical-example" id="markdown-toc-practical-example">Practical Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#what-use-cases-does-hybrid-search-enable-that-neural-or-lexical-search-cannot-offer" id="markdown-toc-what-use-cases-does-hybrid-search-enable-that-neural-or-lexical-search-cannot-offer">What use-cases does hybrid search enable that neural or lexical search cannot offer?</a>        <ul>
+          <li><a href="#combining-precision-and-recall" id="markdown-toc-combining-precision-and-recall">Combining Precision and Recall</a></li>
+          <li><a href="#dealing-with-ambiguity-in-queries" id="markdown-toc-dealing-with-ambiguity-in-queries">Dealing with Ambiguity in Queries</a></li>
+          <li><a href="#complex-queries-with-multiple-intentions" id="markdown-toc-complex-queries-with-multiple-intentions">Complex Queries with Multiple Intentions</a></li>
+          <li><a href="#understanding-user-language-variability" id="markdown-toc-understanding-user-language-variability">Understanding User Language Variability</a></li>
+          <li><a href="#handling-structured-data-with-unstructured-queries" id="markdown-toc-handling-structured-data-with-unstructured-queries">Handling Structured Data with Unstructured Queries</a></li>
+          <li><a href="#personalized-search-with-both-user-specific-and-generic-relevance" id="markdown-toc-personalized-search-with-both-user-specific-and-generic-relevance">Personalized Search with Both User-Specific and Generic Relevance</a></li>
+          <li><a href="#multilingual-and-cross-language-search" id="markdown-toc-multilingual-and-cross-language-search">Multilingual and Cross-Language Search</a></li>
+        </ul>
+      </li>
+      <li><a href="#how-would-you-implement-search-for-a-platform-such-as-netflix" id="markdown-toc-how-would-you-implement-search-for-a-platform-such-as-netflix">How would you implement search for a platform such as Netflix?</a>        <ul>
+          <li><a href="#major-components-of-a-netflix-search-system" id="markdown-toc-major-components-of-a-netflix-search-system">Major Components of a Netflix Search System</a></li>
+          <li><a href="#content-indexing" id="markdown-toc-content-indexing">Content Indexing</a></li>
+          <li><a href="#query-understanding" id="markdown-toc-query-understanding">Query Understanding</a></li>
+          <li><a href="#candidate-generation" id="markdown-toc-candidate-generation">Candidate Generation</a></li>
+          <li><a href="#ranking" id="markdown-toc-ranking">Ranking</a></li>
+          <li><a href="#personalization" id="markdown-toc-personalization">Personalization</a></li>
+          <li><a href="#evaluation-metrics-1" id="markdown-toc-evaluation-metrics-1">Evaluation Metrics</a></li>
+          <li><a href="#example-workflow-of-search-for-netflix" id="markdown-toc-example-workflow-of-search-for-netflix">Example Workflow of Search for Netflix:</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Search or Information Retrieval (IR) refers to the process of finding relevant information or documents from large collections based on user queries. With the explosion of digital content on the web, the need for effective search engines has become critical. Search systems are designed to provide users with relevant information efficiently and accurately from massive datasets, such as web pages, documents, multimedia, and databases.</li>
+  <li>This primer covers the essential aspects of search/information retrieval, including lexical search, neural search, hybrid search, common metrics for evaluation, and other key elements.</li>
+</ul>
+
+<h3 id="lexical-search">Lexical Search</h3>
+
+<ul>
+  <li>Lexical search is the traditional approach to search engines, where the system matches the query terms exactly to the words in the documents or data being searched. This type of search is often referred to as keyword-based search.</li>
+</ul>
+
+<h4 id="key-techniques">Key Techniques</h4>
+
+<ul>
+  <li><strong>Term Frequency (TF)</strong>: Measures how often a term appears in a document. Documents where the search terms appear frequently are ranked higher.</li>
+  <li>
+    <p><strong>Inverse Document Frequency (IDF)</strong>: Adjusts the weight of terms by considering how common or rare a word is across all documents. Rare terms get a higher weight to ensure that less common but important terms are given priority.</p>
+
+    <p><strong>TF-IDF</strong> is a scoring model that combines term frequency and inverse document frequency to rank documents based on keyword relevance.</p>
+  </li>
+  <li>
+    <p><strong>Boolean Search</strong>: Allows users to combine keywords with operators such as AND, OR, and NOT to refine their searches (e.g., “Java AND Programming NOT Coffee”).</p>
+  </li>
+  <li><strong>Exact Phrase Matching</strong>: Matches documents where the exact phrase (e.g., “machine learning”) appears, often indicated by quotation marks.</li>
+</ul>
+
+<h4 id="strengths">Strengths</h4>
+
+<ul>
+  <li>
+    <p><strong>Precision</strong>: Lexical search is effective at returning documents with exact matches for specific terms. It ensures that results are closely aligned with the keywords provided by the user.</p>
+  </li>
+  <li>
+    <p><strong>Efficient</strong>: Lexical search is computationally efficient and works well for large, structured datasets where users know exactly what they are searching for.</p>
+  </li>
+</ul>
+
+<h4 id="limitations">Limitations</h4>
+
+<ul>
+  <li><strong>Vocabulary Mismatch</strong>: Users may use different words (synonyms or paraphrases) than those found in relevant documents, leading to poor results.</li>
+  <li><strong>No Context Understanding</strong>: Lexical search doesn’t capture the meaning or intent behind queries, which limits its ability to handle more complex, natural language queries.</li>
+  <li><strong>Ambiguity</strong>: It struggles with polysemy (words with multiple meanings) and synonymy (different words with the same meaning).</li>
+</ul>
+
+<h3 id="indexing-in-search-systems">Indexing in Search Systems</h3>
+
+<ul>
+  <li>A robust indexing mechanism is essential for efficient and effective search performance. Two primary types of indices used in search systems are <strong>forward indices</strong> and <strong>inverted indices</strong>.</li>
+</ul>
+
+<h4 id="forward-index">Forward Index</h4>
+
+<ul>
+  <li>
+    <p>A <strong>forward index</strong> is a document-centric indexing structure that directly maps each document to the terms it contains, often including metadata like term frequencies, positions, and other document-specific attributes. This index lists each document as a primary entry and catalogs all words or tokens that appear within it. A forward index is primarily used to store and manage the content and structure of documents, allowing for straightforward access to the terms present in each document.</p>
+  </li>
+  <li>
+    <p>In a forward index:</p>
+    <ul>
+      <li><strong>Document IDs</strong>: Each document is given a unique identifier, which serves as the main reference point in the forward index.</li>
+      <li><strong>Terms and Positions</strong>: For each document, the index lists all terms that appear within it, often accompanied by positional information. This enables more complex query matching, such as phrase searches and proximity searches, by allowing the retrieval of exact term locations.</li>
+      <li><strong>Term Frequencies</strong>: The forward index can store the frequency of each term within a document, making it useful for scoring techniques like Term Frequency-Inverse Document Frequency (TF-IDF), which relies on term frequency as a ranking metric.</li>
+      <li><strong>Additional Metadata</strong>: A forward index may also include other information, such as document length, publication date, author, or type, which can assist in ranking and filtering documents.</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="example">Example</h5>
+
+<ul>
+  <li>Consider three documents in a collection:</li>
+</ul>
+
+<ol>
+  <li>Document 1: “Machine learning improves search results.”</li>
+  <li>Document 2: “Learning algorithms enhance machine functionality.”</li>
+  <li>Document 3: “Search engines use machine learning algorithms.”</li>
+</ol>
+
+<ul>
+  <li>A forward index for this collection might look like:</li>
+</ul>
+
+<div align="center">
+<table class="tg">
+<thead>
+<tr>
+<th class="tg-hcenter-valign-first"><strong>Document ID</strong></th>
+<th class="tg-hcenter-valign-first"><strong>Terms</strong></th>
+<th class="tg-hcenter-valign-first"><strong>Term Frequencies</strong></th>
+<th class="tg-hcenter-valign-second"><strong>Positions</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tg-tleft-valign-first">Doc1</td>
+<td class="tg-tleft-valign-first">machine, learning, improves, search, results</td>
+<td class="tg-tleft-valign-first">{machine: 1, learning: 1, improves: 1, search: 1, results: 1}</td>
+<td class="tg-tleft-valign-second">{machine: [1], learning: [2], improves: [3], search: [4], results: [5]}</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Doc2</td>
+<td class="tg-tleft-valign-first">learning, algorithms, enhance, machine, functionality</td>
+<td class="tg-tleft-valign-first">{learning: 1, algorithms: 1, enhance: 1, machine: 1, functionality: 1}</td>
+<td class="tg-tleft-valign-second">{learning: [1], algorithms: [2], enhance: [3], machine: [4], functionality: [5]}</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Doc3</td>
+<td class="tg-tleft-valign-first">search, engines, use, machine, learning, algorithms</td>
+<td class="tg-tleft-valign-first">{search: 1, engines: 1, use: 1, machine: 1, learning: 1, algorithms: 1}</td>
+<td class="tg-tleft-valign-second">{search: [1], engines: [2], use: [3], machine: [4], learning: [5], algorithms: [6]}</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<ul>
+  <li>In this example, each document is stored as an entry in the forward index. For each document, the terms, their frequencies, and their positions are listed, enabling document-level information retrieval.</li>
+</ul>
+
+<h4 id="inverted-index">Inverted Index</h4>
+
+<ul>
+  <li>
+    <p>An <strong>inverted index</strong> is a term-centric indexing structure that maps terms to the documents in which they appear, making it the foundational structure for efficient, large-scale search systems. Unlike the forward index, which organizes data by document, the inverted index organizes data by term, allowing for fast retrieval of documents based on query terms.</p>
+  </li>
+  <li>
+    <p>In an inverted index:</p>
+    <ul>
+      <li><strong>Terms as Primary Keys</strong>: Each unique term or word found across the document collection serves as an entry in the inverted index, functioning as the main reference point for search.</li>
+      <li><strong>Posting Lists</strong>: Associated with each term is a list of documents (often called a “posting list”) that contains that term. This list includes the document IDs where the term appears, and may also contain additional information such as:
+        <ul>
+          <li><strong>Term Frequency</strong>: The number of times the term appears in each document. This information helps rank documents based on keyword relevance, with higher term frequencies indicating stronger matches.</li>
+          <li><strong>Positional Data</strong>: The exact locations of each term within the documents, enabling advanced queries like phrase matching or proximity searches. For example, knowing that two words appear near each other can improve the relevance ranking for certain types of queries.</li>
+          <li><strong>Document-Level Metadata</strong>: Additional data for each document, such as length, publication date, or section (e.g., title vs. body), may also be stored in the posting lists to further refine ranking and filtering during retrieval.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="example-1">Example</h5>
+
+<ul>
+  <li>
+    <p>Using the same set of documents as in the forward index example:</p>
+
+    <ol>
+      <li>Document 1: “Machine learning improves search results.”</li>
+      <li>Document 2: “Learning algorithms enhance machine functionality.”</li>
+      <li>Document 3: “Search engines use machine learning algorithms.”</li>
+    </ol>
+  </li>
+  <li>
+    <p>The inverted index for this collection might look like:</p>
+  </li>
+</ul>
+
+<div align="center">
+<table class="tg">
+<thead>
+<tr>
+<th class="tg-hcenter-valign-first"><strong>Term</strong></th>
+<th class="tg-hcenter-valign-second"><strong>Posting List</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tg-tleft-valign-first">machine</td>
+<td class="tg-tleft-valign-second">[(Doc1, freq: 1, pos: [1]), (Doc2, freq: 1, pos: [4]), (Doc3, freq: 1, pos: [4])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">learning</td>
+<td class="tg-tleft-valign-second">[(Doc1, freq: 1, pos: [2]), (Doc2, freq: 1, pos: [1]), (Doc3, freq: 1, pos: [5])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">improves</td>
+<td class="tg-tleft-valign-second">[(Doc1, freq: 1, pos: [3])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">search</td>
+<td class="tg-tleft-valign-second">[(Doc1, freq: 1, pos: [4]), (Doc3, freq: 1, pos: [1])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">results</td>
+<td class="tg-tleft-valign-second">[(Doc1, freq: 1, pos: [5])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">algorithms</td>
+<td class="tg-tleft-valign-second">[(Doc2, freq: 1, pos: [2]), (Doc3, freq: 1, pos: [6])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">enhance</td>
+<td class="tg-tleft-valign-second">[(Doc2, freq: 1, pos: [3])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">functionality</td>
+<td class="tg-tleft-valign-second">[(Doc2, freq: 1, pos: [5])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">engines</td>
+<td class="tg-tleft-valign-second">[(Doc3, freq: 1, pos: [2])]</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">use</td>
+<td class="tg-tleft-valign-second">[(Doc3, freq: 1, pos: [3])]</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<ul>
+  <li>In this example, each term is stored as an entry in the inverted index. Each term’s posting list includes the documents where it appears, along with additional information about frequency and position within each document. This structure enables fast retrieval of documents containing specific terms, as well as support for phrase and proximity searches.</li>
+</ul>
+
+<h3 id="neural-search">Neural Search</h3>
+
+<ul>
+  <li>Neural search is a more recent approach that uses machine learning and deep neural networks to improve the quality of search results. Rather than relying on exact word matches, neural search captures the meaning or semantics of the query and the documents. It aims to retrieve documents that are relevant based on the overall context of the query, not just the presence of keywords.</li>
+</ul>
+
+<h4 id="key-techniques-1">Key Techniques</h4>
+
+<ul>
+  <li>
+    <p><strong>Word Embeddings</strong>: Methods like Word2Vec, GloVe, and FastText create dense vector representations of words, capturing semantic relationships between them. Words with similar meanings have closer embeddings in vector space.</p>
+  </li>
+  <li>
+    <p><strong>Sentence and Document Embeddings</strong>: Techniques like BERT, Sentence-BERT, and Transformer models generate embeddings for entire sentences, queries, or documents. These embeddings represent the semantics of the text, making it possible to match queries to relevant content even when there are no exact keyword matches.</p>
+  </li>
+  <li>
+    <p><strong>Semantic Similarity</strong>: Neural search measures the cosine similarity or other distance metrics between the query and document embeddings to rank documents based on semantic relevance rather than keyword occurrence.</p>
+  </li>
+</ul>
+
+<h4 id="strengths-1">Strengths</h4>
+
+<ul>
+  <li>
+    <p><strong>Semantic Understanding</strong>: Neural search can handle natural language queries and return documents that match the intent of the query, even if the specific words in the document differ.</p>
+  </li>
+  <li>
+    <p><strong>Synonymy and Paraphrase Handling</strong>: By capturing the meaning of words, neural search performs well with queries that use synonyms or paraphrasing, significantly improving recall.</p>
+  </li>
+  <li>
+    <p><strong>Contextual Understanding</strong>: Models like BERT understand the context in which a word is used, helping disambiguate meaning and improving relevance.</p>
+  </li>
+</ul>
+
+<h4 id="limitations-1">Limitations</h4>
+
+<ul>
+  <li>
+    <p><strong>Computationally Intensive</strong>: Neural search requires significant computational resources for both training the models and performing the search in real-time, especially for large document collections.</p>
+  </li>
+  <li>
+    <p><strong>Data Hungry</strong>: Training effective neural models often requires large amounts of data to capture semantic relationships accurately.</p>
+  </li>
+  <li>
+    <p><strong>Interpretability</strong>: Neural search models are often seen as black boxes, making it difficult to understand why certain results are returned, which can be a drawback in scenarios requiring transparency.</p>
+  </li>
+</ul>
+
+<h3 id="hybrid-search">Hybrid Search</h3>
+
+<ul>
+  <li>Hybrid search combines the strengths of lexical and neural search to overcome the limitations of each approach and provide more effective search results. It can integrate keyword-based matching with semantic understanding, ensuring that both exact matches and relevant content are considered.</li>
+</ul>
+
+<h4 id="how-it-works">How It Works</h4>
+
+<ul>
+  <li>
+    <p><strong>Initial Candidate Generation</strong>: Lexical search can be used to quickly retrieve a large set of candidate documents by matching keywords in the query.</p>
+  </li>
+  <li>
+    <p><strong>Ranking with Neural Models</strong>: Neural search can then rank these candidate documents based on their semantic relevance to the query, ensuring that context and meaning are considered in the final ranking.</p>
+  </li>
+</ul>
+
+<h4 id="strengths-2">Strengths</h4>
+
+<ul>
+  <li>
+    <p><strong>Precision and Recall</strong>: Hybrid search combines the precision of lexical search with the broad recall of neural search, making it effective for both specific and ambiguous queries.</p>
+  </li>
+  <li>
+    <p><strong>Handling Ambiguity</strong>: Hybrid systems can resolve ambiguous queries better by matching both keywords and concepts.</p>
+  </li>
+  <li>
+    <p><strong>Efficiency</strong>: It can leverage the efficiency of keyword-based retrieval for large datasets while using neural methods for fine-tuned ranking.</p>
+  </li>
+</ul>
+
+<h3 id="search-engine-architecture">Search Engine Architecture</h3>
+
+<ul>
+  <li>A typical search engine consists of several key components:</li>
+</ul>
+
+<ol>
+  <li><strong>Crawling and Indexing</strong>:
+    <ul>
+      <li>Crawling is the process of discovering and collecting documents (e.g., web pages, files) from the web or databases.</li>
+      <li>Indexing refers to creating a structured representation of the documents, making them easily retrievable. In a lexical search engine, this typically involves creating an inverted index of words and their locations in documents.</li>
+    </ul>
+  </li>
+  <li><strong>Query Processing</strong>:
+    <ul>
+      <li>The user’s query is processed, which may involve tokenization, stemming (reducing words to their root form), and removing stopwords (e.g., “the”, “is”).</li>
+      <li>In neural search, the query is transformed into an embedding vector representing the meaning of the query.</li>
+    </ul>
+  </li>
+  <li><strong>Retrieval and Ranking</strong>:
+    <ul>
+      <li>Lexical retrieval involves searching the index for documents containing the query terms.</li>
+      <li>Neural retrieval involves comparing the query embedding to document embeddings and retrieving documents based on similarity.</li>
+      <li>The system ranks documents by relevance, using metrics such as TF-IDF, BM25 (for lexical search), or cosine similarity (for neural search).</li>
+    </ul>
+  </li>
+  <li><strong>User Feedback</strong>: Many search engines incorporate click-through data and other forms of implicit or explicit feedback to improve the relevance of results over time.</li>
+</ol>
+
+<h3 id="evaluation-metrics">Evaluation Metrics</h3>
+
+<ul>
+  <li>Evaluating the effectiveness of a search system requires quantitative metrics that measure how well the system retrieves relevant documents. <a href="../metrics/index.html">Evaluation Metrics and Loss Functions for Recommender Systems</a> offers a detailed discourse on metrics for discovery (i.e., search and recommendation) systems.</li>
+  <li>A summary of the most common evaluation metrics is as follows.</li>
+</ul>
+
+<h4 id="precision">Precision</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: The fraction of retrieved documents that are relevant to the query.</p>
+
+\[\text{Precision} = \frac{\text{Number of Relevant Documents Retrieved}}{\text{Total Number of Documents Retrieved}}\]
+  </li>
+  <li>
+    <p><strong>Use</strong>: Precision measures how accurate the search results are but doesn’t account for how many relevant documents were missed.</p>
+  </li>
+</ul>
+
+<h4 id="recall">Recall</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: The fraction of relevant documents that were retrieved by the search system.</p>
+
+\[\text{Recall} = \frac{\text{Number of Relevant Documents Retrieved}}{\text{Total Number of Relevant Documents Available}}\]
+  </li>
+  <li>
+    <p><strong>Use</strong>: Recall measures the ability of the system to find all relevant documents but doesn’t measure how many irrelevant documents were retrieved.</p>
+  </li>
+</ul>
+
+<h4 id="f1-score">F1-Score</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: The harmonic mean of precision and recall, providing a balance between the two metrics.</p>
+
+\[\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}\]
+  </li>
+  <li>
+    <p><strong>Use</strong>: Useful for scenarios where both precision and recall are important.</p>
+  </li>
+</ul>
+
+<h4 id="mean-reciprocal-rank-mrr">Mean Reciprocal Rank (MRR)</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: Measures the rank of the first relevant result. It takes the reciprocal of the rank of the first relevant document and averages this across multiple queries.</p>
+
+\[\text{MRR} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{\text{rank}_i}\]
+  </li>
+  <li>
+    <p><strong>Use</strong>: MRR is useful when it’s important to retrieve relevant documents at the top of the search results.</p>
+  </li>
+</ul>
+
+<h4 id="mean-average-precision-map">Mean Average Precision (MAP)</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: A measure of precision at different levels of recall, averaged across all queries.</p>
+
+\[\text{MAP} = \frac{1}{Q} \sum_{q=1}^{Q} \text{Average Precision}(q)\]
+  </li>
+  <li>
+    <p><strong>Use</strong>: MAP is particularly useful when evaluating the overall effectiveness of ranked retrieval systems.</p>
+  </li>
+</ul>
+
+<h4 id="ndcg-normalized-discounted-cumulative-gain">NDCG (Normalized Discounted Cumulative Gain)</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition</strong>: Measures the relevance of search results while considering the order in which results are presented. NDCG rewards relevant documents that appear higher in the ranking.</p>
+
+\[\text{NDCG} = \frac{DCG}{IDCG}\]
+
+    <p>Where <strong>DCG</strong> is the <strong>Discounted Cumulative Gain</strong>, which assigns a higher score to relevant results appearing earlier in the ranked list, and <strong>IDCG</strong> is the <strong>ideal DCG</strong> (the best possible ranking).</p>
+  </li>
+  <li>
+    <p><strong>Use</strong>: NDCG is widely used to evaluate systems where the position of relevant results in the ranking is crucial, such as in web search.</p>
+  </li>
+</ul>
+
+<h2 id="challenges-in-search-and-information-retrieval">Challenges in Search and Information Retrieval</h2>
+
+<ul>
+  <li>
+    <p><strong>Handling Ambiguity</strong>: Queries often contain ambiguous terms or multiple intents, making it difficult for search systems to understand the user’s true needs.</p>
+  </li>
+  <li>
+    <p><strong>Synonyms and Polysemy</strong>: Words can have multiple meanings, and different users may use different terms to describe the same concept, complicating search effectiveness.</p>
+  </li>
+  <li>
+    <p><strong>Personalization</strong>: Users often have unique preferences and behaviors that should be considered to improve the relevance of search results.</p>
+  </li>
+  <li>
+    <p><strong>Scalability</strong>: Search engines must handle billions of documents efficiently, which requires sophisticated indexing, storage, and retrieval systems.</p>
+  </li>
+  <li>
+    <p><strong>Real-Time Search</strong>: In domains like news and social media, search systems need to provide real-time updates and quickly index new content.</p>
+  </li>
+</ul>
+
+<h2 id="frequently-asked-questions-faqs">Frequently Asked Questions (FAQs)</h2>
+
+<h3 id="are-contextual-bandits-used-in-personalized-search">Are contextual bandits used in personalized search?</h3>
+
+<ul>
+  <li>
+    <p>Yes, contextual bandits are widely used in personalized search systems. The key goal of personalized search is to tailor search results to the preferences and needs of individual users based on their past behavior, interests, and context. Contextual bandits provide an effective framework for doing this by balancing exploration (trying new or diverse search results) and exploitation (leveraging known preferences) in real-time. This ensures that search engines provide increasingly relevant and personalized results over time, improving user satisfaction and engagement.</p>
+  </li>
+  <li>
+    <p>Here’s how contextual bandits are applied in personalized search:</p>
+  </li>
+</ul>
+
+<h4 id="how-contextual-bandits-work-in-personalized-search">How Contextual Bandits Work in Personalized Search</h4>
+
+<ol>
+  <li><strong>Context Representation</strong>:
+    <ul>
+      <li>In a personalized search system, the “context” refers to information specific to the user and their current search query. This can include:
+        <ul>
+          <li>The user’s past search history.</li>
+          <li>Demographic information.</li>
+          <li>Browsing behavior or preferences (e.g., sites they’ve visited or products they’ve viewed).</li>
+          <li>The current search query, including keywords, time of day, device type, etc.</li>
+        </ul>
+      </li>
+      <li>The contextual bandit algorithm uses this context to make decisions about which search results to present for that particular query.</li>
+    </ul>
+  </li>
+  <li><strong>Arms (Actions)</strong>:
+    <ul>
+      <li>The “arms” in the contextual bandit model represent different search results or content items that could be presented to the user in response to a query.</li>
+      <li>The algorithm must choose a subset of search results to show the user, out of a potentially large pool of possible results.</li>
+      <li>Each time the user engages with one of the results (e.g., clicks a link, scrolls through a page, spends time on a result), the algorithm treats this as feedback or a reward.</li>
+    </ul>
+  </li>
+  <li><strong>Exploration vs. Exploitation</strong>:
+    <ul>
+      <li><strong>Exploitation</strong>: The system shows results that are likely to align with the user’s known preferences based on past interactions, such as presenting websites or products the user frequently engages with.</li>
+      <li><strong>Exploration</strong>: The system occasionally tries new or less well-known results (with less certainty about their relevance) to discover new user preferences or trends. This is important because user interests evolve over time, and the system needs to adapt to this changing behavior.</li>
+      <li>Contextual bandits balance this trade-off by showing results with high predicted relevance (exploitation) but also occasionally introducing new or less certain results (exploration).</li>
+    </ul>
+  </li>
+  <li><strong>Reward Signal</strong>:
+    <ul>
+      <li>In a personalized search scenario, the reward is derived from the user’s interaction with the search results. Examples include:
+        <ul>
+          <li>Clicks on a search result.</li>
+          <li>Time spent on a particular page (dwell time).</li>
+          <li>Subsequent searches or lack of backtracking.</li>
+        </ul>
+      </li>
+      <li>The contextual bandit algorithm uses these rewards to update its understanding of user preferences in real-time and adjust the ranking of future search results.</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="example-of-personalized-search-using-contextual-bandits">Example of Personalized Search Using Contextual Bandits</h4>
+
+<ul>
+  <li>Consider a personalized e-commerce search engine. When a user searches for “laptops,” the system needs to decide which products to display in response to the query. The context here might include:
+    <ul>
+      <li>The user’s browsing history (e.g., past interest in gaming laptops).</li>
+      <li>Past purchase history.</li>
+      <li>Time of day or device being used for the search.</li>
+    </ul>
+  </li>
+  <li>The bandit algorithm will select a set of products (arms) to show the user based on their preferences and context. If the user clicks on a gaming laptop, this will provide a reward to the algorithm, reinforcing the association between the user’s context and the preference for gaming laptops. Over time, the system will become more confident in showing similar results when similar queries are made by the user.</li>
+</ul>
+
+<h3 id="benefits-of-using-contextual-bandits-in-personalized-search">Benefits of Using Contextual Bandits in Personalized Search</h3>
+
+<ol>
+  <li><strong>Adaptivity</strong>: Contextual bandits learn and adapt in real time, allowing search systems to quickly adjust to changes in user behavior and preferences.</li>
+  <li><strong>Efficiency</strong>: Bandits balance exploration and exploitation, ensuring that users are shown relevant results most of the time, while still exploring to refine future recommendations.</li>
+  <li><strong>Scalability</strong>: They are efficient for large-scale search engines where user behavior can vary widely, and the system must serve personalized results to millions of users with diverse interests.</li>
+  <li><strong>Personalization</strong>: By leveraging context effectively, contextual bandits can present highly personalized search results that go beyond traditional ranking algorithms based solely on general relevance metrics.</li>
+</ol>
+
+<h3 id="practical-applications-in-personalized-search">Practical Applications in Personalized Search</h3>
+
+<ol>
+  <li><strong>E-commerce</strong>: Many online retailers use contextual bandits in search engines to display personalized product recommendations based on real-time user behavior, optimizing for metrics like clicks or purchases.</li>
+  <li><strong>Content Discovery</strong>: Platforms like YouTube or Netflix use contextual bandits to recommend personalized search results for videos or shows based on users’ viewing history and preferences.</li>
+  <li><strong>Web Search Engines</strong>: Contextual bandits can also be applied in general web search engines, improving personalized results based on users’ past searches, location, device, and time of day.</li>
+</ol>
+
+<h3 id="are-bandits-used-for-non-personalized-search">Are bandits used for non-personalized search?</h3>
+
+<ul>
+  <li>
+    <p>Yes, bandits are indeed used for non-personalized search in some contexts. In non-personalized search, the system does not tailor results based on the specific user but aims to optimize results for a general population of users at a query-level. Here’s how bandits fit in:</p>
+
+    <ol>
+      <li>
+        <p><strong>Exploration vs. Exploitation</strong>: For a search engine that isn’t personalizing its results for specific users but wants to optimize for general quality, bandits help the system try new search result rankings (exploration) while also capitalizing on what has been effective in the past (exploitation).</p>
+      </li>
+      <li>
+        <p><strong>A/B Testing on Steroids</strong>: Traditional A/B testing is one way to improve non-personalized search results, but it can be slow. Bandit algorithms allow for more dynamic experimentation by adjusting which results are shown in real time based on user interactions, leading to faster optimization.</p>
+      </li>
+      <li>
+        <p><strong>Dynamic Ranking Optimization</strong>: Bandits can adjust the rankings of search results dynamically, depending on how users interact with the displayed results. This helps the search engine learn which types of results tend to work best across a broad audience and adjust accordingly over time.</p>
+      </li>
+      <li>
+        <p><strong>Click Models and Bandits</strong>: Bandits can be used in conjunction with click models in non-personalized search. A click model predicts the probability that a user will click on a given result. The bandit algorithm can use these click probabilities to decide which search results to show to users to maximize clicks, without needing user-specific data.</p>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="practical-example">Practical Example</h4>
+
+<ul>
+  <li>Consider a search engine that serves millions of users. For some queries, the best results may not be obvious. Bandits can be used to test different search result rankings for certain queries and adjust the rankings based on user clicks. The algorithm keeps track of the success of various configurations and eventually converges on an optimal ranking for that query across the entire user base, without relying on personal data.</li>
+  <li>In summary, while bandits are often associated with personalized recommendations, they are also effectively applied to non-personalized search scenarios to improve search relevance and overall user experience through dynamic learning and optimization.</li>
+</ul>
+
+<h3 id="what-use-cases-does-hybrid-search-enable-that-neural-or-lexical-search-cannot-offer">What use-cases does hybrid search enable that neural or lexical search cannot offer?</h3>
+
+<ul>
+  <li>
+    <p>Hybrid search combines the strengths of both neural (semantic) and lexical (traditional keyword-based) search methods, creating a more versatile and dynamic search experience that neither approach can achieve on its own. While neural and lexical search each have individual strengths, hybrid search excels by integrating the precision of lexical search with the semantic depth of neural search to unlock unique capabilities.</p>
+  </li>
+  <li>
+    <p>This combination enables hybrid search to handle use cases that are challenging for either method alone. By effectively processing ambiguous queries, managing complex or multi-intent searches, and providing personalized yet accurate results, hybrid search supports a richer, more adaptable search experience. This approach is ideal for handling both structured and unstructured data, adapting to diverse user behaviors, and even operating across different languages. As a result, hybrid search is a powerful and flexible tool, expanding possibilities in search and recommendation systems by bridging the gaps left by neural and lexical searches when used independently.</p>
+  </li>
+</ul>
+
+<h4 id="combining-precision-and-recall">Combining Precision and Recall</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: excels at precision by retrieving documents that exactly match keywords or phrases from a query. However, it may fail when there is vocabulary mismatch between the query and relevant documents (e.g., synonyms, paraphrasing).</li>
+  <li><strong>Neural search</strong>: offers high recall by retrieving semantically related content, even if the exact terms don’t appear in the documents. However, it can sometimes retrieve documents that are too loosely related, reducing precision.</li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: By combining lexical and neural search, hybrid search can offer the best of both worlds—high <strong>precision</strong> and high <strong>recall</strong>. This is particularly useful for queries where both specific keyword matches and semantic similarity are important.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>E-commerce search</strong>:
+        <ul>
+          <li><strong>Lexical search</strong> ensures that product names and specific attributes (e.g., “Samsung Galaxy S22”) are matched exactly for users who know precisely what they are looking for.</li>
+          <li><strong>Neural search</strong> ensures that semantically related products or accessories (e.g., cases or chargers for “smartphones”) are retrieved, even if the exact keywords don’t appear in the product description.</li>
+          <li><strong>Hybrid search</strong> combines both, ensuring that highly relevant results are found based on both exact keyword matches and related concepts, improving the shopping experience.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="dealing-with-ambiguity-in-queries">Dealing with Ambiguity in Queries</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: can struggle with ambiguous queries because it relies on exact keyword matches. If a user query contains a word with multiple meanings (e.g., “apple”), lexical search might return irrelevant results because it has no understanding of the broader context.</li>
+  <li>
+    <p><strong>Neural search</strong>: can interpret the query’s meaning based on context, but it may still retrieve documents that are semantically related but miss the specific intent of the user.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: Hybrid search can tackle ambiguity by combining the context-understanding of neural search with the specificity of lexical search. For example, in cases where a term has multiple meanings, hybrid search can prioritize documents that match both semantically and lexically, thereby disambiguating the intent.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Medical Information Search</strong>:
+        <ul>
+          <li>A query like “jaguar” could refer to an animal, a car, or a software framework. Lexical search may retrieve results for all three. Neural search can help identify the intended meaning based on the query’s context, but might still miss key documents with exact matches.</li>
+          <li><strong>Hybrid search</strong> helps disambiguate by incorporating both keyword matches (e.g., if the search term is “jaguar as an animal”) and semantic interpretation to ensure relevant documents related to the user’s intended context (e.g., wildlife) are ranked higher.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="complex-queries-with-multiple-intentions">Complex Queries with Multiple Intentions</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: performs well when users search for very specific terms but may fail when a query contains multiple, overlapping concepts.</li>
+  <li>
+    <p><strong>Neural search</strong>: can handle broad concepts, but may dilute the importance of specific keywords or user intent if the query is too complex.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: For queries containing <strong>multiple sub-intents</strong>, hybrid search can effectively handle both the specific terms and the broader conceptual connections. It can prioritize documents that meet all aspects of the user’s query.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Legal Document Search</strong>:
+        <ul>
+          <li>A lawyer searching for cases involving “contract breach” and “intellectual property” will want documents that address both exact legal terms (e.g., “breach of contract” or “patent infringement”) and semantically related cases (e.g., cases involving licensing disputes).</li>
+          <li><strong>Hybrid search</strong> combines keyword matches for legal terms with neural search to retrieve cases that discuss related legal precedents and broader issues around contract law and intellectual property.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="understanding-user-language-variability">Understanding User Language Variability</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: struggles with linguistic variability, such as synonyms, abbreviations, or paraphrasing. It can only retrieve documents with the exact keywords provided in the query.</li>
+  <li>
+    <p><strong>Neural search</strong>: can capture synonyms and similar phrases because it interprets the meaning behind the words. However, it can sometimes misinterpret highly specific user intent by relying too much on general semantic similarity.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: Hybrid search captures both exact matches and semantically similar content, allowing users to retrieve results even if they use different wording or abbreviations.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Job Search Engines</strong>:
+        <ul>
+          <li>A job seeker may search for “software developer positions” while the job posting uses the term “software engineer.” Lexical search might fail to match these two terms exactly, while neural search will recognize that they are synonymous.</li>
+          <li><strong>Hybrid search</strong> ensures that both keyword-specific job titles (“developer”) and semantic matches (“engineer”) are retrieved, giving users broader and more accurate results.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="handling-structured-data-with-unstructured-queries">Handling Structured Data with Unstructured Queries</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: works well with structured data where the exact keywords and fields are predefined (e.g., filtering by product attributes like size or color).</li>
+  <li>
+    <p><strong>Neural search</strong>: excels with unstructured data, such as long-form text or user reviews, where the user’s search query relates to the overall meaning rather than specific fields.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: Hybrid search allows for <strong>both structured and unstructured data</strong> to be searched simultaneously. For instance, a product catalog might have structured data (e.g., product categories, prices) and unstructured data (e.g., user reviews, product descriptions). Hybrid search can combine both approaches to deliver more relevant and well-rounded results.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Real Estate Search</strong>:
+        <ul>
+          <li>Lexical search can handle structured queries (e.g., number of bedrooms, price range), while neural search can interpret the overall meaning behind more complex queries like “cozy family home near good schools.”</li>
+          <li><strong>Hybrid search</strong> combines the power of structured filtering (number of rooms, location) with the flexibility of neural search (understanding what makes a home “cozy” or the importance of nearby schools), offering a more comprehensive solution.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="personalized-search-with-both-user-specific-and-generic-relevance">Personalized Search with Both User-Specific and Generic Relevance</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: tends to treat every user query similarly without considering the user’s preferences, history, or personalization.</li>
+  <li>
+    <p><strong>Neural search</strong>: can better understand user-specific preferences based on past behavior and context but may generalize too much without retaining focus on specific keyword matches.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: Hybrid search enables personalized results by combining user preferences (captured by neural models) with high-confidence keyword matches. This ensures that personalized results are not only relevant at a conceptual level but also precise and aligned with specific search terms.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Personalized Content Recommendations</strong>:
+        <ul>
+          <li>For a user who frequently reads articles about “sustainable technology,” a query for “latest innovations” might trigger neural search to recommend relevant but broad results (e.g., general tech news). Lexical search ensures that specific keywords like “sustainable” are still considered.</li>
+          <li><strong>Hybrid search</strong> combines both approaches, ensuring that articles related to both “sustainability” and “technology” are prioritized in the personalized feed.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="multilingual-and-cross-language-search">Multilingual and Cross-Language Search</h4>
+
+<ul>
+  <li><strong>Lexical search</strong>: relies on exact word matches, making cross-language search difficult unless explicit translations or synonyms are provided.</li>
+  <li>
+    <p><strong>Neural search</strong>: can understand semantic meaning across languages using embeddings, but may miss specific keyword importance or fail in highly specialized queries.</p>
+  </li>
+  <li>
+    <p><strong>Hybrid Search Advantage</strong>: Hybrid search allows for <strong>cross-lingual searches</strong>, combining the strength of lexical matching for specific terms with neural search’s ability to understand the general meaning across languages.</p>
+
+    <ul>
+      <li><strong>Use-Case</strong>: <strong>Multilingual Support Search</strong>:
+        <ul>
+          <li>A user searching in Spanish for technical support might use a query like “problemas con servidor” (problems with the server). Neural search could retrieve relevant English documents (even if no Spanish documents exist) by understanding the semantics of the query. Lexical search would ensure that exact technical terms are also matched.</li>
+          <li><strong>Hybrid search</strong> can provide a combination of specific technical documents and semantically related results across languages.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="how-would-you-implement-search-for-a-platform-such-as-netflix">How would you implement search for a platform such as Netflix?</h3>
+
+<ul>
+  <li>Implementing a search system for Netflix involves a complex mix of information retrieval (IR) techniques, machine learning models, and recommendation algorithms. The primary goals for a Netflix search system are to quickly provide relevant, personalized content based on user preferences, and to handle natural language queries in an effective way. This search engine would need to balance precision, recall, personalization, and scalability, given Netflix’s large user base and extensive content library.</li>
+</ul>
+
+<h4 id="major-components-of-a-netflix-search-system">Major Components of a Netflix Search System</h4>
+
+<ul>
+  <li>To build a search system for Netflix, we would need to consider the following key components:</li>
+</ul>
+
+<ol>
+  <li><strong>Content Indexing</strong>: Efficient indexing of Netflix’s content catalog (movies, TV shows, genres, metadata).</li>
+  <li><strong>Query Understanding</strong>: Processing user queries to capture intent and meaning (e.g., parsing natural language queries like “family movies released in 2022”).</li>
+  <li><strong>Candidate Generation</strong>: Quickly retrieving a relevant subset of content for a given query.</li>
+  <li><strong>Ranking</strong>: Ranking content based on relevance and user preferences.</li>
+  <li><strong>Personalization</strong>: Adapting search results based on the user’s history, preferences, and viewing behavior.</li>
+  <li><strong>Evaluation Metrics</strong>: Evaluating the system based on precision, recall, user engagement, and personalized relevance.</li>
+</ol>
+
+<h4 id="content-indexing">Content Indexing</h4>
+
+<ul>
+  <li>
+    <p>Indexing Netflix’s content library is the foundational step in any search system. The goal is to structure the data in a way that allows for efficient and fast retrieval.</p>
+  </li>
+  <li><strong>Metadata for Indexing</strong>: Indexing content involves capturing structured metadata for each movie or show:
+    <ul>
+      <li>Title, genre, cast, and crew.</li>
+      <li>Release date, rating, and runtime.</li>
+      <li>Categories like “Comedy,” “Drama,” “Action,” “Documentary.”</li>
+      <li>Keywords, themes, and tags (e.g., “family-friendly,” “sci-fi”).</li>
+      <li>User-generated metadata like reviews, star ratings, and engagement metrics.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Structured and Unstructured Data</strong>: Netflix content includes both structured data (like title, genre) and unstructured data (like descriptions, synopses, and subtitles). Both should be indexed for searching purposes.</p>
+  </li>
+  <li>
+    <p><strong>Inverted Index</strong>: An inverted index can be used to store keyword mappings from content metadata, making keyword-based (lexical) searches fast and scalable.</p>
+  </li>
+  <li><strong>Embedding Index</strong>: For neural search and personalization, content can also be represented as embeddings (vector representations), using models like Word2Vec, BERT, or Sentence-BERT. These embeddings capture semantic relationships between content items, allowing the system to retrieve results that are conceptually similar to the query even if the exact words don’t match.</li>
+</ul>
+
+<h4 id="query-understanding">Query Understanding</h4>
+
+<ul>
+  <li>
+    <p>Query understanding involves parsing and processing the user’s search query to extract the intent behind the search and generate meaningful results. For Netflix, this is important since users may search for specific titles, genres, or concepts, and often use natural language.</p>
+  </li>
+  <li><strong>Natural Language Processing (NLP)</strong>: Use NLP techniques to parse and process user queries. For example, the system should be able to handle queries like:
+    <ul>
+      <li>“Romantic comedies from the 90s.”</li>
+      <li>“Movies with Tom Hanks and Meg Ryan.”</li>
+      <li>“Action movies released in 2021.”</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Entity Recognition</strong>: Use Named Entity Recognition (NER) to identify key entities in a query (e.g., actors, directors, genres, years). This allows for structured querying of the indexed metadata.</p>
+  </li>
+  <li>
+    <p><strong>Query Expansion</strong>: Expand queries to include synonyms, alternative phrases, or related terms to improve recall. For instance, a query for “scary movies” could also return results for “horror films.”</p>
+  </li>
+  <li><strong>Query Intent Detection</strong>: Classify queries based on intent (e.g., searching for a specific movie, looking for a genre, or finding something related to a favorite actor). Different intents would trigger different types of search logic.</li>
+</ul>
+
+<h4 id="candidate-generation">Candidate Generation</h4>
+
+<ul>
+  <li>
+    <p>The candidate generation step retrieves a broad set of potentially relevant content items from Netflix’s catalog based on the user’s query.</p>
+  </li>
+  <li>
+    <p><strong>Lexical Search</strong>: Use traditional keyword-based search methods (e.g., TF-IDF or BM25) to match the query terms with indexed content metadata. This is effective when users search for specific titles or well-known actors.</p>
+  </li>
+  <li>
+    <p><strong>Neural Search</strong>: Use neural search models to retrieve content that is semantically related to the query. For example, if a user searches for “family-friendly movies,” a neural model can understand that this concept might include movies like “Toy Story” or “The Incredibles,” even if those exact terms are not used in the query.</p>
+  </li>
+  <li>
+    <p><strong>Genre and Category Matching</strong>: Leverage metadata filtering to retrieve content based on specific filters such as genre, release date, or content rating.</p>
+  </li>
+  <li>
+    <p><strong>Collaborative Filtering</strong>: Candidate generation could also incorporate collaborative filtering techniques, retrieving content that other users with similar preferences have enjoyed, even if it isn’t an exact match to the search query.</p>
+  </li>
+</ul>
+
+<h4 id="ranking">Ranking</h4>
+
+<ul>
+  <li>
+    <p>Once a set of candidates is retrieved, the next step is to rank these items according to relevance, personalized preferences, and context.</p>
+  </li>
+  <li>
+    <p><strong>Relevance Ranking</strong>: Rank content based on a combination of keyword matching and semantic similarity between the query and the content. Techniques like BM25 for lexical relevance and cosine similarity of embeddings for semantic relevance can be used in tandem.</p>
+  </li>
+  <li><strong>Personalization</strong>: Rank items based on the user’s personal preferences and viewing history. This involves:
+    <ul>
+      <li>User embeddings: Generating an embedding for the user based on their viewing habits, preferred genres, and previous interactions.</li>
+      <li>Content similarity: Ranking items that are similar to content the user has previously enjoyed.</li>
+      <li>Temporal factors: Prioritizing newly released content or popular shows relevant to the user’s preferences.</li>
+      <li>Collaborative filtering: Incorporating ratings and interactions from other users with similar profiles.</li>
+    </ul>
+  </li>
+  <li><strong>Reinforcement Learning</strong>: Implementing contextual bandits can help with ranking by balancing the need to explore new content (to learn more about the user’s preferences) with the need to exploit known preferences. For example, it can occasionally recommend content from less-frequently watched genres to explore the user’s interests while mostly showing popular or relevant content.</li>
+</ul>
+
+<h4 id="personalization">Personalization</h4>
+
+<ul>
+  <li>
+    <p>Personalization is at the core of Netflix’s search experience. Unlike general search engines, Netflix needs to provide results tailored to each individual user based on their preferences and interactions.</p>
+  </li>
+  <li><strong>User Profiles</strong>: Every user should have a profile that tracks their past behavior, including:
+    <ul>
+      <li>Genres and categories they frequently watch.</li>
+      <li>Preferred actors or directors.</li>
+      <li>Historical engagement patterns (watch time, likes, dislikes, skips).</li>
+      <li>Implicit feedback (e.g., time spent browsing or hovering over a show).</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Content-Based Filtering</strong>: Recommend content that shares features or themes with shows and movies the user has watched or interacted with in the past.</p>
+  </li>
+  <li>
+    <p><strong>Collaborative Filtering</strong>: Recommend content that users with similar profiles have watched and liked.</p>
+  </li>
+  <li>
+    <p><strong>Real-Time Personalization</strong>: Adapt results based on real-time behavior, such as immediate reactions to content recommendations (e.g., clicking on or skipping over suggested titles). Real-time contextual bandit algorithms can help by updating the recommendation strategy on-the-fly based on immediate feedback.</p>
+  </li>
+  <li><strong>Dynamic Personalization</strong>: Use contextual information such as time of day, device (TV vs. mobile), or mood-based signals (e.g., trending content) to refine recommendations.</li>
+</ul>
+
+<h4 id="evaluation-metrics-1">Evaluation Metrics</h4>
+
+<ul>
+  <li>
+    <p>The search system should be evaluated regularly using a mix of offline metrics and online user engagement metrics.</p>
+  </li>
+  <li>
+    <p><strong>Precision and Recall</strong>: These traditional IR metrics measure how many relevant results are returned (recall) and how many of the returned results are relevant (precision).</p>
+  </li>
+  <li>
+    <p><strong>Click-Through Rate (CTR)</strong>: Measures how often users click on search results. High CTR indicates that the search results are relevant to the user’s query and preferences.</p>
+  </li>
+  <li><strong>Engagement Metrics</strong>: Track how often users watch the recommended content after clicking. This includes:
+    <ul>
+      <li><strong>Watch duration</strong>: How long the user watches the recommended content.</li>
+      <li><strong>Completion rate</strong>: Whether the user watches the full episode or movie.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Personalization Impact</strong>: Measure how well the system performs for individual users based on their preferences. Netflix may track the long-term engagement of users after personalized search sessions.</p>
+  </li>
+  <li><strong>A/B Testing</strong>: Continuously test different search models or ranking algorithms through A/B testing to determine which approach leads to higher engagement and satisfaction.</li>
+</ul>
+
+<h4 id="example-workflow-of-search-for-netflix">Example Workflow of Search for Netflix:</h4>
+
+<ol>
+  <li>
+    <p><strong>User Inputs a Query</strong>: The user searches for “romantic comedies from the 90s.”</p>
+  </li>
+  <li><strong>Query Understanding</strong>:
+    <ul>
+      <li><strong>NLP</strong> identifies “romantic comedies” as a genre and “90s” as a time period.</li>
+      <li>The system expands the query to include synonyms like “rom-com” and adjusts to capture variations on release dates (e.g., 1989-1999).</li>
+    </ul>
+  </li>
+  <li><strong>Candidate Generation</strong>:
+    <ul>
+      <li><strong>Lexical search</strong> retrieves romantic comedies explicitly tagged as such in the Netflix database.</li>
+      <li><strong>Neural search</strong> retrieves movies that are semantically related to “romantic comedies” (e.g., similar themes or tones).</li>
+      <li><strong>Genre filters</strong> are applied to include only movies released in the 90s.</li>
+    </ul>
+  </li>
+  <li><strong>Ranking</strong>:
+    <ul>
+      <li>The system ranks movies based on the user’s past viewing habits (e.g., prioritizing movies from favorite actors or genres).</li>
+      <li>Relevance ranking prioritizes movies that explicitly match the query, followed by those with semantic matches.</li>
+      <li>New and trending romantic comedies from the 90s are given a slight boost to encourage discovery.</li>
+    </ul>
+  </li>
+  <li><strong>Personalization</strong>:
+    <ul>
+      <li>The results are further personalized based on the user’s previous watching behavior (e.g., more emphasis on movies with similar tones to past favorites).</li>
+      <li>The search engine explores and presents a mix of well-known and new recommendations to engage the user.</li>
+    </ul>
+  </li>
+  <li><strong>Feedback Loop</strong>:
+    <ul>
+      <li>The system tracks which search results the user clicks on and whether they watch the content. This feedback is used to fine-tune future search results.</li>
+    </ul>
+  </li>
+</ol>
+
+<!-- ## References -->
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/recsys/search/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:18 GMT -->
+</html>

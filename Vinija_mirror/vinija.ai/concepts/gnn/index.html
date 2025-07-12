@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/concepts/gnn/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:30 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Primers • Graph Neural Networks</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Primers • Graph Neural Networks</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#background" id="markdown-toc-background">Background</a>    <ul>
+      <li><a href="#key-terms" id="markdown-toc-key-terms">Key terms</a></li>
+    </ul>
+  </li>
+  <li><a href="#overview-of-popular-gnn-architectures" id="markdown-toc-overview-of-popular-gnn-architectures">Overview of Popular GNN Architectures</a>    <ul>
+      <li><a href="#graph-convolutional-networks" id="markdown-toc-graph-convolutional-networks">Graph Convolutional Networks</a></li>
+      <li><a href="#graph-attention-networks" id="markdown-toc-graph-attention-networks">Graph Attention Networks</a></li>
+      <li><a href="#graphsage" id="markdown-toc-graphsage">GraphSAGE</a></li>
+      <li><a href="#edge-gnn" id="markdown-toc-edge-gnn">Edge GNN</a>        <ul>
+          <li><a href="#embedding-generation-neural-message-passing" id="markdown-toc-embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#benefits-of-gnns" id="markdown-toc-benefits-of-gnns">Benefits of GNNs</a></li>
+  <li><a href="#loss-functions" id="markdown-toc-loss-functions">Loss functions</a></li>
+  <li><a href="#graph-neural-networks-gnns-in-nlp" id="markdown-toc-graph-neural-networks-gnns-in-nlp">Graph Neural Networks (GNNs) in NLP</a></li>
+  <li><a href="#loss-functions-1" id="markdown-toc-loss-functions-1">Loss Functions</a></li>
+  <li><a href="#walkthrough" id="markdown-toc-walkthrough">Walkthrough</a></li>
+  <li><a href="#further-reading" id="markdown-toc-further-reading">Further Reading</a>    <ul>
+      <li><a href="#introductory-content" id="markdown-toc-introductory-content">Introductory Content</a></li>
+      <li><a href="#survey-papers-on-gnns" id="markdown-toc-survey-papers-on-gnns">Survey Papers on GNNs</a></li>
+      <li><a href="#diving-deep-into-gnns" id="markdown-toc-diving-deep-into-gnns">Diving Deep into GNNs</a></li>
+      <li><a href="#gnn-papers-and-implementations" id="markdown-toc-gnn-papers-and-implementations">GNN Papers and Implementations</a></li>
+      <li><a href="#benchmarks-and-datasets" id="markdown-toc-benchmarks-and-datasets">Benchmarks and Datasets</a></li>
+    </ul>
+  </li>
+  <li><a href="#tools" id="markdown-toc-tools">Tools</a></li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+
+<ul>
+  <li>Graph neural networks (GNNs) are rapidly advancing progress in ML for complex graph data applications. This primer presents a recipe for learning the fundamentals and staying up-to-date with GNNs.</li>
+</ul>
+
+<p><img src="assets/gnns/gnn.html" alt="" /></p>
+
+<ul>
+  <li>Graph Neural Networks (GNNs) are advanced neural network architectures designed to process graph-structured data, which are highly effective in various applications such as node classification, link prediction, and recommendation systems. GNNs can aggregate information from neighboring nodes and capture both local and global graph structures. They are particularly useful in recommender systems where they can process both explicit and implicit feedback from users, as well as contextual information. GNNs extend traditional neural networks to operate directly on graphs, a data structure capable of representing complex relationships.</li>
+  <li>A graph consists of sets of nodes or vertices connected by edges or links. In GNNs, nodes represent entities (like users or items), and edges signify their relationships or interactions.</li>
+  <li>GNNs follow an encoder-decoder architecture. In the encoder phase, the graph is fed into the GNN, which computes a representation or embedding for each node, capturing both its features and context within the graph.</li>
+  <li>The decoder phase involves making predictions or recommendations based on the learned node embeddings, such as computing similarity measures between node pairs or using embeddings in downstream models.</li>
+  <li>GNNs can model complex relationships in recommender systems, including multimodal interactions or hierarchical structures, and can incorporate diverse data like time or location.</li>
+  <li>Generating embeddings in GNN-based recommender systems means representing user and item nodes as low-dimensional vectors, generally achieved through neural message passing.</li>
+  <li>Preference prediction is often done using measures like cosine similarity.</li>
+  <li>Popular GNN architectures include Graph Convolutional Networks (GCNs), Graph Attention Networks (GATs), GraphSAGE, and GGNNs. GNNs find use in several industry applications, notably in maps (Google/Uber) and social networks (LinkedIn, Instagram, Facebook). They leverage both content information (semantic) and the relationships between entities (structural), offering an advantage over traditional models that usually rely on just one type of information.</li>
+  <li>The image below <a href="https://www.youtube.com/watch?v=hvTawbQnK_w">(source)</a> shows a high-level overview of how GNNs work for recommendation.</li>
+</ul>
+
+<p><img src="assets/gnns/1.html" alt="" /></p>
+
+<ul>
+  <li>The image below <a href="https://towardsdatascience.com/graph-neural-network-gnn-architectures-for-recommendation-systems-7b9dd0de0856">(source)</a> illustrates the different types of graphs, highlighting that recommender systems often follow a bipartite graph structure.</li>
+</ul>
+
+<p><img src="../assets/gnns/8.html" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<ul>
+  <li>Libraries such as <a href="https://github.com/pyg-team/pytorch_geometric">PyTorch Geometric</a> and <a href="https://docs.dgl.ai/index.html">Deep Graph Library</a> facilitate the implementation of GNNs.</li>
+</ul>
+
+<h3 id="key-terms">Key terms</h3>
+
+<ul>
+  <li>Let’s start with learning the nomenclature associated with GNNs:
+    <ul>
+      <li><strong>Homogeneous Graphs:</strong> This graph type has all the nodes and edges be of the same type. An example is a social network, where all the users are nodes and the edges are their friendships.</li>
+      <li><strong>Heterogeneous Graphs:</strong> In contrast, this graph type has all the nodes and edges of different types with different representation of entities and relationships. An example is a recommendation system where users, movies, and genres are the entities, the graph would be considered heterogeneous because the nodes represent different types of objects (users, movies, genres) and the edges represent different types of relationships (user-movie interactions, movie-genre associations).</li>
+      <li><strong>Node Embeddings:</strong> Node embeddings are low-dimensional vector representations that capture the structural and relational information of nodes in a graph. GNNs are designed to learn these embeddings by iteratively aggregating information from neighboring nodes.</li>
+      <li><strong>Message Passing:</strong> Message passing is a fundamental operation in GNNs where nodes exchange information with their neighbors. During message passing, each node aggregates the information from its neighbors to update its own representation.</li>
+      <li><strong>Aggregation Functions:</strong> Aggregation functions are used in GNNs to combine information from neighboring nodes. Common aggregation functions include summation, averaging, and max-pooling, among others. These functions determine how information is aggregated and propagated through the graph.</li>
+      <li><strong>Graph Convolutional Networks (GCNs):</strong> GCNs are a popular type of GNN architecture that perform convolutional operations on graph-structured data. They adapt the concept of convolutions from traditional neural networks to the graph domain, enabling information propagation and feature extraction across the graph.</li>
+      <li><strong>GraphSAGE:</strong> GraphSAGE (Graph Sample and Aggregation) is a GNN m odel that uses sampling techniques to efficiently learn node embeddings. It aggregates information from sampled neighborhood nodes to update a node’s representation. GraphSAGE is commonly used in large-scale graph applications.</li>
+      <li><strong>Graph Attention Networks (GATs):</strong> GATs are GNN models that incorporate attention mechanisms. They assign attention weights to the neighboring nodes during message passing, allowing the model to focus on more relevant nodes and relationships.</li>
+      <li><strong>Link Prediction:</strong> Link prediction is a task in GNNs that aims to predict the presence or absence of edges between nodes in a graph. GNNs can learn to model the likelihood of missing or future connections based on the graph’s structure and node features.</li>
+      <li><strong>Graph Pooling:</strong> Graph pooling refers to the process of aggregating or downsampling nodes and edges in a graph to create a coarser representation. Pooling is often used in GNNs to handle graphs of varying sizes and reduce computational complexity.</li>
+      <li><strong>Graph Classification:</strong> Graph classification involves assigning a label or category to an entire graph. GNNs can be trained to perform graph-level predictions by aggregating information from the nodes and edges in the graph.</li>
+      <li><strong>Semi-Supervised Learning:</strong> GNNs often operate in a semi-supervised learning setting, where only a subset of nodes have labeled data. GNNs can leverage both labeled and unlabeled data to propagate information and make predictions on unlabeled nodes or graphs.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview-of-popular-gnn-architectures">Overview of Popular GNN Architectures</h2>
+
+<ul>
+  <li>This section offers an overview of popular GNN architectures. For more details of their training process and their unique characteristics, please refer the <a href="../../recsys/GNN/index-2.html">GNNs for RecSys</a> primer.</li>
+</ul>
+
+<h3 id="graph-convolutional-networks">Graph Convolutional Networks</h3>
+
+<ul>
+  <li>
+    <p>Graph Convolutional Networks (GCNs) are a type of neural network designed to work directly with graph-structured data. GCNs are particularly useful for several reasons:</p>
+
+    <ul>
+      <li>
+        <p><strong>Handling Sparse Data</strong>: Recommender systems often deal with sparse user-item interaction data. GCNs are adept at handling such sparse data by leveraging the graph structure.</p>
+      </li>
+      <li>
+        <p><strong>Capturing Complex Relationships</strong>: GCNs can capture complex and non-linear relationships between users and items. In a typical recommender system graph, nodes represent users and items, and edges represent interactions (like ratings or purchases). GCNs can effectively learn these relationships.</p>
+      </li>
+      <li>
+        <p><strong>Incorporating Side Information</strong>: GCNs can easily incorporate additional information (like user demographics or item descriptions) into the graph structure, providing a more holistic view of the user-item interactions.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="graph-attention-networks">Graph Attention Networks</h3>
+
+<ul>
+  <li>Graph Attention Networks (GATs) are a type of neural network designed to operate on graph-structured data. They are particularly noteworthy for how they incorporate the attention mechanism, a concept widely used in fields like natural language processing, into graph neural networks.</li>
+  <li><strong>Graph-based Framework:</strong> GATs are built for data represented in graph form. In a graph, data points (nodes) are connected by edges, which may represent various kinds of relationships or interactions.</li>
+  <li><strong>Attention Mechanism:</strong> The key feature of GATs is the use of the attention mechanism to weigh the importance of nodes in a graph. This mechanism allows the model to focus more on certain nodes than others when processing the information, which is crucial for capturing the complexities of graph-structured data.</li>
+</ul>
+
+<h3 id="graphsage">GraphSAGE</h3>
+
+<ul>
+  <li>GraphSAGE (Graph Sample and Aggregated) is a GNN model introduced by Hamilton et al. in <a href="https://arxiv.org/abs/1706.02216">Inductive Representation Learning on Large Graphs</a>. It aims to address the challenge of incorporating information from the entire neighborhood of a node in a scalable manner. The key idea behind GraphSAGE is to sample and aggregate features from a node’s local neighborhood to generate node representations.</li>
+  <li>In GraphSAGE, each node aggregates feature information from its immediate neighbors. This aggregation is performed in a message-passing manner, where each node gathers features from its neighbors, performs a pooling operation (e.g., mean or max pooling) to aggregate the features, and then updates its own representation using the aggregated information. This process is repeated iteratively for multiple layers, allowing nodes to incorporate information from increasing distances in the graph.</li>
+  <li>GraphSAGE utilizes the sampled and aggregated representations to learn node embeddings that capture both local and global graph information. These embeddings can then be used for various downstream tasks such as node classification or link prediction.</li>
+</ul>
+
+<h3 id="edge-gnn">Edge GNN</h3>
+
+<ul>
+  <li>Originally proposed in <a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Gong_Exploiting_Edge_Features_for_Graph_Neural_Networks_CVPR_2019_paper.pdf">Exploiting Edge Features for Graph Neural Networks</a> by Gong and Cheng from the University of Kentucky in CVPR 2019, Enhanced Graph Neural Network (EGNN) (or Edge GNN or Edge GraphSAGE) refers to an extension of the GraphSAGE model that incorporates information from both nodes and edges in the graph. While the original GraphSAGE focuses on aggregating information from neighboring nodes, Edge GNN takes into account the structural relationships between nodes provided by the edges.</li>
+  <li>In Edge GNN, the message-passing process considers both the features of neighboring nodes and the features of connecting edges. This allows the model to capture more fine-grained information about the relationships between nodes, such as the type or strength of the edge connection. By incorporating edge features in addition to node features, Edge GNN can learn more expressive representations that capture both node-level and edge-level information.</li>
+  <li>The Edge GNN model follows a similar iterative message-passing framework as GraphSAGE, where nodes gather and aggregate information from neighboring nodes and edges, update their representations, and propagate information across the graph. This enables the model to capture both semantic and structural information from both the local and global neighborhood of the graph and learn more comprehensive representations for nodes and edges.</li>
+</ul>
+
+<h4 id="embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</h4>
+
+<ul>
+  <li>Generating embeddings in GNN is typically achieved through information propagation, also known as neural message passing, which involves passing information between neighboring nodes in the graph in a recursive manner, and updating the node representations based on the aggregated information.</li>
+  <li>The propagation process allows the embeddings to capture both local and global information about the nodes, and to incorporate the contextual information from their neighbors.</li>
+  <li>By generating informative and expressive embeddings, GNN-based recommenders can effectively capture the complex user-item interactions and item-item relations, and make accurate and relevant recommendations.</li>
+  <li>Neural message passing is a key technique for generating embeddings in GNN-based recommender systems. It allows the nodes in the graph to communicate with each other by passing messages along the edges, and updates their embeddings based on the aggregated information.</li>
+  <li>At a high level, the message passing process consists of two steps:
+    <ol>
+      <li><strong>Message computation:</strong> In this step, each node sends a message to its neighboring nodes, which is typically computed as a function of the node’s own embedding and the embeddings of its neighbors. The message function can be a simple linear transformation, or a more complex non-linear function such as a neural network.</li>
+      <li><strong>Message aggregation:</strong> In this step, each node collects the messages from its neighbors and aggregates them to obtain a new representation of itself. The aggregation function can also be a simple sum or mean, or a more complex function such as a max-pooling or attention mechanism.</li>
+    </ol>
+  </li>
+  <li>The message passing process is usually performed recursively for a fixed number of iterations, allowing the nodes to exchange information with their neighbors and update their embeddings accordingly. The resulting embeddings capture the local and global information about the nodes, as well as the contextual information from their neighbors, which is useful for making accurate and relevant recommendations.</li>
+  <li>Some common algorithms and techniques used for neural message passing in GNNs are:
+    <ul>
+      <li><strong>Graph Convolutional Networks (GCNs):</strong> GCNs apply a localized convolution operation to each node in the graph, taking into account the features of its neighboring nodes. This allows for the aggregation of information from neighboring nodes to update the node’s feature representation.</li>
+      <li><strong>Graph Attention Networks (GATs):</strong> GATs use a learnable attention mechanism to weigh the importance of neighboring nodes when updating a node’s feature representation. This allows the model to selectively focus on the most relevant neighbors.</li>
+      <li><strong>GraphSAGE:</strong> GraphSAGE uses a hierarchical sampling scheme to aggregate information from the neighborhood of each node. This allows for efficient computation of node embeddings for large graphs.</li>
+      <li><strong>Message Passing Neural Networks (MPNNs):</strong> MPNNs use a general framework for message passing between nodes in a graph, allowing for flexibility in modeling different types of interactions.</li>
+    </ul>
+  </li>
+  <li>In the context of GNNs for recommender systems, the goal is to generate embeddings for the user and item nodes in the graph. The embeddings can then be used for tasks such as candidate generation, scoring, and ranking.</li>
+  <li>The process of generating embeddings involves multiple GNN layers, each of which performs an exchange of information between the immediate neighbors in the graph. At each layer, the information exchanged is aggregated and processed to generate new embeddings for each node. This process can be repeated for as many layers as desired, and the number of layers determines how far information is propagated in the graph.</li>
+  <li>For example, in a 2-layer GNN model, each node will receive information from its immediate neighbors (i.e., nodes connected by an edge) and its immediate neighbors’ neighbors. This allows information to be propagated beyond a node’s direct neighbors, potentially capturing higher-level structural relationships in the graph.</li>
+  <li>From <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">Building a Recommender System Using Graph Neural Networks</a>, here is the pseudo-code for generating embeddings for a given node:
+    <ol>
+      <li>Fetch incoming messages from all neighbors.</li>
+      <li>Reduce all those messages into 1 message by doing mean aggregation.</li>
+      <li>Matrix multiplication of the neighborhood message with a learnable weight matrix.</li>
+      <li>Matrix multiplication of the initial node message with a learnable weight matrix.</li>
+      <li>Sum up the results from steps 3 and 4.</li>
+      <li>Pass the sum through a ReLU activation function to model non-linearity relationships in the data.</li>
+      <li>Repeat for as many layers as desired. The result is the output of the last layer.</li>
+    </ol>
+  </li>
+  <li>The image below <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a> visually represents this pseudo code.</li>
+</ul>
+
+<p><img src="assets/gnns/6.html" alt="" /></p>
+
+<ul>
+  <li>Message passing has two steps, Aggregation and Update as we can see in the image <a href="http://www.aritrasen.com/graph-neural-network-message-passing-gcn-1-1/">(source)</a> below.</li>
+</ul>
+
+<p><img src="assets/gnns/7.html" alt="" /></p>
+
+<ul>
+  <li>The aggregation function works on defining how the messages from the neighboring nodes are combined to compute new representations of the node.</li>
+  <li>“This aggregate function should be a permutation invariant function like sum or average. The update function itself can be a neural network (with attention or without attention mechanism) which will generate the updated node embeddings.” <a href="http://www.aritrasen.com/graph-neural-network-message-passing-gcn-1-1/">(source)</a></li>
+</ul>
+
+<h2 id="benefits-of-gnns">Benefits of GNNs</h2>
+
+<ul>
+  <li><strong>Incorporating Graph Structure:</strong> GNNs are designed to process data with inherent graph structure, which is particularly useful in recommender systems. Recommender systems often involve modeling relationships between users, items, and their interactions. GNNs can effectively capture these complex relationships and dependencies by leveraging the graph structure, leading to more accurate and personalized recommendations.</li>
+  <li><strong>Implicit Collaborative Filtering:</strong> Collaborative filtering is a popular recommendation technique that relies on user-item interactions. GNNs can handle implicit feedback data, such as user clicks, views, or purchase history, without the need for explicit ratings. GNNs can learn from the graph connections and propagate information across users and items, enabling collaborative filtering in a more efficient and scalable manner.</li>
+  <li><strong>Modeling User and Item Features:</strong> GNNs can handle heterogeneous data by incorporating user and item features alongside the graph structure. In recommender systems, users and items often have associated attributes or contextual information that can influence the recommendations. GNNs can effectively integrate these features into the learning process, allowing for more personalized recommendations that consider both user preferences and item characteristics.</li>
+  <li><strong>Capturing Higher-Order Dependencies:</strong> GNNs can capture higher-order dependencies by aggregating information from neighboring nodes in multiple hops. This allows GNNs to capture complex patterns and relationships that may not be easily captured by traditional recommendation algorithms. GNNs can discover latent factors and capture long-range dependencies, resulting in improved recommendation quality.</li>
+  <li><strong>Cold Start Problem:</strong> GNNs can help address the cold start problem, which occurs when there is limited or no historical data for new users or items. By leveraging the graph structure and user/item features, GNNs can generalize from existing data and make reasonable recommendations even for users or items with limited interactions.</li>
+  <li><strong>Interpretability:</strong> GNNs provide interpretability by allowing inspection of the learned representations and the influence of different nodes or edges in the graph. This can help understand the reasoning behind recommendations and provide transparency to users, increasing their trust in the system.</li>
+</ul>
+
+<h2 id="loss-functions">Loss functions</h2>
+<ul>
+  <li><strong>Binary Cross-Entropy Loss:</strong> Binary cross-entropy loss is often used for binary classification tasks in GNNs. It is suitable when the task involves predicting a binary label or making a binary decision based on the graph structure and node features.</li>
+  <li><strong>Categorical Cross-Entropy Loss:</strong> Categorical cross-entropy loss is used for multi-class classification tasks in GNNs. If the GNN is trained to predict the class label of nodes or edges in a graph, this loss function is commonly employed.</li>
+  <li><strong>Mean Squared Error (MSE) Loss:</strong> MSE loss is frequently used for regression tasks in GNNs. If the goal is to predict a continuous or numerical value associated with nodes or edges in the graph, MSE loss can measure the difference between predicted and true values.</li>
+  <li><strong>Pairwise Ranking Loss:</strong> Pairwise ranking loss is suitable for recommendation or ranking tasks in GNNs. It is used when the goal is to learn to rank items or nodes based on their relevance or preference to users. Examples of pairwise ranking loss functions include the hinge loss and the pairwise logistic loss.</li>
+  <li><strong>Triplet Ranking Loss:</strong> Triplet ranking loss is another type of loss function used for ranking tasks in GNNs. It aims to learn representations that satisfy certain constraints among a triplet of samples. The loss encourages the model to assign higher rankings to relevant items compared to irrelevant items.</li>
+  <li><strong>Graph Reconstruction Loss:</strong> Graph reconstruction loss is employed when the goal is to reconstruct the input graph or its properties using the GNN. This loss compares the reconstructed graph with the original graph to measure the similarity or reconstruction error.</li>
+</ul>
+
+<h2 id="graph-neural-networks-gnns-in-nlp">Graph Neural Networks (GNNs) in NLP</h2>
+
+<ul>
+  <li>Graph Neural Networks (GNNs) are a type of Neural Network that operate on data structured as graphs. They can capture the complex relationships between nodes in a graph, which can often provide more nuanced representations of the data than traditional neural networks.</li>
+  <li>While GNNs are often used in areas like social network analysis, citation networks, and molecular chemistry, they’re also finding increasing use in the field of Natural Language Processing (NLP).</li>
+  <li>One of the main ways GNNs are used in NLP is in capturing the dependencies and relations between words in a sentence or phrases in a text. For example, a text can be represented as a graph where each word is a node and the dependencies between them are edges. GNNs can then learn representations for the words in a way that takes into account both the words’ individual properties and their relations to other words.</li>
+  <li>One specific use case is in the field of Information Extraction, where GNNs can help determine relations between entities in a text. They can also be used in semantic role labeling, where the aim is to understand the semantic relationships between the words in a sentence.</li>
+  <li>The fundamental principle behind GNNs is the neighborhood aggregation or message-passing framework. The representation of a node in a graph is computed by aggregating the features of its neighboring nodes. The most basic form of GNN - Graph Convolutional Network (GCN) operates in the following way:
+    <ol>
+      <li><strong>Node-level Feature Aggregation:</strong>
+        <ul>
+          <li>For each node \(v\) in the graph, we aggregate the feature vectors of its neighboring nodes. This can be a simple average:
+  \(h_{v}^{(1)} = \frac{1}{|\mathcal{N}(v)|} \sum_{u \in \mathcal{N}(v)} x_u\)
+            <ul>
+              <li>where \(h_{v}^{(1)}\) is the first-level feature of node \(v\), \(x_u\) is the input feature of node \(u\), and \(\|\mathcal{N}(v)\|\) denotes the number of neighbors of \(v\).</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>Feature Transformation:</strong>
+        <ul>
+          <li>Then, a linear transformation followed by a non-linear activation function is applied to these aggregated features:
+  \(h_{v}^{(2)} = \sigma(W h_{v}^{(1)})\)
+            <ul>
+              <li>where \(h_{v}^{(2)}\) is the second-level feature of node \(v\), \(W\) is a learnable weight matrix, and \(\sigma\) denotes a non-linear activation function such as ReLU.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="loss-functions-1">Loss Functions</h2>
+
+<ul>
+  <li>The choice of loss function in training GNNs depends on the specific task at hand.</li>
+  <li>For example, in a classification task (like sentiment analysis), you might use a cross-entropy loss, which measures the dissimilarity between the predicted probability distribution and the true distribution.</li>
+  <li>In a sequence labeling task (like named entity recognition or part-of-speech tagging), you might use a sequence loss like the conditional random field (CRF) loss.</li>
+  <li>In a regression task (like predicting the semantic similarity between two sentences), you might use a mean squared error loss.</li>
+  <li>It’s also common to use a combination of different loss functions. For example, you might use a combination of cross-entropy loss for classification and a regularization term to prevent overfitting.</li>
+  <li>In all cases, the goal of the loss function is to provide a measure of how well the network’s predictions align with the true labels in the training data, and to guide the adjustment of the network’s weights during training.</li>
+  <li>
+    <p>The choice of loss function for GNNs in NLP tasks greatly depends on the specific problem being addressed.</p>
+  </li>
+  <li>
+    <p><strong>Classification Task:</strong> For a multi-class classification task, Cross-Entropy loss is commonly used. The cross-entropy loss for a single data point can be calculated as:</p>
+
+\[L = -\sum_{c=1}^{M} y_{o,c} \log(p_{o,c})\]
+
+    <ul>
+      <li>where \(y\) is a binary indicator (0 or 1) if class label \(c\) is the correct classification for observation \(o\), and \(p\) is the predicted probability observation \(o\) is of class \(c\).</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Sequence Labeling Task:</strong> For tasks like named entity recognition or part-of-speech tagging, Conditional Random Field (CRF) loss can be used. This loss is more complicated and beyond the scope of this brief explanation, but essentially it learns to predict sequences of labels that take into account not just individual label scores, but also their relationships to each other.</p>
+  </li>
+  <li>
+    <p><strong>Regression Task:</strong> For predicting continuous values, Mean Squared Error (MSE) loss is commonly used. The MSE loss can be calculated as:</p>
+
+\[L = \frac{1}{n}\sum_{i=1}^{n}(Y_i - \hat{Y_i})^2\]
+
+    <ul>
+      <li>where \(Y\) is the ground truth value, \(Ŷ\) is the predicted value, and \(n\) is the total number of data points.</li>
+    </ul>
+  </li>
+  <li>It’s important to note that these are just typical examples. The choice of loss function should always be tailored to the specific task and the data at hand.</li>
+</ul>
+
+<h2 id="walkthrough">Walkthrough</h2>
+
+<ul>
+  <li>Now, let’s do a quick walkthrough on creating our own system from scratch and see all the steps that it would take.</li>
+  <li>First is the dataset, say we have user-item interaction, item features and user features available as shown below <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d">(source)</a> starting with user-item interaction.</li>
+</ul>
+
+<p><img src="assets/gnns/2.html" alt="" /></p>
+
+<ul>
+  <li>The item features are as below.</li>
+</ul>
+
+<p><img src="assets/gnns/3.html" alt="" /></p>
+
+<ul>
+  <li>The user features are as below.</li>
+</ul>
+
+<p><img src="assets/gnns/4.html" alt="" /></p>
+
+<ul>
+  <li>The next step is to create a graph as shown below <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d">(source)</a>.</li>
+</ul>
+
+<p><img src="assets/gnns/5.html" alt="" /></p>
+
+<ul>
+  <li>The embeddings are created using the procedure elaborated in <a href="#embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</a>.  The embeddings generated by GNNs are utilized to estimate the likelihood of a connection between two nodes. To calculate the probability of interaction between a user \(u\) and an item \(v\), we use the cosine similarity function. After computing scores for all items that a user did not interact with, the system recommends the items with the highest scores.</li>
+  <li>The main goal during training of the model is to optimize the trainable matrices (\(W\)) used for generating the embeddings. To achieve this, a max-margin loss function is used, which involves negative sampling. The training data set only includes edges representing click and purchase events.</li>
+  <li>The model is trained in such a way that it learns to predict a higher score for a positive edge (an edge between a user and an item that they actually interacted with) compared to randomly sampled negative edges. These negative edges are connections between a user and random items that they did not interact with. The idea is to teach the model to distinguish between actual positive interactions and randomly generated negative interactions.</li>
+</ul>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<h3 id="introductory-content">Introductory Content</h3>
+
+<ul>
+  <li>Here’s some introductory content to learn about GNNs:
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=uF53xsT7mjc">Foundations of GNNs</a> by Petar Veličković.</li>
+      <li><a href="https://distill.pub/2021/gnn-intro/">Gentle Introduction to GNNs</a> by Distill.pub.</li>
+      <li><a href="https://distill.pub/2021/understanding-gnns/">Understanding Convolutions on Graphs</a> by Distill.pub.</li>
+      <li><a href="https://rish-16.github.io/posts/gnn-math/">Math Behind Graph Neural Networks</a> by Rishabh Anand.</li>
+      <li><a href="https://www.inovex.de/de/blog/knowledge-graphs-explainability-methods-modern-natural-language-processing/">Combining Knowledge Graphs and Explainability Methods in modern Natural Language Processing</a> by Korbinian Pöppel.</li>
+      <li><a href="http://www.aritrasen.com/graph-neural-network-getting-started-1-0/">Graph Neural Network – Getting Started – 1.0</a> by Aritra Sen.</li>
+      <li><a href="http://tkipf.github.io/graph-convolutional-networks/">Graph Convolutional Networks</a> by Thomas Kipf.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="survey-papers-on-gnns">Survey Papers on GNNs</h3>
+
+<ul>
+  <li>Here are some fantastic survey papers on the topic to get a broader and concise picture of GNNs and recent progress:
+    <ul>
+      <li><a href="https://arxiv.org/abs/1812.04202">Deep Learning on Graphs: A Survey</a> by Ziwei Zhang et al.</li>
+      <li><a href="https://arxiv.org/abs/1901.00596">A Comprehensive Survey on Graph Neural Networks</a> by Zonghan Wu et al.</li>
+      <li><a href="https://arxiv.org/abs/2102.10757">Self-Supervised Learning of Graph Neural Networks: A unified view</a> by Yaochen Xie et al.</li>
+      <li><a href="https://arxiv.org/abs/2108.10733">Graph Neural Networks: Methods, Applications, and Opportunities</a> by Lilapati Waikhom and Ripon Patgiri</li>
+      <li><a href="https://arxiv.org/abs/1901.00596">A Comprehensive Survey on Graph Neural Networks</a> by Zonghan Wu et al.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="diving-deep-into-gnns">Diving Deep into GNNs</h3>
+
+<ul>
+  <li>Credits for the below section go to <a href="https://twitter.com/omarsar0">Elvis Saravia</a>.</li>
+  <li>After going through quick high-level introductory content, here are some great material to go deep:
+    <ul>
+      <li><a href="https://geometricdeeplearning.com/">Geometric Deep Learning</a> by Michael Bronstein et al.</li>
+      <li><a href="https://www.cs.mcgill.ca/~wlh/grl_book/">Graph Representation Learning Book</a> by William Hamilton.</li>
+      <li><a href="https://www.youtube.com/playlist?list=PLoROMvodv4rPLKxIpqhjhPgdQy7imNkDn">CS224W: ML with Graphs</a> by Jure Leskovec.</li>
+      <li><a href="https://github.com/thunlp/GNNPapers">Must-read papers on GNN</a>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="gnn-papers-and-implementations">GNN Papers and Implementations</h3>
+
+<ul>
+  <li>If you want to keep up-to-date with popular recent methods and paper implementations for GNNs, the Papers with Code community maintains this useful collection:
+    <ul>
+      <li><a href="https://paperswithcode.com/methods/category/graph-models">Graph Models by Papers with Code</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="benchmarks-and-datasets">Benchmarks and Datasets</h3>
+
+<ul>
+  <li>If you are interested in benchmarks/leaderboards and graph datasets that evaluate GNNs, the Papers with Code community also maintains such content here:
+    <ul>
+      <li><a href="https://paperswithcode.com/datasets?mod=graphs&amp;page=1">Datasets by Papers with Code</a></li>
+      <li><a href="https://paperswithcode.com/area/graphs">Graph Benchmarks by Papers with Code</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="tools">Tools</h2>
+
+<ul>
+  <li>Here are a few useful tools to get started with GNNs:
+    <ul>
+      <li><a href="https://pytorch-geometric.readthedocs.io/en/latest/#">PyTorch Geometric</a></li>
+      <li><a href="https://www.dgl.ai/">Deep Graph Library</a></li>
+      <li><a href="https://github.com/deepmind/jraph">jraph</a></li>
+      <li><a href="https://graphneural.network/">Spektral</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2020DistilledGraphNeuralNetworks,
+  title   = {Graph Neural Networks},
+  author  = {Chadha, Aman and Jain, Vinija},
+  journal = {Distilled AI},
+  year    = {2020},
+  note    = {\url{https://aman.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/concepts/gnn/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:32 GMT -->
+</html>

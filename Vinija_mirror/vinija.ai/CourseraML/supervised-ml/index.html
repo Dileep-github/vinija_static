@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/CourseraML/supervised-ml/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Coursera-ML • Supervised Learning</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Coursera-ML • Supervised Learning</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#regression" id="markdown-toc-regression">Regression</a>    <ul>
+      <li><a href="#linear-regression" id="markdown-toc-linear-regression">Linear Regression</a>        <ul>
+          <li><a href="#cost-function-for-linear-regression-squared-error" id="markdown-toc-cost-function-for-linear-regression-squared-error">Cost Function for Linear Regression (Squared error)</a></li>
+          <li><a href="#gradient-descent-or-stochastic-gradient-descent" id="markdown-toc-gradient-descent-or-stochastic-gradient-descent">Gradient Descent or Stochastic Gradient Descent</a></li>
+          <li><a href="#gradient-descent-with-momentum" id="markdown-toc-gradient-descent-with-momentum">Gradient Descent with Momentum</a></li>
+        </ul>
+      </li>
+      <li><a href="#the-basics-of-gradient-descent" id="markdown-toc-the-basics-of-gradient-descent">The Basics of Gradient Descent</a></li>
+      <li><a href="#the-problem-with-vanilla-gradient-descent" id="markdown-toc-the-problem-with-vanilla-gradient-descent">The Problem with Vanilla Gradient Descent</a></li>
+      <li><a href="#gradient-descent-with-momentum-1" id="markdown-toc-gradient-descent-with-momentum-1">Gradient Descent with Momentum</a></li>
+      <li><a href="#advantages-of-gradient-descent-with-momentum" id="markdown-toc-advantages-of-gradient-descent-with-momentum">Advantages of Gradient Descent with Momentum</a></li>
+      <li><a href="#adam-vs-momentum-vs-sgd" id="markdown-toc-adam-vs-momentum-vs-sgd">Adam vs Momentum vs SGD</a>        <ul>
+          <li><a href="#use-cases" id="markdown-toc-use-cases">Use cases</a></li>
+        </ul>
+      </li>
+      <li><a href="#adaboost" id="markdown-toc-adaboost">AdaBoost</a></li>
+      <li><a href="#adam-algorithm-adaptive-moment-estimation" id="markdown-toc-adam-algorithm-adaptive-moment-estimation">Adam Algorithm (Adaptive Moment estimation)</a></li>
+      <li><a href="#key-differences" id="markdown-toc-key-differences">Key Differences</a>        <ul>
+          <li><a href="#feature-scaling" id="markdown-toc-feature-scaling">Feature Scaling</a></li>
+          <li><a href="#batch-gradient-descent" id="markdown-toc-batch-gradient-descent">Batch Gradient Descent</a></li>
+          <li><a href="#batch-sgd-vs-minibatch-sgd-vs-sgd" id="markdown-toc-batch-sgd-vs-minibatch-sgd-vs-sgd">Batch SGD vs Minibatch SGD vs SGD</a></li>
+          <li><a href="#explain-briefly-batch-gradient-descent-stochastic-gradient-descent-and-mini-batch-gradient-descent-list-the-pros-and-cons-of-each" id="markdown-toc-explain-briefly-batch-gradient-descent-stochastic-gradient-descent-and-mini-batch-gradient-descent-list-the-pros-and-cons-of-each">Explain briefly batch gradient descent, stochastic gradient descent, and mini-batch gradient descent? List the pros and cons of each.</a></li>
+        </ul>
+      </li>
+      <li><a href="#polynomial-regression" id="markdown-toc-polynomial-regression">Polynomial Regression</a></li>
+    </ul>
+  </li>
+  <li><a href="#all-3-in-one-cost-function-for-linear-regression-via-gradient-descent" id="markdown-toc-all-3-in-one-cost-function-for-linear-regression-via-gradient-descent">All 3 in one! (Cost function for Linear regression via Gradient descent)</a></li>
+  <li><a href="#supervised-learning-classification" id="markdown-toc-supervised-learning-classification">Supervised Learning: Classification</a>    <ul>
+      <li><a href="#logistic-regression" id="markdown-toc-logistic-regression">Logistic Regression</a>        <ul>
+          <li><a href="#gradient-descent-for-logistic-regression" id="markdown-toc-gradient-descent-for-logistic-regression">Gradient Descent for Logistic Regression</a></li>
+          <li><a href="#cost-function-for-logistic-regression-log-loss" id="markdown-toc-cost-function-for-logistic-regression-log-loss">Cost Function for Logistic Regression (Log Loss)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#overfitting-and-underfitting" id="markdown-toc-overfitting-and-underfitting">Overfitting and Underfitting</a></li>
+  <li><a href="#tldr" id="markdown-toc-tldr">TL;DR</a></li>
+</ul>
+
+<h2 id="regression">Regression</h2>
+<ul>
+  <li>Supervised learning refers to algorithms that learn \(x \rightarrow y\) aka input to output mappings.</li>
+  <li>It learns the correct label \(y\) for given input \(x\).</li>
+  <li>It’s by seeing correct pairs of \(x\) and \(y\), supervised learning models learns to take just the input alone and give a reasonable output \(y\).</li>
+  <li>Example use cases below:</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/1.jpg" alt="" /></p>
+
+<ul>
+  <li>Let’s dive deeper into a specific example: Housing price prediction.</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/2.jpg" alt="" /></p>
+
+<ul>
+  <li>Here, the \(x\) (input) value is the House size in feet squared and the \(y\) (output) is the Price in $1000’s.</li>
+  <li>So how can the learning algorithm help us predict house values?</li>
+  <li>One thing it can do is fit a straight, or in this case, a curved line that fits the data distribution well.</li>
+  <li>Furthermore, this housing price prediction problem is a specific type of supervised learning known as regression.</li>
+  <li>Regression: Predict a number from infinitely possible outputs.</li>
+</ul>
+
+<h3 id="linear-regression">Linear Regression</h3>
+<ul>
+  <li>Fits a straight line through the dataset like the example below:</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/5.jpg" alt="" /></p>
+
+<ul>
+  <li>This is a regression model because it predicts numbers, specifically house prices per size.</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/6.jpg" alt="" /></p>
+
+<ul>
+  <li>Above we can see the breakdown of the life cycle of how a model works.
+    <ul>
+      <li>We start with a training set (with features and targets) that is fed into the learning algorithm.</li>
+      <li>The learning algorithm then produces some function \(f\), which is also called hypothesis in the Stanford ML lectures. This function, which is also the actual model, is fed the features and returns the prediction for the output \(y\).</li>
+    </ul>
+  </li>
+  <li>What if our training set had multiple features as input parameters?
+    <ul>
+      <li>Here we take the features \(w\) as a row vector.</li>
+      <li>\(b\) is a single number.</li>
+      <li>Multiple linear regression is the model for multiple input features. The formula is displayed below:</li>
+    </ul>
+
+    <p><img src="../assets/supervised-ml/12.jpg" alt="" /></p>
+  </li>
+</ul>
+
+<h4 id="cost-function-for-linear-regression-squared-error">Cost Function for Linear Regression (Squared error)</h4>
+<ul>
+  <li>In order to implement linear regression, we need to first define the cost function.</li>
+  <li>The cost function tells us how well the model is doing, so we can improve it further.
+    <ul>
+      <li>Just a bit of context and recap before we dive into what the cost function is:</li>
+      <li>Model: is the \(f\) function created by our learning algorithm represented as \(f(x) = wx + b\) for linear regression.</li>
+      <li>\(w,b\) here are called parameters, or coefficients, or weights. These terms are used interchangeably.</li>
+      <li>Depending on what the values of \(w,b\) are, our function changes.</li>
+    </ul>
+  </li>
+  <li>Now lets jump back to the cost function! The cost function is essentially trying to find \(w,b\) such that the predicted value of y (also known as \hat{y}) is as close to the actual value for y for all the values of \((x,y)\).</li>
+  <li>What does the cost function do, mathematically speaking? Lets look at the image below:</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/7.jpg" alt="" /></p>
+
+<ul>
+  <li>Lets break down what each of these terms mean here in the formula above.</li>
+  <li>It takes the prediction \(\hat{y}\) and compares it to the target \(y\) by taking \(\hat{y} - y\).
+    <ul>
+      <li>This difference is called error, aka how far off our prediction is from the target.</li>
+    </ul>
+  </li>
+  <li>Next, we will compute the square of this error. We will do this because we will want to compute this value from different training examples in the training set.</li>
+  <li>Finally, we want to measure the error across the entire training set. Thus, we will sum up the squared error.</li>
+  <li>To build a cost function that doesn’t automatically get bigger as the training set size gets larger by convention, we will compute the average squared error instead of the total squared error, and we do that by dividing by \(m\) like this.</li>
+  <li>The last part remaining here is that by convention, the cost function that is used in ML divides by 2 times \(m\). This extra division by 2 is to make sure our later calculations look neater, but the cost function is still effective if this step is disregarded.</li>
+  <li>\(J(w,b)\) is the cost function and is also called the squared error cost function since we are taking the squared error of these terms.</li>
+  <li>The squared error cost function is by far the most commonly used cost function for linear regression, and for all regression problems at large.</li>
+  <li>Let’s talk about what the cost function does and how it is used.</li>
+  <li>The cost function measures how well a line fits the training data.</li>
+  <li>Goal: Find the parameters \(w\) or \(w,b\) that result in the smallest possible value for the cost function \(J\). Keep in mind the cost function \(J\) will not be in a 1D space, so minimizing this is not an easy task.</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/8.jpg" alt="" /></p>
+
+<ul>
+  <li>We will use batch gradient descent here; gradient descent and its variations are used to train, not just linear regression, but other more common models in AI.</li>
+</ul>
+
+<h4 id="gradient-descent-or-stochastic-gradient-descent">Gradient Descent or Stochastic Gradient Descent</h4>
+<ul>
+  <li>Gradient descent can be used to minimize any function, but here we will use it to minimize our cost function for linear regression.</li>
+  <li>Let’s outline on a high level, how this algorithm works:
+    <ul>
+      <li>Start with some parameters \(w,b\).</li>
+      <li>Computes gradient using a single Training example.</li>
+      <li>Keep changing the values for \(w,b\) to reduce the cost function \(J(w,b)\).</li>
+      <li>Continue until we settle at or near a minimum. Note, some functions may have more than 1 minimum.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/supervised-ml/9.jpg" alt="" /></p>
+
+<ul>
+  <li>Above is the gradient descent algorithm. Note the learning rate alpha, it determines how big of a step you take when updating \(w\) or \(b\).</li>
+  <li>If the learning rate is too small, you end up taking too many steps to hit the local minimum which is inefficient. Gradient descent will work but it will be too slow.</li>
+  <li>If the learning rate is too large, you may take a step that is too big as miss the minimum. Gradient descent will fail to converge.</li>
+  <li>How should we choose the learning rate then? A few good values to start off with are \(0.001, 0.01, 0.1, 1\) and so on.</li>
+  <li>For each value, you might just run gradient descent for a handful of iterations and plot the cost function \(J\) as a function of the number of iterations.</li>
+  <li>After picking a few values of the learning rate, you may pick the value that seems to decrease the learning rate rapidly.</li>
+  <li>How do we know we are close to the local minimum? Via a game of hot and cold because as we get near a local minimum, the derivative becomes smaller. Update steps towards the local minimum become smaller, thus, we can reach the minimum without decreasing the learning rate.</li>
+  <li>How can we check gradient descent is working correctly?
+    <ul>
+      <li>We can have 2 ways to achieve this. We can plot the cost function \(J\), which is calculated on the training set, and plot the value of \(J\) at each iteration (aka each simultaneous update of parameters \(w,b\)) of gradient descent.</li>
+      <li>We can also use an Automatic convergence test. We choose an \(\epsilon\) to be a very small number. If the cost \(J\) decreases by less than \(\epsilon\) on one iteration, then you’re likely on this flattened part of the curve, and you can declare convergence.</li>
+    </ul>
+
+    <p><img src="../assets/supervised-ml/13.jpg" alt="" /></p>
+  </li>
+</ul>
+
+<h4 id="gradient-descent-with-momentum">Gradient Descent with Momentum</h4>
+<ul>
+  <li>Optimization algorithms play a pivotal role in training machine learning models. Among various optimization techniques, gradient descent has gained immense popularity for its simplicity and effectiveness. However, vanilla gradient descent has its drawbacks, such as slow convergence and vulnerability to oscillations and local minima. To overcome these issues, an enhanced version of gradient descent called “Gradient Descent with Momentum” was introduced.</li>
+</ul>
+
+<h3 id="the-basics-of-gradient-descent">The Basics of Gradient Descent</h3>
+<ul>
+  <li>Before we delve into momentum, let’s first understand the basic concept of gradient descent. Gradient descent is an optimization algorithm used to minimize some function by iteratively moving in the direction of steepest descent, defined by the negative of the function’s gradient. In the context of machine learning, the function we’re typically interested in minimizing is the cost or loss function.</li>
+  <li>In gradient descent, the update equation is given by:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">theta = theta - learning_rate * gradient_of_cost_function</code></p>
+
+<ul>
+  <li>where:</li>
+  <li><code class="language-plaintext highlighter-rouge">theta</code> represents the parameters of our model</li>
+  <li><code class="language-plaintext highlighter-rouge">learning_rate</code> is a hyperparameter that determines the step size during each iteration while moving toward a minimum of a loss function</li>
+  <li><code class="language-plaintext highlighter-rouge">gradient_of_cost_function</code> is the gradient of our loss function</li>
+</ul>
+
+<h3 id="the-problem-with-vanilla-gradient-descent">The Problem with Vanilla Gradient Descent</h3>
+<ul>
+  <li>In high-dimensional input spaces, cost functions can have many elongated valleys, leading to a zigzagging pattern of optimization if using vanilla gradient descent. This is because the direction of the steepest descent usually doesn’t point towards the minimum but instead perpendicular to the direction of the valley. As a result, gradient descent can be very slow to traverse the bottom of these valleys.</li>
+</ul>
+
+<h3 id="gradient-descent-with-momentum-1">Gradient Descent with Momentum</h3>
+<ul>
+  <li>Gradient Descent with Momentum is a technique that helps accelerate gradients vectors in the right directions, thus leading to faster converging. It is one of the most popular optimization algorithms and an effective variant of the standard gradient descent algorithm.</li>
+  <li>The idea of momentum is derived from physics. A ball rolling down a hill gains momentum as it goes, becoming faster and faster on the way (unless friction or air resistance is considered). In the context of optimization algorithms, the ‘ball’ is the set of parameters we’re trying to optimize.</li>
+  <li>To incorporate momentum, we introduce a variable <code class="language-plaintext highlighter-rouge">v</code> (velocity), which serves as a moving average of the gradients. In the case of deep learning, this is often referred to as the “momentum term”. The update equations are:</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">v = beta * v - learning_rate * gradient_of_cost_function</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">theta = theta + v</code></p>
+
+<ul>
+  <li>where:</li>
+  <li><code class="language-plaintext highlighter-rouge">beta</code> is a new hyperparameter introduced which determines the level of momentum (usually set to values like 0.9)</li>
+  <li><code class="language-plaintext highlighter-rouge">v</code> is the moving average of our gradients</li>
+</ul>
+
+<h3 id="advantages-of-gradient-descent-with-momentum">Advantages of Gradient Descent with Momentum</h3>
+<ol>
+  <li><strong>Faster Convergence</strong>: By adding a momentum term, our optimizer takes into account the past gradients to smooth out the update. We get a faster convergence and reduced oscillation.</li>
+  <li><strong>Avoiding Local Minima</strong>: The momentum term increases the size of the steps taken towards the minimum and helps escape shallow (i.e., non-optimal) local minima.</li>
+  <li><strong>Reducing Oscillations</strong>: It dampens oscillations and speeds up the process along the relevant direction, leading to quicker convergence.</li>
+</ol>
+
+<ul>
+  <li>Gradient Descent with Momentum is a simple yet powerful optimization technique that has been proven to be effective for training deep learning models. It combines the strengths of gradient descent while overcoming its weaknesses by incorporating a momentum term, ensuring smoother and faster convergence.</li>
+</ul>
+
+<h3 id="adam-vs-momentum-vs-sgd">Adam vs Momentum vs SGD</h3>
+
+<p>Gradient Descent is a fundamental optimization algorithm used to minimize (or maximize) functions. Stochastic Gradient Descent (SGD) and its variants like Momentum and Adam are all optimization algorithms commonly used in training machine learning models, especially deep neural networks. Let’s break down each one:</p>
+
+<ol>
+  <li><strong>Stochastic Gradient Descent (SGD)</strong>:
+    <ul>
+      <li><strong>Basic Idea</strong>: Instead of calculating the gradient based on the entire dataset (as in batch gradient descent), SGD estimates the gradient based on a single example or a mini-batch at each iteration.</li>
+      <li><strong>Advantages</strong>: Faster convergence since it doesn’t have to process the whole dataset at every step. Additionally, the noise in the gradient estimation can help escape shallow local minima.</li>
+      <li><strong>Disadvantages</strong>: The updates can be very noisy, leading to oscillations in the convergence path. This noise can be mitigated using learning rate schedules or mini-batches, but raw SGD can still be less stable than some of its variants.</li>
+    </ul>
+  </li>
+  <li><strong>Gradient Descent with Momentum</strong>:
+    <ul>
+      <li><strong>Basic Idea</strong>: This method introduces a velocity component that accumulates the gradient of the past steps to determine the next step. It’s akin to a ball rolling downhill, gaining momentum (and speed) according to the steepness of the slope.</li>
+      <li><strong>Advantages</strong>: The momentum term smoothens the optimization trajectory and can help overcome shallow local minima or small plateaus in the loss landscape. The accumulated past gradients give it a sort of “memory” of where it’s been.</li>
+      <li><strong>Disadvantages</strong>: Introduces an additional hyperparameter (momentum factor, usually denoted as ( \gamma )).</li>
+    </ul>
+  </li>
+  <li><strong>Adam (Adaptive Moment Estimation)</strong>:
+    <ul>
+      <li><strong>Basic Idea</strong>: Adam can be thought of as a combination of SGD with momentum and RMSProp (another optimization algorithm). It maintains moving averages of both the gradients (momentum) and the squared gradients.</li>
+      <li><strong>Advantages</strong>: Adam adjusts the learning rate of each parameter adaptively, based on the first and second moments of the gradients. This often results in faster convergence and is less sensitive to the initial learning rate.</li>
+      <li><strong>Disadvantages</strong>: Introduces more hyperparameters than basic SGD, although in practice the default values often work well (e.g., ( \beta_1 = 0.9, \beta_2 = 0.999 )). There have been some discussions in the research community about potential issues with Adam, like poor generalization performance or convergence problems in certain scenarios, but it remains a popular choice for many tasks.</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Summary</strong>:</p>
+<ul>
+  <li>
+    <p><strong>SGD</strong> provides a baseline optimization method, is simple, and can be effective with a well-tuned learning rate and mini-batches.</p>
+  </li>
+  <li>
+    <p><strong>Momentum</strong> accelerates convergence by taking into account past gradients, especially in scenarios with noisy or sparse gradients.</p>
+  </li>
+  <li>
+    <p><strong>Adam</strong> is an adaptive method that often requires less tuning of the learning rate and can converge faster in many scenarios, but it comes with more hyperparameters.</p>
+  </li>
+</ul>
+
+<h4 id="use-cases">Use cases</h4>
+<ul>
+  <li>When choosing an optimizer, it’s often a good idea to try multiple options and see which one works best for your specific problem and data.</li>
+</ul>
+
+<p><strong>Stochastic Gradient Descent (SGD)</strong></p>
+<ul>
+  <li>
+    <p>SGD estimates the gradient based on a small subset of data, like one example or mini-batch. It is simple, easy to implement, and computationally efficient.</p>
+  </li>
+  <li>Use cases:</li>
+  <li>When you have large datasets that don’t fit into memory. SGD allows online updating.</li>
+  <li>For models with high capacity that can overfit batch methods. The noise in SGD acts as regularization.</li>
+  <li>As a baseline optimization method. Tuning the learning rate schedule is important.</li>
+</ul>
+
+<p><strong>Momentum</strong></p>
+
+<ul>
+  <li>
+    <p>Momentum accelerates SGD by accumulating gradients from previous steps to determine the direction of the update. It helps overcome plateaus and local minima.</p>
+  </li>
+  <li>Use cases:</li>
+  <li>When vanilla SGD is too noisy or unstable. The momentum term smooths the path.</li>
+  <li>In cases where the loss surface has many ravines, curvature, and local optima. The momentum can help escape.</li>
+  <li>When training deep neural networks, momentum is almost always helpful.</li>
+</ul>
+
+<p><strong>Adam</strong></p>
+<ul>
+  <li>
+    <p>Adam adaptively estimates first and second moments of the gradients (akin to momentum and RMSProp). It adjusts the learning rate for each parameter.</p>
+  </li>
+  <li>Use cases:</li>
+  <li>When you want a method that is adaptive and requires little tuning of hyperparameters. Adam generally works well with defaults.</li>
+  <li>For training deep neural networks, Adam often outperforms vanilla SGD and even Momentum, hence its popularity.</li>
+  <li>In some cases, alternate methods like LAMB and RAdam have been proposed to improve on Adam.</li>
+</ul>
+
+<p>So in summary, SGD is simple and a good baseline, Momentum helps accelerate SGD, and Adam is an adaptive method that is easy to use. But no single optimizer is best for every scenario - always test to see what works for your problem. The choice depends on factors like model architecture, data, and constraints.</p>
+
+<h3 id="adaboost">AdaBoost</h3>
+<ul>
+  <li>Adaptive Boosting (AdaBoost) and Adaptive Moment Estimation (Adam) are two different types of algorithms that are used in the field of machine learning, but they serve very different purposes. AdaBoost is a boosting type ensemble machine learning algorithm primarily used in the context of supervised learning classification problems, while Adam is a type of optimization algorithm often employed during the training process of a neural network.</li>
+  <li>Adaptive Boosting, or AdaBoost, is an ensemble learning method used for classification and regression problems. Its general strategy involves fitting a sequence of weak learners (i.e., models that are only slightly better than random guessing, such as small decision trees) on repeatedly modified versions of the data, and then combining them into a single strong learner.</li>
+  <li>In the standard version of AdaBoost, each subsequent weak learner focuses more on the instances in the training set that the previous models misclassified, by increasing the relative weight of misclassified instances. Each model’s predictions are then combined through a weighted majority vote (or sum) to produce the final prediction.</li>
+  <li>AdaBoost has shown good empirical performance and has been used in various applications.</li>
+</ul>
+
+<h3 id="adam-algorithm-adaptive-moment-estimation">Adam Algorithm (Adaptive Moment estimation)</h3>
+<ul>
+  <li>Adam algorithm can see if our learning rate is too small and we are just taking tiny little steps in a similar direction over and over again. It will make the learning rate larger in this case.</li>
+  <li>On the other hand, if our learning rate is too big, where we are oscillating back and forth with each step we take, the Adam algorithm can automatically shrink the learning rate.</li>
+  <li>Adam algorithm can adjust the learning rate automatically. It uses different, unique learning rates for all of your parameters instead of a single global learning rate.</li>
+  <li>Below is the code for the Adam algorithm:
+   <img src="../assets/supervised-ml/22.jpg" alt="" /></li>
+  <li>Adam (Adaptive Moment Estimation) is an optimization algorithm that’s used for updating the weights in a neural network based on the training data. It’s popular in the field of deep learning because it is computationally efficient and has very little memory requirements.</li>
+  <li>Adam is an extension of the stochastic gradient descent (SGD), which is a simple and efficient optimization method for machine learning algorithms. However, SGD maintains a single learning rate for all weight updates and the learning rate does not change during training. Adam, on the other hand, computes adaptive learning rates for different parameters.</li>
+  <li>Adam works well in practice and compares favorably to other adaptive learning-method algorithms as it converges rapidly and the memory requirements are relatively low.</li>
+</ul>
+
+<h3 id="key-differences">Key Differences</h3>
+<ol>
+  <li><strong>Purpose</strong>: AdaBoost is an ensemble method used to improve the model performance by combining multiple weak models to create a robust strong model. Adam, on the other hand, is an optimization method that is used to find the best parameters of a model (like neural networks) during the training process.</li>
+  <li><strong>Use Cases</strong>: AdaBoost is mainly used in the context of classification and regression problems. Adam is predominantly used in the field of deep learning for training neural networks.</li>
+  <li><strong>Functioning</strong>: AdaBoost works by fitting a sequence of weak models on different distributions of the data. Adam works by adjusting the learning rate for each of the model’s parameters during the training process.</li>
+  <li><strong>Application</strong>: AdaBoost can be used with various types of base models (decision trees, logistic regression, etc.), as long as they are better than random guessing. Adam is specifically used for the purpose of optimizing the performance of neural networks.
+    <ul>
+      <li>It’s important to note that while AdaBoost and Adam are fundamentally different algorithms serving different purposes, they can both play crucial roles within a deep learning classification problem. For example, AdaBoost could be used as a higher-level ensemble method to combine the predictions from multiple deep learning models that have been trained using the Adam optimization algorithm.</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="feature-scaling">Feature Scaling</h4>
+<ul>
+  <li>Lets look at some techniques that make gradient descent work much better, we will start with a technique called feature scaling.</li>
+  <li>This will enable gradient decent to run much faster.</li>
+  <li>What feature scaling does is that it makes the features involved in the gradient descent computation are all on the similar scale.</li>
+  <li>This ensures that the gradient descent moves smoothly towards the minima and that the steps for gradient descent are updated at the same rate for all the features.</li>
+  <li>Having features on a similar scale helps gradient descent converge more quickly towards the minima.</li>
+</ul>
+
+<h4 id="batch-gradient-descent">Batch Gradient Descent</h4>
+<ul>
+  <li>Every step of gradient descent, we look at all the training examples instead of a subset of them.</li>
+  <li>Batch gradient descent is an expensive operation since it involves calculations over the full training set at each step. However, if the function is convex or relatively smooth, this is the best option.</li>
+  <li>Batch G.D. also scales very well with a large number of features.</li>
+  <li>Computes gradient using the entire Training sample.</li>
+  <li>Gives optimal solution if its given sufficient time to converge and it will not escape the shallow local minima easily, whereas S.G.D. can.</li>
+</ul>
+
+<h4 id="batch-sgd-vs-minibatch-sgd-vs-sgd">Batch SGD vs Minibatch SGD vs SGD</h4>
+
+<ul>
+  <li>The image below <a href="https://medium.com/@divakar_239/stochastic-vs-batch-gradient-descent-8820568eada1">(source)</a> shows the illustrated depiction of SGD and how it tries to find the local optima.</li>
+</ul>
+
+<p><img src="assets/fundamentals/1.html" alt="" /></p>
+
+<ul>
+  <li>Stochastic Gradient Descent (SGD):
+    <ul>
+      <li>In traditional SGD, the model parameters are updated after processing each individual training example.</li>
+      <li>It randomly selects one training example at a time and computes the gradient of the loss function with respect to the parameters based on that single example.</li>
+      <li>The model parameters are then updated using this gradient estimate, and the process is repeated for the next randomly selected example.</li>
+      <li>SGD has the advantage of being computationally efficient, as it only requires processing one example at a time.</li>
+      <li>However, the updates can be noisy and may result in slower convergence since the gradient estimate is based on a single example.</li>
+    </ul>
+  </li>
+  <li>Batch Stochastic Gradient Descent (Batch SGD):
+    <ul>
+      <li>Batch SGD is a variation of SGD where instead of processing one example at a time, it processes a small batch of training examples simultaneously.</li>
+      <li>The model computes the gradient of the loss function based on this batch of examples and updates the parameters accordingly.</li>
+      <li>The batch size is typically chosen to be larger than one but smaller than the total number of training examples.</li>
+      <li>Batch SGD provides a balance between the computational efficiency of SGD and the stability of traditional Batch Gradient Descent.</li>
+      <li>It reduces the noise in the gradient estimates compared to SGD and can result in faster convergence.</li>
+      <li>Batch SGD is commonly used in practice as it combines the benefits of efficient parallelization and more stable updates.</li>
+    </ul>
+  </li>
+  <li>Minibatch SGD:
+    <ul>
+      <li>In minibatch SGD, instead of processing one training example (SGD) or a full batch of examples (Batch SGD) at a time, a small subset of training examples, called a minibatch, is processed.</li>
+      <li>The minibatch size is typically larger than one but smaller than the total number of training examples. It is chosen based on the computational resources and the desired trade-off between computational efficiency and stability of updates.</li>
+      <li>The model computes the gradient of the loss function based on the minibatch examples and updates the parameters accordingly.</li>
+      <li>This process is repeated iteratively, with different minibatches sampled from the training data, until all examples have been processed (one pass over the entire dataset is called an epoch).</li>
+      <li>Minibatch SGD provides a balance between the noisy updates of SGD and the stability of Batch SGD.</li>
+      <li>It reduces the noise in the gradient estimates compared to SGD and allows for better utilization of parallel computation resources compared to Batch SGD.</li>
+      <li>Minibatch SGD is widely used in practice as it offers a good compromise between computational efficiency and convergence stability.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="assets/fundamentals/2.html" alt="" /></p>
+
+<h4 id="explain-briefly-batch-gradient-descent-stochastic-gradient-descent-and-mini-batch-gradient-descent-list-the-pros-and-cons-of-each">Explain briefly batch gradient descent, stochastic gradient descent, and mini-batch gradient descent? List the pros and cons of each.</h4>
+
+<ul>
+  <li>Gradient descent is a generic optimization algorithm capable for finding optimal solutions to a wide range of problems. The general idea of gradient descent is to tweak parameters iteratively in order to minimize a cost function.
+    <ul>
+      <li>Batch Gradient Descent:
+        <ul>
+          <li>In Batch Gradient descent the whole training data is used to minimize the loss function by taking a step towards the nearest minimum by calculating the gradient (the direction of descent).</li>
+          <li>Pros:
+            <ul>
+              <li>Since the whole data set is used to calculate the gradient it will be stable and reach the minimum of the cost function without bouncing around the loss function landscape (if the learning rate is chosen correctly).</li>
+            </ul>
+          </li>
+          <li>Cons:
+            <ul>
+              <li>Since batch gradient descent uses all the training set to compute the gradient at every step, it will be very slow especially if the size of the training data is large.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Stochastic Gradient Descent:
+        <ul>
+          <li>Stochastic Gradient Descent picks up a random instance in the training data set at every step and computes the gradient-based only on that single instance.</li>
+          <li>Pros:
+            <ul>
+              <li>It makes the training much faster as it only works on one instance at a time.</li>
+              <li>It become easier to train using large datasets.</li>
+            </ul>
+          </li>
+          <li>Cons:
+            <ul>
+              <li>Due to the stochastic (random) nature of this algorithm, this algorithm is much less stable than the batch gradient descent. Instead of gently decreasing until it reaches the minimum, the cost function will bounce up and down, decreasing only on average. Over time it will end up very close to the minimum, but once it gets there it will continue to bounce around, not settling down there. So once the algorithm stops, the final parameters would likely be good but not optimal. For this reason, it is important to use a training schedule to overcome this randomness.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Mini-batch Gradient:
+        <ul>
+          <li>At each step instead of computing the gradients on the whole data set as in the Batch Gradient Descent or using one random instance as in the Stochastic Gradient Descent, this algorithm computes the gradients on small random sets of instances called mini-batches.</li>
+          <li>Pros:
+            <ul>
+              <li>The algorithm’s progress space is less erratic than with Stochastic Gradient Descent, especially with large mini-batches.</li>
+              <li>You can get a performance boost from hardware optimization of matrix operations, especially when using GPUs.</li>
+            </ul>
+          </li>
+          <li>Cons:
+            <ul>
+              <li>It might be difficult to escape from local minima.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="assets/interview/gd.html" alt="" /></p>
+
+<h3 id="polynomial-regression">Polynomial Regression</h3>
+<ul>
+  <li>We’ve seen the idea of fitting a straight line to our data with linear regression, now lets take a look at polynomial regression which will allow you to fit curves and non linear functions to your data.</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/14.jpg" alt="" /></p>
+
+<h2 id="all-3-in-one-cost-function-for-linear-regression-via-gradient-descent">All 3 in one! (Cost function for Linear regression via Gradient descent)</h2>
+
+<p><img src="../assets/supervised-ml/10.jpg" alt="" /></p>
+
+<ul>
+  <li>Quick recap of the formulas we’ve seen thus far in the image above.</li>
+</ul>
+
+<p><img src="../assets/supervised-ml/11.jpg" alt="" />
+    - In the above image, on the left, we see the model representation with all of its data set. On the right and the bottom we see convex and surface representations of the cost function.</p>
+
+<h2 id="supervised-learning-classification">Supervised Learning: Classification</h2>
+
+<ul>
+  <li>Another type of supervised learning algorithm is called the classification algorithm. Classification model predicts categories where there are only a small number of possible outputs.</li>
+  <li>How is this different from regression we saw earlier? Let’s take a look with an example:
+<img src="../assets/supervised-ml/3.jpg" alt="" /></li>
+  <li>Above, we can see the breast cancer detection problem. Early detection can help lead to a cure in many cases and thus, this is a problem that’s currently being worked on.</li>
+  <li>Why is this a classification problem? Because the output here is a definitive prediction of a class (aka category), either the cancer is malignant or it is benign.</li>
+  <li>This is a binary classification, however, your model can return more categories like the image above. It can return different/specific types of malignant tumors.</li>
+  <li>Classification predicts a small number of possible outputs or categories, but not all possible categories in between like regression does.
+<img src="../assets/supervised-ml/4.jpg" alt="" /></li>
+  <li>So far we’ve only seen datasets with one input, in reality, you can have two or more inputs given to the model as displayed above.</li>
+  <li>In this scenario, our learning algorithm might try to find some boundary between the malignant tumor vs the benign one in order to make an accurate prediction.</li>
+  <li>The learning algorithm has to decide how to fit the boundary line.</li>
+  <li>Linear regression algorithm does not work well for classification problems. We can look at the image below, in the case of an outlier x, linear regression will have a worse fit to the data set and move its decision boundary to the right. The blue vertical decision boundary is supposed to be the decision between malignant and non-malignant.</li>
+  <li>However, once we add the outlier data, the decision boundary changes and thus, the classification between malignant and non-malignant changes, thus giving us a much worse learned function.
+<img src="../assets/supervised-ml/15.jpg" alt="" /></li>
+</ul>
+
+<h3 id="logistic-regression">Logistic Regression</h3>
+
+<ul>
+  <li>The solution to our classification problem! Don’t get confused by its name, regression here is a misnomer, it’s used for classification problems because it returns a value between 0 or 1.</li>
+  <li>To build out the logistic regression algorithm, we use the Sigmoid function because it is able to return us an output between 0 and 1.
+    <ul>
+      <li>Lets look at its representation in the image below:
+<img src="../assets/supervised-ml/16.jpg" alt="" /></li>
+    </ul>
+  </li>
+  <li>We can think of the output as a “probability” which tells us which class the output maps to.</li>
+  <li>So if our output is between 0 and 1, how do we know which class (malignant or not-malignant) the output maps to?
+    <ul>
+      <li>The common answer is to pick a threshold of 0.5, which will serve as our decision boundary.</li>
+    </ul>
+  </li>
+  <li>We can also have non-linear decision boundaries like seen in the image below:
+<img src="../assets/supervised-ml/17.jpg" alt="" /></li>
+</ul>
+
+<h4 id="gradient-descent-for-logistic-regression">Gradient Descent for Logistic Regression</h4>
+
+<ul>
+  <li>Remember this is the algorithm to minimize the cost function.</li>
+  <li>One thing to note here is that even though the formula for gradient descent might look the same as it did when we were looking at linear regression, the function \(f\) has changed:
+<img src="../assets/supervised-ml/18.jpg" alt="" /></li>
+</ul>
+
+<h4 id="cost-function-for-logistic-regression-log-loss">Cost Function for Logistic Regression (Log Loss)</h4>
+
+<ul>
+  <li>One thing to keep in mind is Loss and Cost function mean the same thing and are used interchangeably.</li>
+  <li>Below lets look at the function for the Logistic loss function. Remember that the loss function gives you a way to measure how well a specific set of parameters fits the training data. Thereby gives you a way to try to choose better parameters.
+<img src="../assets/supervised-ml/19.jpg" alt="" /></li>
+  <li>Note y is either 0 or 1 because we are looking at a binary classification in the image below. This is a simplified loss function.
+<img src="../assets/supervised-ml/20.jpg" alt="" /></li>
+  <li>Even though the formula’s are different, the baseline of gradient descent are the same. We will be monitoring gradient descent with the learning curve and implementing with vectorization.</li>
+</ul>
+
+<h2 id="overfitting-and-underfitting">Overfitting and Underfitting</h2>
+<ul>
+  <li>Overfitting and underfitting are common problems in machine learning that occur when a model’s performance on a dataset is not ideal. Here’s an explanation of both issues and strategies to mitigate them:</li>
+</ul>
+
+<p><strong>1. Overfitting:</strong></p>
+<ul>
+  <li>Overfitting occurs when a machine learning model learns to perform exceptionally well on the training data but performs poorly on unseen or validation/test data. It happens because the model has learned not only the underlying patterns in the data but also noise and random fluctuations. Key characteristics of overfitting include:
+    <ul>
+      <li>Low training error but high validation/test error.</li>
+      <li>The model is overly complex, capturing noise in the data.</li>
+      <li>The model may have too many parameters relative to the amount of training data.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Mitigating Overfitting:</strong></p>
+<ul>
+  <li>
+    <p>Several techniques can help mitigate overfitting:</p>
+
+    <ul>
+      <li>
+        <p><strong>Cross-Validation:</strong> Use techniques like k-fold cross-validation to evaluate model performance on multiple subsets of the data. This provides a better estimate of how well the model generalizes.</p>
+      </li>
+      <li>
+        <p><strong>Regularization:</strong> Apply regularization techniques like L1 (Lasso) or L2 (Ridge) regularization to penalize large parameter values. This encourages the model to have simpler weight values and reduces overfitting.</p>
+      </li>
+      <li>
+        <p><strong>Feature Selection:</strong> Carefully select and engineer features, discarding irrelevant or noisy features that may contribute to overfitting.</p>
+      </li>
+      <li>
+        <p><strong>Data Augmentation:</strong> Increase the effective size of your training dataset by applying data augmentation techniques, such as rotation, translation, or adding noise to the input data.</p>
+      </li>
+      <li>
+        <p><strong>Reduce Model Complexity:</strong> Use simpler models with fewer layers or parameters. Decreasing model complexity can reduce overfitting.</p>
+      </li>
+      <li>
+        <p><strong>Early Stopping:</strong> Monitor the model’s performance on a validation set during training and stop training when the validation error starts to increase, indicating that the model is overfitting.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>2. Underfitting:</strong></p>
+<ul>
+  <li>Underfitting occurs when a model is too simple to capture the underlying patterns in the data, resulting in poor performance both on the training data and on unseen data. Key characteristics of underfitting include:
+    <ul>
+      <li>High training error and high validation/test error.</li>
+      <li>The model is too simple and lacks the capacity to capture the data’s complexity.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Mitigating Underfitting:</strong></p>
+<ul>
+  <li>
+    <p>To mitigate underfitting, you can:</p>
+
+    <ul>
+      <li>
+        <p><strong>Increase Model Complexity:</strong> Use more complex models with additional layers, neurons, or features to better capture the data’s underlying patterns.</p>
+      </li>
+      <li>
+        <p><strong>Feature Engineering:</strong> Introduce new features or transformations that make the problem more amenable to modeling.</p>
+      </li>
+      <li>
+        <p><strong>Collect More Data:</strong> Gather more data to provide the model with a better understanding of the underlying patterns in the data.</p>
+      </li>
+      <li>
+        <p><strong>Hyperparameter Tuning:</strong> Experiment with different hyperparameters (e.g., learning rate, batch size) and architectures to find a better model configuration.</p>
+      </li>
+      <li>
+        <p><strong>Ensemble Methods:</strong> Combine multiple models (e.g., bagging, boosting) to create a stronger ensemble that can collectively capture more complex patterns.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="tldr">TL;DR</h2>
+<ul>
+  <li>Lets quickly go over the key takeaways from this section:</li>
+  <li>Supervised learning maps \(x\) the input to the output \(y\) and learns from being given the “right answers”. This is also called training your model.</li>
+  <li>The two major types of supervised learning algorithms are regression and classification.</li>
+  <li>Regression: Predict a number from infinitely many possible outputs.
+    <ul>
+      <li>Linear Regression is a type of regression where the model’s cost function is fit with a linear line.</li>
+      <li>The model is represented by a function, with parameters (w,b), and the cost function’s goal is to minimize \(J(w,b)\) to find the best fitting line through the data set.</li>
+    </ul>
+  </li>
+  <li>Classification: Predict a category for a finite number of possible outputs.</li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/CourseraML/supervised-ml/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:07 GMT -->
+</html>

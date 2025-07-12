@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/CourseraDL/convolutional-neural-networks/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Coursera-DL • Convolutional Neural Network</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Coursera-DL • Convolutional Neural Network</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#edge-detection-in-convolutional-neural-networks-cnn-a-deep-dive" id="markdown-toc-edge-detection-in-convolutional-neural-networks-cnn-a-deep-dive">Edge Detection in Convolutional Neural Networks (CNN): A Deep Dive</a></li>
+  <li><a href="#padding" id="markdown-toc-padding">Padding</a></li>
+  <li><a href="#strided-convolutions" id="markdown-toc-strided-convolutions">Strided Convolutions</a></li>
+  <li><a href="#convolutions-over-volume" id="markdown-toc-convolutions-over-volume">Convolutions over volume</a></li>
+  <li><a href="#building-one-layer-of-a-convolutional-neural-network-cnn" id="markdown-toc-building-one-layer-of-a-convolutional-neural-network-cnn">Building One Layer of a Convolutional Neural Network (CNN)</a></li>
+  <li><a href="#simple-convolutional-network" id="markdown-toc-simple-convolutional-network">Simple Convolutional Network</a></li>
+  <li><a href="#pooling-layers-in-covnets" id="markdown-toc-pooling-layers-in-covnets">Pooling Layers in CovNets</a></li>
+  <li><a href="#building-a-cnn" id="markdown-toc-building-a-cnn">Building a CNN</a>    <ul>
+      <li><a href="#notes" id="markdown-toc-notes">Notes</a></li>
+    </ul>
+  </li>
+  <li><a href="#why-are-convolutions-useful" id="markdown-toc-why-are-convolutions-useful">Why are Convolutions Useful?</a>    <ul>
+      <li><a href="#advantages-of-convolutional-layers" id="markdown-toc-advantages-of-convolutional-layers">Advantages of Convolutional Layers</a></li>
+      <li><a href="#calculation-example" id="markdown-toc-calculation-example">Calculation Example</a></li>
+      <li><a href="#translation-invariance" id="markdown-toc-translation-invariance">Translation Invariance</a></li>
+    </ul>
+  </li>
+  <li><a href="#training-a-convolutional-neural-network" id="markdown-toc-training-a-convolutional-neural-network">Training a Convolutional Neural Network</a>    <ul>
+      <li><a href="#building-a-cnn-1" id="markdown-toc-building-a-cnn-1">Building a CNN</a></li>
+      <li><a href="#parameters" id="markdown-toc-parameters">Parameters:</a></li>
+      <li><a href="#cost-function" id="markdown-toc-cost-function">Cost Function:</a></li>
+    </ul>
+  </li>
+  <li><a href="#classic-neural-network-architectures" id="markdown-toc-classic-neural-network-architectures">Classic Neural Network Architectures</a></li>
+  <li><a href="#resnets" id="markdown-toc-resnets">ResNets</a></li>
+  <li><a href="#why-do-resnets-work" id="markdown-toc-why-do-resnets-work">Why do ResNets work?</a></li>
+  <li><a href="#1x1-convolutions" id="markdown-toc-1x1-convolutions">1x1 Convolutions</a></li>
+  <li><a href="#practical-advice-for-cnns" id="markdown-toc-practical-advice-for-cnns">Practical advice for CNNs</a>    <ul>
+      <li><a href="#transfer-learning" id="markdown-toc-transfer-learning">Transfer Learning</a></li>
+      <li><a href="#data-augmentation" id="markdown-toc-data-augmentation">Data Augmentation</a></li>
+    </ul>
+  </li>
+  <li><a href="#object-localization" id="markdown-toc-object-localization">Object Localization</a></li>
+  <li><a href="#landmark-detection-in-neural-networks-a-technical-summary" id="markdown-toc-landmark-detection-in-neural-networks-a-technical-summary">Landmark Detection in Neural Networks: A Technical Summary</a></li>
+  <li><a href="#object-detection" id="markdown-toc-object-detection">Object Detection</a></li>
+  <li><a href="#convolutional-implementation-of-sliding-windows" id="markdown-toc-convolutional-implementation-of-sliding-windows">Convolutional Implementation of Sliding Windows</a></li>
+  <li><a href="#bounding-box-predictions" id="markdown-toc-bounding-box-predictions">Bounding Box Predictions</a></li>
+  <li><a href="#intersection-over-union-iou-in-object-detection" id="markdown-toc-intersection-over-union-iou-in-object-detection">Intersection Over Union (IoU) in Object Detection:</a></li>
+  <li><a href="#non-max-suppression" id="markdown-toc-non-max-suppression">Non-max suppression</a></li>
+  <li><a href="#anchor-boxes" id="markdown-toc-anchor-boxes">Anchor boxes</a></li>
+  <li><a href="#yolo" id="markdown-toc-yolo">YOLO</a></li>
+  <li><a href="#r-cnn-regions-with-convolutional-neural-networks" id="markdown-toc-r-cnn-regions-with-convolutional-neural-networks">R-CNN (Regions with Convolutional Neural Networks)</a></li>
+  <li><a href="#face-recognition" id="markdown-toc-face-recognition">Face Recognition</a></li>
+  <li><a href="#siamese-network-for-face-recognition" id="markdown-toc-siamese-network-for-face-recognition">Siamese Network for Face Recognition</a></li>
+  <li><a href="#triplet-loss-for-neural-network-training-in-face-recognition" id="markdown-toc-triplet-loss-for-neural-network-training-in-face-recognition">Triplet Loss for Neural Network Training in Face Recognition</a></li>
+  <li><a href="#face-verification-and-binary-classification" id="markdown-toc-face-verification-and-binary-classification">Face Verification and Binary Classification</a></li>
+  <li><a href="#deep-cnns" id="markdown-toc-deep-cnns">Deep CNNs</a></li>
+  <li><a href="#neural-style-transfer" id="markdown-toc-neural-style-transfer">Neural style transfer</a></li>
+  <li><a href="#cost-function-1" id="markdown-toc-cost-function-1">Cost function</a></li>
+  <li><a href="#style-cost-function-in-neural-style-transfer" id="markdown-toc-style-cost-function-in-neural-style-transfer">Style cost function in neural style transfer</a></li>
+  <li><a href="#1d-and-3d-generalizations" id="markdown-toc-1d-and-3d-generalizations">1D and 3D Generalizations</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<ul>
+  <li>Computer Vision is a branch of computer science that focuses on enabling machines to interpret and make decisions based on visual data.</li>
+  <li>It encompasses various applications ranging from facial recognition, object detection, medical image analysis, to augmented reality.</li>
+  <li>Techniques used in computer vision often rely on pattern recognition, deep learning, and artificial neural networks. Tools such as convolutional neural networks (CNNs) have been particularly influential in advancing the field.</li>
+</ul>
+
+<h2 id="edge-detection-in-convolutional-neural-networks-cnn-a-deep-dive">Edge Detection in Convolutional Neural Networks (CNN): A Deep Dive</h2>
+<ul>
+  <li>
+    <p>Edge detection refers to the process of identifying points in a digital image where there are abrupt changes in pixel intensity. These points usually represent object boundaries and are therefore useful for segmentation, recognition, and other image analysis tasks.</p>
+
+    <ol>
+      <li><strong>What is Convolution Operation?</strong>
+        <ul>
+          <li>At its core, the convolution operation is a mathematical process, used extensively in image processing and, in this context, within Convolutional Neural Networks (CNNs).</li>
+          <li>This operation helps neural networks analyze visual images by passing over different parts of an image and extracting features like edges, textures, and other components.</li>
+        </ul>
+      </li>
+      <li><strong>The Role of Convolution in CNNs:</strong>
+        <ul>
+          <li>In the hierarchical structure of CNNs, the initial layers primarily focus on edge detection.</li>
+          <li>As you move deeper into the network, subsequent layers can identify more complex structures, from parts of objects to entire recognizable objects like faces or cars.</li>
+          <li>This hierarchy builds from the foundation of edge detection.</li>
+        </ul>
+      </li>
+      <li><strong>Why Edge Detection Matters:</strong>
+        <ul>
+          <li>Before identifying complex objects in an image, it’s essential to recognize simpler forms first, like edges.</li>
+          <li>For instance, to recognize a building, the network first detects the straight lines and corners (edges) that form its outline.</li>
+          <li>Similarly, to understand human figures, the network starts by identifying the vertical edges that outline a person.</li>
+        </ul>
+      </li>
+      <li><strong>Breaking Down Grayscale Images:</strong>
+        <ul>
+          <li>Images can be represented as matrices of numbers. In our context, a grayscale image, void of color information, is used, which is represented as a 6x6 matrix.</li>
+          <li>The values in this matrix represent the intensity of each pixel, with higher values for brighter pixels and lower values for darker ones.</li>
+        </ul>
+      </li>
+      <li><strong>Introduction to Filters (or Kernels):</strong>
+        <ul>
+          <li>Filters are essentially small matrices themselves, like the 3x3 matrix used in the example.</li>
+          <li>These filters are designed to detect specific features. For vertical edge detection, we use a filter that has high values on one side and low values on the other.</li>
+          <li>The 3x3 filter mentioned has high values on the left, neutral in the middle, and low values on the right, making it ideal for detecting vertical edges.</li>
+        </ul>
+      </li>
+      <li><strong>How Does Convolution Work with Filters?</strong>
+        <ul>
+          <li>The convolution operation involves sliding this filter over the image matrix.</li>
+          <li>At each position, an element-wise multiplication between the filter and the part of the image it covers is performed. The results of these multiplications are summed up to get a single value in the output matrix.</li>
+          <li>This process is repeated as the filter moves across the entire image, resulting in a new matrix that highlights the detected features (like edges).</li>
+        </ul>
+      </li>
+      <li><strong>Interpreting the Convolved Image:</strong>
+        <ul>
+          <li>The resulting matrix (or image) from the convolution process can be visualized to see the detected features.</li>
+          <li>Bright spots in this image indicate strong matches with the filter. In our case of vertical edge detection, a bright line in the middle of the output image shows the presence of a vertical edge in the original image.</li>
+        </ul>
+      </li>
+      <li><strong>Practical Considerations in Programming:</strong>
+        <ul>
+          <li>Programmers and data scientists don’t usually perform convolution manually. Instead, they leverage pre-existing functions in deep learning frameworks.</li>
+          <li>For instance, TensorFlow has <code class="language-plaintext highlighter-rouge">tf.nn.conv2d</code> and Keras has <code class="language-plaintext highlighter-rouge">conv2d</code>. These functions simplify the convolution process, but it’s crucial to understand the underlying concept to use them effectively.</li>
+        </ul>
+      </li>
+      <li>Concluding Thoughts:
+        <ul>
+          <li>The convolution operation, though mathematically simple, plays a pivotal role in enabling CNNs to detect features in images, starting from basic edges to intricate patterns.</li>
+          <li>It serves as the building block upon which more complex image recognition tasks are achieved, making it a cornerstone in the realm of computer vision.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="padding">Padding</h2>
+
+<ol>
+  <li><strong>Introduction to Padding in Convolutions:</strong>
+    <ul>
+      <li>Convolution with filters can lead to the reduction of image dimensions.</li>
+      <li>Example: A 6x6 image convolved with a 3x3 filter results in a 4x4 image.</li>
+    </ul>
+  </li>
+  <li><strong>Issues with Dimension Reduction:</strong>
+    <ul>
+      <li>Rapid Shrinkage: With multiple layers in a deep neural network, continuous reduction can lead to very small dimensions.</li>
+      <li>Edge Information Loss: Pixels on the edges are less frequently used in the convolution process compared to the central pixels. This means that information from edges can get overlooked.</li>
+    </ul>
+  </li>
+  <li><strong>How Padding Works:</strong>
+    <ul>
+      <li>To combat the reduction in size and preserve edge information, padding can be added to the image.</li>
+      <li>Padding involves adding layers of pixels (usually zeros) around the image.</li>
+      <li>Example: Padding a 6x6 image with 1 pixel all around converts it into an 8x8 image.</li>
+    </ul>
+  </li>
+  <li><strong>Mathematical Relation with Padding:</strong>
+    <ul>
+      <li>Original Formula: Output size = \(n - f + 1\)</li>
+      <li>With Padding: Output size = \(n + 2p - f + 1\) (where \(p\) is the padding amount)</li>
+    </ul>
+  </li>
+  <li><strong>Types of Convolutions based on Padding:</strong>
+    <ul>
+      <li>Valid Convolutions: No padding is added.
+        <ul>
+          <li>Output = \(n - f + 1\)</li>
+        </ul>
+      </li>
+      <li>Same Convolutions: Padding is adjusted so that the output size remains the same as the input size.
+        <ul>
+          <li>For this, padding \(p\) should be \(\frac{f-1}{2}\).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Filter Sizes Convention in Computer Vision:</strong>
+    <ul>
+      <li>Odd-numbered filter sizes like 3x3, 5x5, etc., are favored.</li>
+      <li>Benefits of Odd-sized Filters:
+        <ul>
+          <li>Symmetrical padding is possible.</li>
+          <li>There exists a central pixel in the filter, making it conceptually easier to manage.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Conclusion on Padding:</strong>
+    <ul>
+      <li>Padding ensures that image dimensions are preserved and edge information is retained during convolution operations.</li>
+      <li>In deep learning practices, you can specify padding either by its value or by using terminologies like “valid” (no padding) or “same” (padding to maintain dimension).</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="strided-convolutions">Strided Convolutions</h2>
+
+<ul>
+  <li>Strided convolutions are an essential aspect of Convolutional Neural Networks. These convolutions differ from the standard ones as they jump or “stride” over the input image or matrix rather than moving one step at a time. Using an example of a 7x7 image and a 3x3 filter, a stride of two results in the output being a 3x3 matrix. The input and output dimensions can be calculated with the formula: 
+\(\frac{N + 2P - F}{S} + 1\)
+    <ul>
+      <li>where:
+        <ul>
+          <li>N = size of the image (or input matrix),</li>
+          <li>F = size of the filter,</li>
+          <li>P = padding, and</li>
+          <li>S = stride.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>If the resulting fraction isn’t an integer, it’s rounded down. This is known as the floor function.</li>
+  <li>It’s important to clarify the terminology between cross-correlation and convolution. Technically, the process often referred to in deep learning as “convolution” doesn’t include a “flipping” step and is technically called “cross-correlation.” However, this distinction doesn’t affect neural network implementations, as omitting the flipping operation simplifies the code without compromising the model’s effectiveness.</li>
+  <li>The main takeaway is understanding how to implement strided convolutions, how to calculate the resulting matrix size, and the difference in naming conventions between deep learning and more traditional mathematical disciplines. The next topic will expand on convolutions over volumes, not just matrices.</li>
+</ul>
+
+<h2 id="convolutions-over-volume">Convolutions over volume</h2>
+
+<ol>
+  <li>**3D Convolutions: **
+    <ul>
+      <li>Unlike the 2D convolutions on grayscale images, 3D convolutions involve multi-channel images, like RGB images (3 channels: Red, Green, Blue).</li>
+      <li>A 3D filter (e.g., 3x3x3 for RGB images) is used that has the same number of channels as the input image. Each channel of the filter will convolve with the corresponding channel of the image.</li>
+      <li>Result: A 2D activation map. Multiple filters will produce a volume with a depth corresponding to the number of filters.</li>
+    </ul>
+  </li>
+  <li>**Computation: **
+    <ul>
+      <li>The filter is placed on the top-left corner of the input volume and a dot product of the overlapping values is computed to produce a single output pixel.</li>
+      <li>This process is repeated across the entire image. The output from this operation forms a 2D activation map.</li>
+      <li>When multiple filters are used, multiple 2D activation maps are produced, which are stacked together to form the output volume.</li>
+    </ul>
+  </li>
+  <li><strong>Multiple Filters:</strong>
+    <ul>
+      <li>Using multiple filters allows the convolutional layer to detect multiple features from the input.</li>
+      <li>Each filter specializes in detecting a specific type of feature (e.g., vertical edges, horizontal edges, textures, etc.).</li>
+      <li>If two filters are used, the output will be of size 4x4x2. The depth (or number of channels) of the output corresponds to the number of filters.</li>
+    </ul>
+  </li>
+  <li><strong>Dimensions:</strong>
+    <ul>
+      <li>If you have an \(n \times n \times n_C\) input (where \(n_C\) is the number of channels) and a \(f \times f \times n_C\) filter, the output will have dimensions: \((n-f+1) \times (n-f+1) \times n_{C'}\), where \(n_{C'}\) is the number of filters used.</li>
+      <li>This assumes a stride of one and no padding. If stride and padding are introduced, dimensions would be affected accordingly.</li>
+    </ul>
+  </li>
+  <li><strong>Terminology:</strong>
+    <ul>
+      <li>Depth and Channels are often used interchangeably in the literature to refer to the third dimension of the image or filter. However, using “channels” can be clearer to avoid confusion with the depth of a neural network.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="building-one-layer-of-a-convolutional-neural-network-cnn">Building One Layer of a Convolutional Neural Network (CNN)</h2>
+
+<ol>
+  <li><strong>3D Convolution with Filters:</strong>
+    <ul>
+      <li>A 3D volume (e.g., a color image) can be convolved with different filters. For example, with two filters, you can get two different 4x4 outputs.</li>
+    </ul>
+  </li>
+  <li><strong>Applying Bias and Non-linearity:</strong>
+    <ul>
+      <li>After convolution with each filter, add a bias (a single number) to all elements of the output and then apply a non-linearity (like the ReLU activation function). This process results in 4x4 outputs with applied bias and non-linearity.</li>
+    </ul>
+  </li>
+  <li><strong>Stacking the Outputs:</strong>
+    <ul>
+      <li>The resulting outputs from the convolution of different filters can be stacked together to create a 3D volume. For example, if two 4x4 outputs were obtained from the convolution, the stacked result would be 4x4x2.</li>
+    </ul>
+  </li>
+  <li><strong>Analogy with a Standard Neural Network:</strong>
+    <ul>
+      <li>The process in a CNN layer is similar to a standard neural network layer where:
+\(z1 = w1 \times a0 + b1\) and
+\(a1 = g(z1)\).</li>
+      <li>Here, the input \(a0\) is analogous to the 3D image and the filters act like \(w1\). The output after convolution, bias addition, and activation function application is analogous to \(a1\).</li>
+    </ul>
+  </li>
+  <li><strong>Number of Filters and Output Volume:</strong>
+    <ul>
+      <li>The depth of the output volume corresponds to the number of filters used. For instance, if 10 filters were used, the depth would be 10, resulting in an output of size 4x4x10.</li>
+    </ul>
+  </li>
+  <li><strong>Number of Parameters:</strong>
+    <ul>
+      <li>Each filter has its set of parameters. For example, a 3x3x3 filter has 27 parameters, and adding the bias term results in 28 parameters per filter. So, if 10 such filters are used, the total parameters would be 280.</li>
+      <li>Let’s break down the 3x3x3 filter:
+        <ol>
+          <li>3x3 - This typically refers to the spatial dimensions of the filter. It’s a small window with a width of 3 and a height of 3. This means that, for just a single channel, the filter has 3 x 3 = 9 parameters.</li>
+          <li>x3 - This refers to the depth of the filter. In the context of an RGB image, for instance, a depth of 3 means that the filter has a separate 3x3 matrix for each of the three color channels (Red, Green, and Blue).</li>
+        </ol>
+      </li>
+      <li>So, for each of the 3 channels, we have a 3x3 filter:</li>
+      <li>Channel 1: 3x3 = 9 parameters</li>
+      <li>Channel 2: 3x3 = 9 parameters</li>
+      <li>Channel 3: 3x3 = 9 parameters</li>
+      <li>Adding up the parameters from all 3 channels, we get:</li>
+      <li>9 (for Red) + 9 (for Green) + 9 (for Blue) = 27 parameters in total.</li>
+      <li>That’s why a 3x3x3 filter has 27 parameters. If you were working with grayscale images, you wouldn’t need the depth of 3, so a filter for such an image would only have 3x3 = 9 parameters.</li>
+      <li>But for a 3-channel RGB image, the depth is essential to capture information from each channel, leading to 27 parameters.</li>
+    </ul>
+  </li>
+  <li><strong>Notation for CNN:</strong>
+    <ul>
+      <li>\(f^{[l]}\) - Filter size for layer \(l\).</li>
+      <li>\(p^{[l]}\) - Padding for layer \(l\).</li>
+      <li>\(s^{[l]}\) - Stride for layer \(l\).</li>
+      <li>\(n^{[l]}_{H}\), \(n^{[l]}_{W}\), and \(n^{[l]}_{C}\) represent the height, width, and number of channels of the output volume in layer \(l\).</li>
+      <li>The formula for calculating the output volume size, considering padding and stride, is given by:
+\((n + 2p - f)/s + 1\).</li>
+    </ul>
+  </li>
+  <li><strong>Bias and Weights:</strong>
+    <ul>
+      <li>The weights correspond to all the filters in a layer. The biases are associated with each filter.</li>
+    </ul>
+  </li>
+  <li><strong>Notational Variations in the Community:</strong>
+    <ul>
+      <li>While the video follows the convention of listing the height, width, and then the number of channels, it’s worth noting that there isn’t a universal standard in the deep learning community. Some frameworks or researchers might list the number of channels first.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="simple-convolutional-network">Simple Convolutional Network</h2>
+
+<ul>
+  <li><strong>Basic Idea:</strong>
+    <ul>
+      <li>CNNs are a special kind of neural network designed for image data. Think of them as a series of filters applied over an image, each filter helping the computer “see” different aspects of the image, like edges, textures, colors, etc.</li>
+      <li>As the image passes through more layers, these aspects get combined in different ways to recognize more complex patterns.</li>
+    </ul>
+  </li>
+  <li><strong>Our Example:</strong>
+    <ul>
+      <li>We’re teaching our computer to look at a picture and tell if there’s a cat in it.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>How the Example Works:</strong></p>
+<ol>
+  <li><strong>Starting Point:</strong> An image of a cat, which for a computer, is just a bunch of numbers representing pixel colors. This image is 39 pixels wide, 39 pixels tall, and has 3 color channels (Red, Green, Blue).</li>
+</ol>
+
+<p><img src="../assets/CNN/10.png" alt="" /></p>
+
+<ol>
+  <li><strong>Layer 1:</strong> Imagine putting a tiny 3x3 window on the top-left corner of this image and moving it around (like looking through a tiny square magnifying glass). This movement tries to capture details. For our example:
+    <ul>
+      <li>We have 10 different tiny windows (or “filters”).</li>
+      <li>After looking through these, we get a slightly smaller image of size 37x37, but with 10 channels now - each for the output of one tiny window.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 2:</strong> Now, we take another set of windows, but these are 5x5 in size. We also jump 2 pixels at a time (this is called a stride of 2). This time, after looking through the 20 windows:
+    <ul>
+      <li>We get an even smaller image: 17x17, but with 20 channels.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 3:</strong> Same as before, but with another set of 5x5 windows, moving 2 pixels at a time. Using 40 different windows:
+    <ul>
+      <li>Our image shrinks again to 7x7, but has 40 channels.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Flattening:</strong> Imagine taking our small 7x7x40 image and laying out all the numbers in a long line (or vector). That’s what “flattening” does. We end up with 1,960 numbers in a line.</p>
+  </li>
+  <li><strong>Making the Decision:</strong> We then use these numbers to make a final decision: is there a cat or not? This is done using something like a vote among the numbers.</li>
+</ol>
+
+<ul>
+  <li><strong>Key Terms:</strong>
+    <ul>
+      <li>Filter/Window: A small matrix that “looks” at a portion of the image, helping to highlight features.</li>
+      <li>Stride: How much you move the window each time.</li>
+      <li>Channels: Think of these as different layers in the image, each one representing different features.</li>
+    </ul>
+
+    <p><img src="../assets/CNN/1.png" alt="" /></p>
+  </li>
+  <li><strong>Diagram (Simplified):</strong></li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Original Image
+[39x39x3]
+   |
+   V
+Layer 1 (using 3x3 windows)
+[37x37x10]
+   |
+   V
+Layer 2 (using 5x5 windows)
+[17x17x20]
+   |
+   V
+Layer 3 (using 5x5 windows)
+[7x7x40]
+   |
+   V
+Flattened
+[1960 numbers in a line]
+   |
+   V
+Decision: Cat or Not?
+</code></pre></div></div>
+
+<h2 id="pooling-layers-in-covnets">Pooling Layers in CovNets</h2>
+
+<p><img src="../assets/CNN/2.png" alt="" /></p>
+
+<ul>
+  <li><strong>Purpose:</strong>
+    <ul>
+      <li>Pooling layers help reduce the size of the image representation, making computation faster and making some detected features more robust.</li>
+    </ul>
+  </li>
+  <li><strong>What’s Pooling?:</strong>
+    <ol>
+      <li>Think of pooling as a way to “summarize” a region of an image.</li>
+      <li>For example, in “max pooling”, from a set of pixels, only the maximum value pixel is chosen, essentially highlighting the most prominent feature in that region.</li>
+    </ol>
+  </li>
+  <li><strong>Max Pooling Example:</strong>
+    <ul>
+      <li>Say you have a 4x4 grid of numbers.</li>
+      <li>You want to create a summarized version of this grid which is 2x2.</li>
+      <li>You’ll break the 4x4 grid into four 2x2 regions.</li>
+      <li>For each region, pick the largest number. This forms your new 2x2 summarized grid.</li>
+    </ul>
+  </li>
+  <li><strong>Intuition:</strong>
+    <ul>
+      <li>A large value in a region suggests the presence of a feature (e.g., an edge or a specific texture).</li>
+      <li>By taking the max value, if a feature is present in any part of the region, it gets preserved in the pooled output.</li>
+      <li>However, the exact reason why max pooling is so effective remains a bit of a mystery in the deep learning community.</li>
+    </ul>
+  </li>
+  <li><strong>No Learning Required!:</strong>
+    <ul>
+      <li>Pooling has settings (like filter size and stride), but these are set by the designer, not learned by the network.</li>
+      <li>Hence, there are no parameters to adjust during training for this process.</li>
+    </ul>
+  </li>
+  <li><strong>Average Pooling:</strong>
+ <img src="../assets/CNN/3.png" alt="" />
+    <ul>
+      <li>Another type of pooling where you average the numbers in a region, rather than taking the max.</li>
+      <li>It’s less common than max pooling but can be useful in specific scenarios, such as deep within a network to compress representations.</li>
+    </ul>
+  </li>
+  <li><strong>Quick Facts:</strong>
+    <ol>
+      <li>Pooling is done on each channel of an image independently.</li>
+      <li>Hyperparameters include:
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">f</code> (Filter size): Size of the region you look at.</li>
+          <li><code class="language-plaintext highlighter-rouge">s</code> (Stride): How much you move the filter each time.</li>
+          <li><code class="language-plaintext highlighter-rouge">p</code> (Padding): Rarely used in pooling. Typically, <code class="language-plaintext highlighter-rouge">p=0</code> (no padding).</li>
+        </ul>
+      </li>
+      <li>The output of pooling retains the same number of channels as the input.</li>
+      <li>Pooling doesn’t change or learn. Once you set its parameters, it remains fixed.</li>
+    </ol>
+  </li>
+  <li><strong>Overall:</strong>
+    <ul>
+      <li>Pooling is a way to compress information in CNNs. By summarizing regions of an image, you can speed up computation and potentially make your network more robust.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="building-a-cnn">Building a CNN</h2>
+
+<p><img src="../assets/CNN/4.png" alt="" /></p>
+
+<ol>
+  <li>
+    <p><strong>Input Layer:</strong> An image of size 32 x 32 x 3 (RGB). It means the image has a height and width of 32 pixels and has 3 channels (Red, Green, Blue).</p>
+  </li>
+  <li><strong>Convolutional Layer (Conv1):</strong>
+    <ul>
+      <li>Uses a 5x5 filter.</li>
+      <li>Stride of 1 (The filter moves one pixel at a time).</li>
+      <li>No padding (So, the edges of the image are not extended).</li>
+      <li>With 6 filters, the output dimension is 28 x 28 x 6.</li>
+      <li>Stride: It’s the step size or the amount by which the filter slides over the input matrix. When the stride is 1, it moves one unit at a time.</li>
+      <li>Padding: Helps retain the spatial size of the input image after convolution. No padding means spatial dimensions will reduce.</li>
+    </ul>
+  </li>
+  <li><strong>Pooling Layer (Pool1):</strong>
+    <ul>
+      <li>Uses max pooling, which takes the maximum value from the set of values covered by the filter.</li>
+      <li>Filter size: 2x2.</li>
+      <li>Stride: 2 (moves 2 pixels at a time).</li>
+      <li>Resulting output: 14 x 14 x 6.</li>
+    </ul>
+  </li>
+  <li><strong>Convolutional Layer (Conv2):</strong>
+    <ul>
+      <li>5x5 filter size.</li>
+      <li>Stride of 1.</li>
+      <li>Uses 10 filters.</li>
+      <li>Output: 10 x 10 x 10.</li>
+    </ul>
+  </li>
+  <li><strong>Pooling Layer (Pool2):</strong>
+    <ul>
+      <li>Max pooling.</li>
+      <li>2x2 filter size.</li>
+      <li>Stride of 2.</li>
+      <li>Output: 5 x 5 x 10.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Flattening:</strong> The 5 x 5 x 10 output, which equals 250 units, is flattened into a single vector of 250 units.</p>
+  </li>
+  <li><strong>Fully Connected Layer (FC3):</strong>
+    <ul>
+      <li>400 units are densely connected to 120 units.</li>
+      <li>This resembles a standard neural network layer.</li>
+    </ul>
+  </li>
+  <li><strong>Fully Connected Layer (FC4):</strong>
+    <ul>
+      <li>Consists of 84 units.</li>
+      <li>The final output layer could be a softmax layer with 10 outputs, suitable for digit recognition (0 to 9).</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="notes">Notes</h3>
+
+<ul>
+  <li>Notations can be inconsistent in literature. For example, whether to count pooling layers as individual layers or not.</li>
+  <li>Convolutional layers use filters to learn features, pooling layers reduce spatial dimensions (size), and fully connected layers are used for final classification.</li>
+  <li>Activation size tends to decrease as you go deeper into the network.</li>
+  <li>Most parameters in CNNs are often in the fully connected layers, while the convolutional layers have fewer parameters.</li>
+</ul>
+
+<h2 id="why-are-convolutions-useful">Why are Convolutions Useful?</h2>
+
+<h3 id="advantages-of-convolutional-layers">Advantages of Convolutional Layers</h3>
+<ul>
+  <li><strong>Parameter Sharing:</strong>
+    <ul>
+      <li>A feature detector useful in one part of the image is also useful in another part.</li>
+      <li>A filter, like a vertical edge detector, applied to various positions in the image can reuse the same parameters.</li>
+      <li>This helps reduce the number of parameters.</li>
+      <li>E.g., a vertical edge detector for the upper left might also be useful for the lower right.</li>
+    </ul>
+  </li>
+  <li><strong>Sparsity of Connections:</strong>
+    <ul>
+      <li>In convolution, each output unit depends only on a small number of input units.</li>
+      <li>Example: An output from a 3x3 convolution depends only on 9 input values. The rest of the pixels don’t affect this output.</li>
+      <li>This results in fewer parameters, thus the network is less prone to overfitting.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="calculation-example">Calculation Example</h3>
+<ul>
+  <li>A 32x32x3 image gives 3,072 units.</li>
+  <li>Using a 5x5 filter with six filters results in a 28x28x6 output, which gives 4,704 units.</li>
+  <li>Connecting all neurons between these two layers would give 14 million parameters.</li>
+  <li>In comparison, the conv layer has only 156 parameters.</li>
+</ul>
+
+<h3 id="translation-invariance">Translation Invariance</h3>
+<ul>
+  <li>A picture of a cat shifted by a few pixels is still a cat.</li>
+  <li>CNNs handle this by applying the same filter across all positions in the image.</li>
+  <li>This makes the network robust to translations.</li>
+</ul>
+
+<h2 id="training-a-convolutional-neural-network">Training a Convolutional Neural Network</h2>
+
+<h3 id="building-a-cnn-1">Building a CNN</h3>
+<ul>
+  <li>Input: Image (e.g., a cat).</li>
+  <li>Label: Can be binary or one of K classes.</li>
+  <li>Structure: Several convolutional and pooling layers followed by fully connected layers and finally a softmax output.</li>
+</ul>
+
+<h3 id="parameters">Parameters:</h3>
+<ul>
+  <li>Conv layers and fully connected layers have weights (W) and biases (B).</li>
+</ul>
+
+<h3 id="cost-function">Cost Function:</h3>
+<ul>
+  <li>Initialize the parameters randomly.</li>
+  <li>Compute the cost J, which is the sum of losses of the neural network’s predictions on the entire training set.</li>
+  <li>Use gradient descent or its variants (momentum, RMSProp, Adam, etc.) to reduce the cost function J.</li>
+</ul>
+
+<h2 id="classic-neural-network-architectures">Classic Neural Network Architectures</h2>
+
+<ol>
+  <li>
+    <p><strong>LeNet-5:</strong></p>
+
+    <p><img src="../assets/CNN/lenet.png" alt="" /></p>
+
+    <ul>
+      <li>Purpose: Recognize handwritten digits.</li>
+      <li>Input: Grayscale image, 32x32x1.</li>
+      <li>Architecture:
+        <ul>
+          <li>Convolutional layer: Six 5x5 filters, stride of one, resulting in 28x28x6.</li>
+          <li>Average pooling (modern versions use max pooling): Filter width two, stride of two, resulting in 14x14x6.</li>
+          <li>Convolutional layer: Sixteen 5x5 filters, resulting in 10x10x16.</li>
+          <li>Pooling layer: Reduces to 5x5x16.</li>
+          <li>Fully connected layers.</li>
+          <li>Output: 10 classes (digits 0-9).</li>
+        </ul>
+      </li>
+      <li>Features:
+        <ul>
+          <li>Originally used sigmoid and tanh nonlinearities.</li>
+          <li>Unique wiring of filters to specific input channels for efficiency.</li>
+          <li>Applied non-linearity after pooling, specifically sigmoid.</li>
+        </ul>
+      </li>
+      <li>Total Parameters: ~60,000.</li>
+    </ul>
+  </li>
+  <li><strong>AlexNet:</strong>
+<img src="../assets/CNN/alexnet.png" alt="" />
+    <ul>
+      <li>Authors: Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton.</li>
+      <li>Input: RGB image, 227x227x3.</li>
+      <li>Architecture:
+        <ul>
+          <li>Convolutional layer: Ninety-six 11x11 filters, stride of four, resulting in 55x55x96.</li>
+          <li>Max pooling: 3x3 filter, stride of two, resulting in 27x27x96.</li>
+          <li>Several convolutional layers and pooling layers.</li>
+          <li>Fully connected layers.</li>
+          <li>Output: Softmax with 1,000 classes.</li>
+        </ul>
+      </li>
+      <li>Features:
+        <ul>
+          <li>Used ReLU activation function.</li>
+          <li>Trained using two GPUs with specific data sharing strategies.</li>
+          <li>Included Local Response Normalization (LRN), though less commonly used now.</li>
+        </ul>
+      </li>
+      <li>Total Parameters: ~60 million.</li>
+    </ul>
+  </li>
+  <li><strong>VGGNet (Specifically VGG-16):</strong>
+<img src="../assets/CNN/vgg.png" alt="" />
+    <ul>
+      <li>Distinctive feature: Simplified architecture with repeated patterns.</li>
+      <li>Input: RGB image, 224x224x3.</li>
+      <li>Architecture:
+        <ul>
+          <li>Convolutional layers use consistent 3x3 filters with stride of one and same padding.</li>
+          <li>Max pooling layers are consistently 2x2 with a stride of two.</li>
+          <li>Series of convolutional and pooling layers, incrementally increasing the depth (number of filters) while decreasing width and height.</li>
+          <li>Several fully connected layers.</li>
+          <li>Output: Softmax with 1,000 classes.</li>
+        </ul>
+      </li>
+      <li>Total Parameters: ~138 million.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li><strong>General Trends and Patterns:</strong>
+    <ul>
+      <li>As neural networks progress from input to output, the height and width of the layers typically decrease while the depth (number of channels or filters) increases.</li>
+      <li>Classic neural network architectures often consist of sequences of convolutional layers followed by pooling layers, ending with fully connected layers and an output layer.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="resnets">ResNets</h2>
+
+<ol>
+  <li><strong>Vanishing and Exploding Gradient Problems:</strong>
+    <ul>
+      <li>As neural networks become deeper, gradients (which are passed backward from the output towards the input) can become very small (vanish) or very large (explode).</li>
+      <li>Vanishing gradients slow down the learning process, since weights update in minuscule amounts, making convergence slow. On the other hand, exploding gradients can cause the model to fail to converge.</li>
+      <li>Both issues arise due to the multiplicative nature of gradients through layers, especially when using activation functions like the sigmoid or tanh.</li>
+    </ul>
+  </li>
+  <li><strong>Skip Connections:</strong>
+    <ul>
+      <li>Also known as “shortcuts” or “residual connections,” these allow for the direct passing of information from a shallower layer to a deeper layer, bypassing some intermediate layers.</li>
+      <li>They serve as a “highway” or “shortcut” for the gradients to flow back during backpropagation, making training deep networks more feasible and efficient.</li>
+    </ul>
+  </li>
+  <li><strong>Residual Block:</strong>
+    <ul>
+      <li>Traditional feed-forward networks require information to pass through every transformation of every layer.</li>
+      <li>In a residual block, the main path involves usual linear and ReLU operations, but there’s also a shortcut path that bypasses these transformations.</li>
+      <li>The residual connection adds the output of the shortcut (original input) to the main path before the activation function, hence the term “residual.”</li>
+    </ul>
+  </li>
+  <li><strong>ResNet (Residual Network):</strong>
+    <ul>
+      <li>A deep learning model architecture that uses multiple stacked residual blocks.</li>
+      <li>The idea is to allow learning of “residual functions” – functions that capture only the difference (or residual) from the identity mapping. This makes it easier for the network to learn identity functions when necessary and thus avoids overfitting in deeper layers.</li>
+      <li>ResNets can be very deep – having hundreds or even thousands of layers –- but can still be trained effectively due to the residual blocks.</li>
+    </ul>
+  </li>
+  <li><strong>Comparison: Plain Network vs. ResNet:</strong>
+    <ul>
+      <li>In a “plain network” without residual connections, as the depth increases, performance might plateau or even degrade. This is counterintuitive because deeper networks should, in theory, capture more complex patterns.</li>
+      <li>ResNets, with their skip connections, mitigate this problem. The training error tends to either decrease or remain stable, even as the depth of the network increases significantly.</li>
+    </ul>
+  </li>
+  <li><strong>Mitigating Gradient Problems with ResNet:</strong>
+    <ul>
+      <li>The direct connections (or shortcuts) in ResNets alleviate the vanishing gradient problem since gradients can flow directly backward through the skip connections without getting too small.</li>
+      <li>The architecture also guards against exploding gradients since the direct paths ensure that gradients don’t multiply excessively across many layers.</li>
+    </ul>
+  </li>
+  <li><strong>Programming Exercise on ResNet:</strong>
+    <ul>
+      <li>Practical experience is invaluable. Implementing ResNet from scratch or using existing frameworks will allow learners to grasp the intricacies and advantages of this architecture.</li>
+      <li>This hands-on experience is supplemented by observing the performance of ResNet on real datasets and contrasting it against non-residual architectures.</li>
+    </ul>
+  </li>
+  <li><strong>Deep Dive into ResNet’s Efficacy:</strong>
+    <ul>
+      <li>Understanding why ResNets work so well is crucial. The ability of ResNets to learn identity functions, combined with the ease of training deeper networks without degradation, contributes to their success.</li>
+      <li>Future lessons or discussions might provide more intuitive or mathematical explanations behind the phenomena observed with ResNet’s performance.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="why-do-resnets-work">Why do ResNets work?</h2>
+
+<ol>
+  <li>
+    <p><strong>Degradation Problem in Deep Networks:</strong> In plain deep networks (those without residual connections), performance tends to degrade with an increase in depth. It becomes difficult for them to learn even the identity function, which might seem counterintuitive, given that deeper networks should have greater representational capacity.</p>
+  </li>
+  <li>
+    <p><strong>Identity Function in ResNets:</strong> Residual networks, or ResNets, mitigate the degradation problem. The skip connections or short-cuts in ResNets allow them to easily learn the identity function. This essentially means that the outputs of certain layers can be directly fed into layers deeper in the network without any transformation.</p>
+  </li>
+  <li><strong>Mathematical Explanation:</strong>
+    <ul>
+      <li>Given an activation \(a[l]\), the next activation after two layers can be represented as \(a[l+2]\) with the residual block.</li>
+      <li>If the weight \(w[l+2]\) shrinks toward zero (perhaps due to L2 regularization), the activation can approximate the identity function. So, \(a[l+2] \approx a[l]\).</li>
+      <li>This means that the deep network can behave similarly to a shallower one when needed, but also has the capacity to learn more complex functions if the data demands it.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Not Just About Maintaining Performance:</strong> The goal of using ResNets isn’t just about preventing degradation in performance. By making it easier to learn the identity function, you set a “performance floor.” From this baseline, the added layers can then focus on capturing any additional patterns in the data, potentially improving the model’s performance.</p>
+  </li>
+  <li><strong>Dimension Matching in Residual Connections:</strong>
+    <ul>
+      <li>For the residual connections to work, the dimensions of the input and output of the skip connection must match.</li>
+      <li>Same convolutions are commonly used to preserve these dimensions. If dimensions don’t match, a linear transformation (like using the matrix \(W_s\)) can be applied to match them.</li>
+    </ul>
+  </li>
+  <li><strong>Visual Representation &amp; Architecture:</strong>
+    <ul>
+      <li>Looking at ResNets visually, as shown in the images from the paper, makes it clear how the skip connections work in tandem with the main network path. This design emphasizes the beauty of ResNets: they can easily fall back to the identity function but have the flexibility to learn more.</li>
+    </ul>
+  </li>
+  <li><strong>Teaser for One by One Convolutions:</strong> One by one convolutions, which you hinted at for the next discussion, are an interesting and effective design choice in convolutional neural networks. They allow for dimensionality reduction and increased network depth without a significant increase in computational cost.</li>
+</ol>
+
+<h2 id="1x1-convolutions">1x1 Convolutions</h2>
+<ul>
+  <li>One by one convolutions, also known as “Network in Network” or 1x1 convolutions, are influential techniques in neural network architectures. While at first glance it might seem like a 1x1 convolution would merely multiply values by a scalar, it is much more powerful, especially when considering multi-channel input.</li>
+  <li>For a single channel image, a 1x1 convolution essentially multiplies the image by a scalar value. However, for multi-channel images, a 1x1xN convolution (where N is the number of channels) applies a unique scalar multiplication to each channel and can add non-linearity. This is like applying a fully connected neural network to each position in the input.</li>
+  <li>One of the primary utilities of 1x1 convolutions is their ability to modify the number of channels in the output. For instance, if you have an input with many channels and you want to reduce that number, you can use 1x1 convolutions. This method is especially useful for computational efficiency and can be used to shrink, maintain, or increase the number of channels.</li>
+  <li>This technique of 1x1 convolutions plays a crucial role in architectures like the inception network, as it provides a way to adjust and optimize channel dimensions, adding non-linearity and depth without a significant computational burden. The following content will delve deeper into the inception network and how 1x1 convolutions fit into its structure.</li>
+</ul>
+
+<h2 id="practical-advice-for-cnns">Practical advice for CNNs</h2>
+
+<h3 id="transfer-learning">Transfer Learning</h3>
+<ul>
+  <li>Transfer learning can significantly accelerate progress in computer vision applications by using pre-trained weights from someone else’s network instead of starting from scratch.</li>
+  <li>Many available datasets online, like ImageNet, MS COCO, or Pascal, have been utilized by researchers, and their trained weights are available for download.</li>
+  <li>Using a hypothetical example:
+    <ul>
+      <li>If you want to build a cat detector for your specific cats, named Tigger and Misty, with limited photos, you can:
+        <ol>
+          <li>Download an open-source neural network trained on large datasets.</li>
+          <li>Remove the original softmax layer of the downloaded network.</li>
+          <li>Add your softmax layer for “Tigger”, “Misty”, or “neither” classifications.</li>
+          <li>Keep the previous layers’ parameters frozen and only train the newly added softmax layer.</li>
+          <li>For efficiency, you can pre-compute and save the activations from the frozen layers since they won’t change.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>Depending on the amount of data you have:
+    <ul>
+      <li>With more data, you can unfreeze and train more layers.</li>
+      <li>With a massive dataset, consider using the pre-trained network merely as an initialization and train the entire network.</li>
+    </ul>
+  </li>
+  <li>Transfer learning is particularly valuable in computer vision due to large available datasets and the computational expense of training from scratch. It’s often recommended unless you possess a massive unique dataset and extensive computational resources.</li>
+</ul>
+
+<h3 id="data-augmentation">Data Augmentation</h3>
+
+<ul>
+  <li>Data augmentation is a crucial technique to enhance the performance of computer vision systems, especially given the persistent need for more data in this domain. Unlike some areas where data sufficiency might be reached, computer vision consistently seems to require more. Common data augmentation techniques in computer vision include:</li>
+</ul>
+
+<ol>
+  <li>Mirroring on the Vertical Axis: This method involves flipping an image horizontally. If the original image represents a certain object or feature, its mirrored version will often represent the same.</li>
+  <li>Random Cropping: Different random crops of a dataset are taken. However, care should be taken to ensure these random crops still represent significant portions of the original image.</li>
+  <li>Rotation, Shearing, and Local Warping: These methods involve rotating the image, shearing it, or applying local distortions, though they are used less frequently, possibly due to their complexity.</li>
+  <li>Color Shifting: This involves distorting the R, G, and B color channels of an image. An advanced technique for color distortion, called PCA Color Augmentation, uses Principal Component Analysis to adjust color channels based on the dominant tints in an image.</li>
+</ol>
+
+<ul>
+  <li>For practical implementation, especially with large training sets, one common method is to have a CPU thread dedicated to loading images and applying data augmentations. These augmented images are then sent to another thread or process for training, often on a GPU for large neural networks.</li>
+  <li>Like other aspects of deep learning, data augmentation has its hyperparameters, like the degree of color shifting or the parameters for random cropping. A common starting point is using established open-source implementations, but individual tuning is encouraged based on specific needs. Overall, data augmentation is a powerful tool to improve computer vision models.</li>
+</ul>
+
+<h2 id="object-localization">Object Localization</h2>
+
+<ul>
+  <li>
+    <p>In the recent discussions, the focus has been on object detection in computer vision, which has seen significant advancements over the past few years. The sequence of learning starts with understanding object localization, which is foundational for object detection.</p>
+  </li>
+  <li><strong>Image Classification:</strong> It is about identifying what an object is in an image. For instance, recognizing that a given picture is of a car.</li>
+  <li><strong>Classification with Localization:</strong> This is a step beyond mere classification. The objective is not just to label an image (e.g., as a car) but also to determine its position by drawing a bounding box around it. The term “localization” relates to identifying the exact position of the identified object in an image.</li>
+  <li><strong>Detection Problem:</strong> This is more complex as it involves identifying multiple objects in an image, recognizing them, and then localizing each one.
+    <ul>
+      <li><strong>For the classification with localization problem:</strong>
+        <ul>
+          <li>Images generally contain one primary object that the algorithm tries to recognize and localize.</li>
+          <li>The classification techniques you’ve learned are essential for classification with localization, which, in turn, lays the groundwork for detection.</li>
+        </ul>
+      </li>
+      <li><strong>To localize an object within an image:</strong>
+        <ul>
+          <li>Neural networks can be adapted to output additional parameters that define a bounding box around the recognized object.</li>
+          <li>These parameters, bx, by, bh, and bw, help determine the object’s position and size.</li>
+          <li>The image’s top left is considered coordinate (0,0), and the bottom right is (1,1). Using this, the midpoint, height, and width of the bounding box can be defined.</li>
+        </ul>
+      </li>
+      <li><strong>For supervised learning:</strong>
+        <ul>
+          <li>The target label, y, is structured as a vector. It starts with a component pc, indicating the presence of an object (1 if present, 0 otherwise).</li>
+          <li>If an object is detected, the next components, bx, by, bh, and bw, indicate the bounding box’s parameters.</li>
+          <li>Following that, c1, c2, and c3 will indicate the object’s class (e.g., pedestrian, car, motorcycle).</li>
+          <li>It’s presumed that there’s only one primary object in each image for this problem.</li>
+        </ul>
+      </li>
+      <li><strong>On the topic of loss functions:</strong>
+        <ul>
+          <li>If an object is present (y1 = 1), the loss is the squared difference between the predicted and actual values across all components.</li>
+          <li>If no object is detected (y1 = 0), only the accuracy of pc is considered.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Having neural networks output specific real numbers, almost like in regression tasks, to pinpoint items within an image is crucial. This approach is powerful and finds its application in various computer vision tasks.</li>
+</ul>
+
+<h2 id="landmark-detection-in-neural-networks-a-technical-summary">Landmark Detection in Neural Networks: A Technical Summary</h2>
+
+<ol>
+  <li>
+    <p><strong>Purpose:</strong> Neural networks can be trained to detect specific points, or landmarks, on images. These landmarks help in applications like face recognition, emotion detection, and augmented reality effects.</p>
+  </li>
+  <li><strong>Bounding Box Representation:</strong> Neural networks can output bounding boxes using four numbers: bx, by, bh, and bw, where:
+    <ul>
+      <li>bx, by: coordinates of the center of the box.</li>
+      <li>bh, bw: height and width of the box respectively.</li>
+    </ul>
+  </li>
+  <li><strong>Landmarks:</strong> Instead of bounding boxes, sometimes it’s preferable to get specific X and Y coordinates of points of interest. For instance:
+    <ul>
+      <li>In face recognition, if you want to pinpoint the corner of someone’s eye, the network can output two numbers lx (landmark x-coordinate) and ly (landmark y-coordinate).</li>
+      <li>If you want all four corners of both eyes, the network would output l1x, l1y, l2x, l2y, and so on for each point.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Multiple Landmarks:</strong> You can choose any number of landmarks on the image. For a face, you could select landmarks for the eyes, mouth, nose, jawline, etc. Using 64 landmarks as an example, the network would output 128 coordinates plus 1 output to detect if it’s a face, totaling 129 output units.</p>
+  </li>
+  <li><strong>Applications:</strong>
+    <ul>
+      <li>Emotion Recognition: Detecting facial landmarks aids in understanding emotions by recognizing facial expressions.</li>
+      <li>Augmented Reality: Applications like Snapchat utilize facial landmarks to superimpose effects, like crowns or hats, onto the face.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Training Data Requirement:</strong> The neural network needs labeled training data, where each landmark on multiple images has been annotated manually. Consistency is key. For instance, landmark one should always represent the same point (like a specific eye corner) across all images.</p>
+  </li>
+  <li>
+    <p><strong>Pose Detection:</strong> Beyond faces, this landmark detection principle can be extended to detect human poses. By marking key points like shoulders, elbows, and the chest’s midpoint, the network can determine a person’s posture.</p>
+  </li>
+  <li>
+    <p><strong>Consistency Across Images:</strong> It’s essential that the identity of each landmark remains consistent across different images. For instance, if landmark one represents the left eye’s corner in one image, it should represent the same in all other images.</p>
+  </li>
+  <li><strong>Use in Object Detection:</strong> While this video focused on landmark detection, these fundamental principles pave the way for more complex tasks, such as object detection.</li>
+</ol>
+
+<ul>
+  <li>Landmark detection in neural networks is a versatile tool, enabling various applications from emotion recognition to augmented reality. The technique relies on outputting specific X,Y coordinates for predetermined points on images, requiring consistently labeled training data for effective learning.</li>
+</ul>
+
+<h2 id="object-detection">Object Detection</h2>
+<ul>
+  <li>You’ve been introduced to Object Localization and Landmark Detection. Now, we’ll delve into the Sliding Windows Detection Algorithm for object detection using a convolutional neural network (CNN). Here’s a concise overview:</li>
+</ul>
+
+<ol>
+  <li><strong>Goal:</strong> Develop a car detection algorithm.</li>
+  <li><strong>Training Set Creation:</strong>
+    <ul>
+      <li>Obtain closely cropped images of cars, where the entire image mostly centers on the car.</li>
+      <li>The training set should contain positive examples (images with cars) and negative examples (images without cars).</li>
+    </ul>
+  </li>
+  <li><strong>CNN Training:</strong>
+    <ul>
+      <li>Train a CNN using the cropped images.</li>
+      <li>The network predicts whether the input image has a car (output y = 1) or not (output y = 0).</li>
+    </ul>
+  </li>
+  <li><strong>Sliding Windows Detection:</strong>
+    <ul>
+      <li>Start with a test image.</li>
+      <li>Define a window size and slide it across the image at varying strides, cropping out portions to feed into the trained CNN.</li>
+      <li>For each cropped region, the CNN predicts whether it contains a car.</li>
+      <li>This process repeats with varying window sizes, ensuring various object scales are detected.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges:</strong>
+    <ul>
+      <li>Computational cost is significant due to the many cropped regions processed by the CNN.</li>
+      <li>Coarser strides may decrease computation but reduce accuracy. Finer strides increase accuracy but are computationally expensive.</li>
+      <li>Traditional methods using linear classifiers were more computationally efficient but less accurate than modern CNNs.</li>
+    </ul>
+  </li>
+  <li><strong>Solution:</strong>
+    <ul>
+      <li>Implement the Sliding Windows Object Detector more efficiently using convolutions, which will be discussed in the subsequent video.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In essence, the Sliding Windows Detection method uses a CNN to scan various regions of an image to detect objects. However, its computational expense necessitates a more efficient implementation.</li>
+</ul>
+
+<h2 id="convolutional-implementation-of-sliding-windows">Convolutional Implementation of Sliding Windows</h2>
+<p><img src="../assets/CNN/5.png" alt="" /></p>
+<ul>
+  <li><strong>Converting Fully Connected to Convolutional Layers:</strong>
+    <ol>
+      <li>Consider an object detection algorithm that starts with a 14x14x3 image.</li>
+      <li>This image is convolved using 16 filters of 5x5 size, resulting in an activation map of size 10x10x16.</li>
+      <li>A 2x2 max pooling operation further reduces this to 5x5x16.</li>
+      <li>Traditional neural networks then employ fully connected layers, which might connect to 400 units and then to another layer and finally output a probability distribution, <code class="language-plaintext highlighter-rouge">Y</code>, over four classes using a softmax layer.</li>
+      <li>To transform this into convolutional layers, you can think of the fully connected layers as 1x1 convolutions. Specifically, the first fully connected layer is equivalent to applying a 5x5x16 filter 400 times, leading to an output volume of 1x1x400. This operation is just like having 400 neurons in a fully connected layer, each looking at all the activations from the previous layer.</li>
+      <li>Subsequent fully connected layers can also be represented as 1x1 convolutional layers. For example, another 1x1 convolution can be used to get a 1x1x400 output again.</li>
+    </ol>
+  </li>
+  <li><strong>Convolutional Implementation of Sliding Windows:</strong>
+<img src="../assets/CNN/6.png" alt="" />
+    <ol>
+      <li>In the traditional sliding windows algorithm, if you had a 16x16x3 image and wanted to detect objects in every possible 14x14 region, you’d run the CNN four times: once for each 14x14 region in the 16x16 image.</li>
+      <li>This method is computationally expensive since there’s a lot of overlap between the regions. A significant portion of the computations are being repeated.</li>
+      <li>Using the convolutional approach, instead of extracting and processing each region separately, you apply the CNN on the entire 16x16 image. When you do this, you get an output that’s larger than before, say 2x2x4 for our example.</li>
+      <li>Each 1x1x4 slice of this output corresponds to the predictions for a different 14x14 region in the 16x16 image.</li>
+      <li>When you use a larger image, say 28x28x3, this convolutional approach produces an 8x8x4 output, representing the predictions for many overlapping 14x14 regions. This is done without having to run the CNN multiple times on many different crops of the image.</li>
+      <li>Essentially, by convolving the entire image at once, the computations for overlapping regions are shared, making the whole process much more efficient.</li>
+    </ol>
+  </li>
+  <li>However, there’s a challenge: the bounding boxes produced by this method might not be very precise. Further refinements, possibly discussed in subsequent videos, would address this limitation.</li>
+  <li>This convolutional implementation of sliding windows significantly boosts efficiency by eliminating redundant calculations, making real-time object detection more feasible.</li>
+</ul>
+
+<h2 id="bounding-box-predictions">Bounding Box Predictions</h2>
+
+<ul>
+  <li>The content provided delves into the YOLO (You Only Look Once) algorithm for more accurate bounding box predictions. Here’s a summary of the main points discussed:</li>
+</ul>
+
+<ol>
+  <li>
+    <p><strong>Sliding Windows Limitation:</strong> The convolutional implementation of sliding windows is computationally efficient, but it doesn’t always generate accurate bounding boxes, as it might not match the object’s actual position or shape.</p>
+  </li>
+  <li>
+    <p><strong>YOLO Introduction:</strong> YOLO, standing for “You Only Look Once,” was introduced by Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi. It’s an algorithm that allows for more precise bounding box predictions.</p>
+  </li>
+  <li>
+    <p><strong>Grid-based Classification:</strong> The idea is to overlay a grid on the image, and for each cell, predict if there’s an object and its associated bounding box. The object’s midpoint determines which grid cell is responsible for predicting it.</p>
+  </li>
+  <li><strong>Label Vector Structure: Each grid cell generates a vector <code class="language-plaintext highlighter-rouge">Y</code> containing:</strong>
+    <ul>
+      <li>A binary value indicating the presence of an object.</li>
+      <li>Four values (bx, by, bh, bw) defining the bounding box.</li>
+      <li>Class probabilities for each possible object (e.g., pedestrian, car, motorcycle).</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Training Process:</strong> The neural network learns to map from an input image to an output volume where each slice is the vector <code class="language-plaintext highlighter-rouge">Y</code> for the corresponding grid cell.</p>
+  </li>
+  <li><strong>Advantages of YOLO:</strong>
+    <ul>
+      <li>It can produce bounding boxes of various shapes.</li>
+      <li>It has a convolutional implementation, making it efficient and suitable for real-time object detection.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Bounding Box Encoding:</strong> The bounding box is parameterized relative to the grid cell it’s in. Coordinates (bx, by) indicate the center of the bounding box, relative to the cell’s dimensions. The width (bw) and height (bh) are represented as fractions of the cell’s dimensions.</p>
+  </li>
+  <li>
+    <p><strong>Paper Complexity:</strong> The YOLO paper is considered complex, and even seasoned researchers might find it challenging to understand its intricacies.</p>
+  </li>
+  <li><strong>Next Steps:</strong> There are additional techniques and modifications that can further enhance the YOLO algorithm, which will be discussed in subsequent content.</li>
+</ol>
+
+<p>From the provided notes, it seems the topic revolves around the concept of “Intersection Over Union” (IoU) as it pertains to object detection algorithms, specifically in the context of evaluating how well these algorithms perform in terms of localization. Here’s a summary of the notes:</p>
+
+<h2 id="intersection-over-union-iou-in-object-detection">Intersection Over Union (IoU) in Object Detection:</h2>
+
+<ul>
+  <li>
+    <p><strong>Purpose:</strong> IoU serves as a measure to evaluate the effectiveness of object detection algorithms, especially regarding their localization accuracy.</p>
+  </li>
+  <li><strong>Calculation:</strong>
+    <ol>
+      <li>Intersection: The shared area between the ground-truth bounding box and the predicted bounding box.</li>
+      <li>Union: The area covered by either the ground-truth or the predicted bounding box or both.</li>
+      <li>IoU Value: \(\frac{\text{Intersection}}{\text{Union}}\)</li>
+    </ol>
+  </li>
+  <li><strong>Benchmark:</strong>
+    <ul>
+      <li>Conventionally, an IoU value greater than 0.5 indicates a reasonably accurate prediction.</li>
+      <li>However, for stricter evaluations, thresholds like 0.6 or 0.7 can also be used.</li>
+      <li>A perfect overlap (predicted bounding box matches the ground truth) yields an IoU of 1.</li>
+    </ul>
+  </li>
+  <li><strong>Usage:</strong>
+    <ol>
+      <li>Evaluating Localization Accuracy: Determine how many times the algorithm correctly detects and localizes an object based on set IoU thresholds.</li>
+      <li>Comparing Bounding Boxes: As a measure of similarity between two boxes.</li>
+    </ol>
+  </li>
+  <li>
+    <p>IoU is also crucial for “non-max suppression,” a technique to refine the outputs of the YOLO (You Only Look Once) object detection framework.</p>
+  </li>
+  <li>Note: IoU, in this context, should not be confused with the common term “I owe you,” indicating a debt.</li>
+</ul>
+
+<h2 id="non-max-suppression">Non-max suppression</h2>
+
+<p><img src="../assets/CNN/7.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p><strong>Problem:</strong> Object detection algorithms often detect multiple bounding boxes for the same object.</p>
+  </li>
+  <li>
+    <p><strong>Solution:</strong> NMS ensures that only one bounding box is retained for each detected object.</p>
+  </li>
+</ul>
+
+<p>Example:</p>
+
+<ul>
+  <li>
+    <p>Context: Suppose we are detecting pedestrians, cars, and motorcycles in an image with a 19x19 grid overlay.</p>
+  </li>
+  <li>
+    <p>Issue: Even though a car may technically lie within one grid cell, multiple neighboring cells might also claim they detected the same car due to the algorithm’s localization process. This results in multiple bounding boxes for the same object.</p>
+  </li>
+</ul>
+
+<p>How NMS Works:</p>
+
+<ol>
+  <li>Filtering:
+    <ul>
+      <li>Discard all bounding boxes with a probability (Pc) below a certain threshold (e.g., 0.6). This helps eliminate weak detections.</li>
+    </ul>
+  </li>
+  <li>Selection:
+    <ul>
+      <li>Among the remaining boxes, select the box with the highest probability.</li>
+      <li>Suppress (discard) any nearby bounding box that has a high Intersection over Union (IoU) with the chosen box. This ensures that only the most probable bounding box for an object is retained, while overlapping ones are removed.</li>
+      <li>Repeat the process until all boxes are either selected or suppressed.</li>
+    </ul>
+  </li>
+  <li>Multiple Object Classes:
+    <ul>
+      <li>When detecting multiple objects (like pedestrians, cars, and motorcycles), perform NMS independently for each object class.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Outcome:</p>
+<ul>
+  <li>The result is a refined set of bounding boxes, where each detected object is represented by only one bounding box.</li>
+</ul>
+
+<h2 id="anchor-boxes">Anchor boxes</h2>
+
+<p><img src="../assets/CNN/8.png" alt="" /></p>
+
+<ul>
+  <li><strong>Problem Statement:</strong>
+    <ol>
+      <li>When multiple objects are present in the same grid cell, a traditional detection system can’t recognize both of them.</li>
+      <li>Objects with different shapes might have similar midpoints, leading to conflicts.</li>
+    </ol>
+  </li>
+  <li><strong>Solution: Anchor Boxes</strong>
+    <ol>
+      <li>Pre-defined shapes called anchor boxes allow grid cells to detect multiple objects.</li>
+      <li>Each object in an image gets associated with an anchor box that best represents its shape.</li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>How Anchor Boxes Work:</strong></p>
+
+    <ol>
+      <li>
+        <p><strong>Pre-define Shapes:</strong> Choose anchor box shapes that represent common object shapes in the dataset. For simplification, let’s say there are two anchor boxes.</p>
+      </li>
+      <li><strong>Label Encoding with Anchor Boxes:</strong>
+        <ul>
+          <li>Each object in a training set image is assigned to the grid cell containing its midpoint.</li>
+          <li>Additionally, it’s matched to the anchor box that has the highest Intersection-over-Union (IoU) with the object’s shape.</li>
+          <li>The output label <code class="language-plaintext highlighter-rouge">Y</code> for each grid cell becomes <code class="language-plaintext highlighter-rouge">3 x 3 x 16</code> (if there are two anchor boxes) instead of <code class="language-plaintext highlighter-rouge">3 x 3 x 8</code> without anchor boxes.</li>
+          <li>This can be viewed as <code class="language-plaintext highlighter-rouge">3 x 3 x 2 x 8</code> (3x3 grid, 2 anchor boxes, and 8 features for each object - presence, bounding box coordinates, and class probabilities).</li>
+        </ul>
+      </li>
+      <li><strong>Labeling Examples:</strong>
+        <ul>
+          <li>If a grid cell contains a pedestrian (more similar to anchor box 1) and a car (similar to anchor box 2), the first half of the <code class="language-plaintext highlighter-rouge">Y</code> label vector will encode the pedestrian details and the second half will encode the car details.</li>
+          <li>If only a car is present in the grid cell, the first half of the <code class="language-plaintext highlighter-rouge">Y</code> label (corresponding to anchor box 1) will indicate no object, and the second half will encode the car.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Potential Issues:</strong></p>
+
+    <ol>
+      <li>
+        <p>Multiple Objects, Same Anchor Box: If two objects in a grid cell match the same anchor box shape, the system can’t handle it perfectly. A default tiebreaker or method needs to be implemented.</p>
+      </li>
+      <li>
+        <p>More Objects than Anchor Boxes: For instance, three objects in a grid cell but only two anchor boxes. Again, a default strategy or tiebreaker is required.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Why Use Anchor Boxes:</strong></p>
+
+    <ol>
+      <li>
+        <p>Specialization: The algorithm can specialize in detecting objects of different shapes. For example, one set of outputs might become specialized in detecting tall, narrow objects, while another set focuses on wider objects.</p>
+      </li>
+      <li>
+        <p>Handling Overlaps: Even if overlaps in grid cells are rare (like in a 19x19 grid), anchor boxes help in such scenarios.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Choosing Anchor Boxes:</strong></p>
+
+    <ol>
+      <li>
+        <p>Manual Selection: Initially, anchor boxes were hand-picked based on the variety of object shapes in the dataset.</p>
+      </li>
+      <li>
+        <p>Advanced Technique: Implement K-means clustering on the dataset shapes to select representative anchor boxes automatically.</p>
+      </li>
+    </ol>
+  </li>
+  <li>Anchor boxes improve the object detection capabilities of models like YOLO by allowing each grid cell to detect multiple objects of varying shapes.</li>
+  <li>By associating objects with appropriate anchor boxes, the model can handle overlapping objects and specialize its outputs for different object shapes.</li>
+</ul>
+
+<h2 id="yolo">YOLO</h2>
+
+<ul>
+  <li>YOLO (You Only Look Once) is an advanced object detection method that differs from other detection methods in that it views object detection as a regression problem to spatially separated bounding boxes and associated class probabilities. Instead of producing thousands of proposals and selecting the best ones, YOLO performs detection and classification in a single forward pass of the network. Here’s a detailed breakdown of the tech notes you provided:
+    <ol>
+      <li><strong>Training Set Construction:</strong></li>
+    </ol>
+    <ul>
+      <li><strong>Objective:</strong> To detect pedestrians, cars, and motorcycles, and possibly other classes in the full image.</li>
+      <li><strong>Anchor boxes:</strong> These are predefined shapes to help the algorithm predict bounding boxes. They’re based on shapes of objects you commonly expect in your dataset.</li>
+      <li><strong>Output Volume:</strong> If you are using a <code class="language-plaintext highlighter-rouge">3x3</code> grid with two anchor boxes and have three classes to detect (pedestrian, car, motorcycle), the output volume will be <code class="language-plaintext highlighter-rouge">3x3x16</code>. This is because:
+        <ul>
+          <li>There are two anchor boxes: hence two sets of predictions.</li>
+          <li>For each anchor box, we have:
+            <ul>
+              <li>\(P_c\): Probability that there’s an object.</li>
+              <li>\(b_x, b_y\): Center coordinates of the bounding box.</li>
+              <li>\(b_h, b_w\): Height and width of the bounding box.</li>
+              <li>\(c_1, c_2, c_3\): Class probabilities.</li>
+            </ul>
+          </li>
+          <li>So, each anchor box outputs an 8-dimensional vector, and with two anchor boxes, that’s 16 values.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<ol>
+  <li><strong>Making Predictions:</strong>
+    <ul>
+      <li>When the neural network processes an image through the forward pass:
+        <ul>
+          <li>For grid cells that contain no object, the network should output values close to zero for \(P_c\).</li>
+          <li>For grid cells containing an object, the network will output the corresponding bounding box and class probability information.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Non-Max Suppression (NMS):</strong>
+    <ul>
+      <li>This step is vital for filtering multiple bounding boxes.
+        <ol>
+          <li>For each grid cell, two bounding boxes (or as many as you have anchor boxes) will be predicted.</li>
+          <li>Discard boxes with a low objectness score (\(P_c\)).</li>
+          <li>For overlapping boxes, keep the box with the highest objectness score and discard the others. This process is done independently for each object class.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li><strong>Advantages of YOLO:</strong>
+    <ul>
+      <li><strong>Speed:</strong> Because it processes the image in a single forward pass, YOLO is much faster than other object detection algorithms, making it suitable for real-time detection.</li>
+      <li><strong>Global Context:</strong> As YOLO processes the entire image, it has a better context for detection, leading to fewer false positives in backgrounds.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges with YOLO:</strong>
+    <ul>
+      <li><strong>Handling overlapping objects:</strong> Since each grid cell can predict only a fixed number of boxes (equal to the number of anchor boxes), YOLO might struggle with overlapping objects.</li>
+      <li><strong>Fine-grained detection:</strong> If there are many small objects in close proximity, YOLO might find it challenging to detect all of them.</li>
+    </ul>
+  </li>
+  <li>The YOLO algorithm has seen several updates since its initial release. Each version comes with its own set of improvements in terms of speed, accuracy, and features. The foundational ideas remain consistent across versions, emphasizing end-to-end object detection in a single forward pass of the network.</li>
+</ul>
+
+<h2 id="r-cnn-regions-with-convolutional-neural-networks">R-CNN (Regions with Convolutional Neural Networks)</h2>
+
+<ul>
+  <li><strong>Problem with Sliding Windows:</strong> Traditional sliding windows method would involve examining every possible window in an image, which is computationally intensive and not efficient, especially when many regions don’t contain any objects.</li>
+  <li><strong>Solution – Region Proposals:</strong> Instead of testing every possible window, R-CNN uses a segmentation algorithm to propose a smaller number of candidate object regions. It then runs a CNN classifier on each of these proposed regions.</li>
+  <li><strong>Segmentation Algorithm:</strong> This algorithm finds “blobs” or regions in the image that could contain objects. For example, areas with textures or patterns that differ from their surroundings. It could propose around 2000 regions in an image.</li>
+  <li><strong>Classification:</strong> After proposing these regions, R-CNN runs a CNN classifier on each region. It also fine-tunes the bounding boxes for more accurate object localization.</li>
+  <li><strong>Improvements on R-CNN:</strong></li>
+  <li><strong>Fast R-CNN:</strong> Proposed by Ross Girshick, it improved the R-CNN by utilizing a convolutional implementation of sliding windows. This made the algorithm faster as it avoided classifying the proposed regions one by one.</li>
+  <li><strong>Faster R-CNN:</strong> A further improvement to the Fast R-CNN. The most significant change was that it used a CNN to propose regions instead of traditional segmentation algorithms. This sped up the region proposal step, making the algorithm faster than its predecessors. However, in most implementations, Faster R-CNN is usually still slower than YOLO.</li>
+  <li><strong>Personal Perspective:</strong>
+    <ul>
+      <li>The idea of region proposals has been influential in computer vision.</li>
+      <li>However, the notion of having two separate steps (region proposal and then classification) might not be as efficient or promising in the long run.</li>
+      <li>Algorithms like YOLO (You Only Look Once) that integrate both steps seem more promising for future developments.</li>
+      <li>In essence, while the R-CNN family of algorithms has been impactful in the field of object detection, the future might lean towards more integrated solutions like YOLO that streamline the detection process.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="face-recognition">Face Recognition</h2>
+
+<ul>
+  <li><strong>Challenge in Face Recognition:</strong> One-shot Learning
+    <ol>
+      <li><strong>Definition:</strong> One-shot learning refers to the challenge in face recognition where an algorithm needs to recognize a person using just a single image or instance of that person’s face.</li>
+      <li><strong>Problem:</strong> Deep learning algorithms usually require multiple instances of an item to learn and recognize it. For many face recognition applications, however, you might only have one image of an individual.</li>
+    </ol>
+  </li>
+  <li><strong>Example Scenario:</strong>
+    <ol>
+      <li>Employee Database: Consider a scenario where an organization has a database with a single image of each employee.</li>
+      <li>Recognition Task: When an employee tries to gain access, the system must recognize them using their single stored image.</li>
+    </ol>
+  </li>
+  <li><strong>Traditional Approach and Its Flaws:</strong>
+    <ol>
+      <li><strong>CNN with Softmax:</strong> One could feed an image to a CNN and use a softmax unit to predict the person from predefined categories.</li>
+      <li><strong>Issues:</strong>
+        <ul>
+          <li>Small training sets are typically insufficient to train a robust neural network.</li>
+          <li>If a new member is added, the neural network needs to be retrained.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Solution: Learning a Similarity Function:</strong>
+    <ol>
+      <li><strong>Function Definition:</strong> The goal is to train a neural network to learn a similarity function, denoted as \(d\), which computes the difference between two images.</li>
+      <li><strong>Output Behavior:</strong>
+        <ul>
+          <li>If the images are of the same person, \(d\) should output a small number.</li>
+          <li>If the images are of different people, \(d\) should output a large number.</li>
+        </ul>
+      </li>
+      <li><strong>Recognition Strategy:</strong>
+        <ul>
+          <li>If \(d\) outputs a value less than a threshold \(\tau\), the images are presumed to be of the same person.</li>
+          <li>If \(d\) outputs a value greater than \(\tau\), the images are presumed to be of different people.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>Application in Verification and Recognition:</strong>
+ <strong>1. Verification:</strong>
+    - To verify someone’s identity, compare the new image with the stored image using the function \(d\).
+    - If the output is small (i.e., below \(\tau\)), then the identity is verified.
+ <strong>2. Recognition:</strong>
+    - For a new picture, compare it with all images in the database using \(d\).
+    - Find the image pair that gives the smallest output value (ideally less than \(\tau\)).
+    - This helps in recognizing or rejecting the person based on their similarity to the database images.</p>
+  </li>
+  <li><strong>Benefits and Scalability:</strong>
+    <ol>
+      <li>Solves One-shot Learning: By learning the function \(d\), you can successfully perform one-shot learning.</li>
+      <li>Adding New Members: If a new member is added to the database, no need to retrain the network from scratch. Simply add their image to the database.</li>
+    </ol>
+  </li>
+  <li>This approach, by focusing on the similarity between images rather than directly classifying each image, provides a robust and scalable solution to the challenges presented by one-shot learning in face recognition.</li>
+</ul>
+
+<h2 id="siamese-network-for-face-recognition">Siamese Network for Face Recognition</h2>
+
+<p><img src="../assets/CNN/9.png" alt="" /></p>
+
+<ol>
+  <li>Purpose of Function \(d\):
+    <ul>
+      <li>It takes two facial images as inputs and calculates how similar or different they are.</li>
+      <li>A common architecture to achieve this is the Siamese network.</li>
+    </ul>
+  </li>
+  <li>Traditional Convolutional Network (CNN) Overview:
+    <ul>
+      <li>A typical CNN receives an image input, let’s denote it as \(x_1\).</li>
+      <li>The CNN processes the image through a series of convolutional, pooling, and fully connected layers.</li>
+      <li>This generates a feature vector, sometimes used for classification using a softmax unit.</li>
+      <li>However, for our Siamese network, we won’t be using softmax. Instead, we’ll focus on this feature vector.</li>
+    </ul>
+  </li>
+  <li>Encoding with the Siamese Network:
+    <ul>
+      <li>The feature vector generated by the CNN can be termed as an “encoding” of the input image.</li>
+      <li>This encoding, \(f(x_1)\), is a set of numbers (e.g., 128 numbers) that represents the input image.</li>
+      <li>To compare two images, both images are fed into identical neural networks (with the same parameters) to generate their respective encodings.</li>
+    </ul>
+  </li>
+  <li>Computing the Distance:
+    <ul>
+      <li>If we have two images, \(x_1\) and \(x_2\), their encodings are \(f(x_1)\) and \(f(x_2)\) respectively.</li>
+      <li>The distance \(d\) between \(x_1\) and \(x_2\) can be computed as the norm of the difference between their encodings.</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Mathematically: $$d(x_1, x_2) =</td>
+              <td> </td>
+              <td>f(x_1) - f(x_2)</td>
+              <td> </td>
+              <td>$$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>Siamese Neural Network Architecture:
+    <ul>
+      <li>This strategy of using two identical CNNs to process two different inputs and then comparing their outputs is termed as a Siamese neural network architecture.</li>
+      <li>Much of the foundational knowledge of Siamese networks comes from a research paper detailing the DeepFace system, authored by Yaniv Taigman, Ming Yang, Marc’Aurelio Ranzato, and Lior Wolf.</li>
+    </ul>
+  </li>
+  <li>Training the Siamese Network:
+    <ul>
+      <li>Both CNNs in the Siamese architecture share the same parameters.</li>
+      <li>The goal is to train the neural network to compute encodings that result in a small distance \(d\) when two pictures are of the same person and a large distance otherwise.</li>
+      <li>Formal Objective:
+        <ul>
+          <li>If \(x_i\) and \(x_j\) are images of the same person, their distance \(\|\|f(x_i) - f(x_j)\|\|\) should be small.</li>
+          <li>If \(x_i\) and \(x_j\) are images of different people, their distance \(\|\|f(x_i) - f(x_j)\|\|\) should be large.</li>
+        </ul>
+      </li>
+      <li>The parameters of the CNN layers influence these encodings. Using backpropagation, the network is trained to ensure that the above conditions are satisfied.</li>
+    </ul>
+  </li>
+  <li>Objective Function for Training:
+    <ul>
+      <li>To train the Siamese network effectively, a suitable objective function is needed.</li>
+      <li>The next discussion will delve into how to define such an objective function, using the concept of the triplet loss function.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In summary, Siamese networks provide an efficient way to handle the one-shot learning problem by focusing on similarities between images, rather than classifying them directly. The key lies in generating robust encodings of the images and then comparing these encodings to determine similarity.</li>
+</ul>
+
+<h2 id="triplet-loss-for-neural-network-training-in-face-recognition">Triplet Loss for Neural Network Training in Face Recognition</h2>
+
+<ul>
+  <li><strong>Basics:</strong>
+    <ul>
+      <li>Objective: Learn parameters of a neural network to get a good encoding for face images.</li>
+      <li>Uses gradient descent on the triplet loss function.</li>
+      <li>Always compares three images:
+        <ol>
+          <li>Anchor</li>
+          <li>Positive (same person as the anchor)</li>
+          <li>Negative (different person from the anchor)</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Mathematical Representation:</strong>
+    <ul>
+      <li>Want distance between Anchor and Positive (<code class="language-plaintext highlighter-rouge">d(A,P)</code>) to be smaller than the distance between Anchor and Negative (<code class="language-plaintext highlighter-rouge">d(A,N)</code>) by at least a margin (<code class="language-plaintext highlighter-rouge">α</code>).</li>
+      <li>
+\[||f(A) - f(P)||^2 - ||f(A) - f(N)||^2 + \alpha \leq 0\]
+      </li>
+    </ul>
+  </li>
+  <li><strong>Triplet Loss Function:</strong>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Defined on triples of images: $$L(A, P, N) = max(</td>
+              <td> </td>
+              <td>f(A) - f(P)</td>
+              <td> </td>
+              <td>^2 -</td>
+              <td> </td>
+              <td>f(A) - f(N)</td>
+              <td> </td>
+              <td>^2 + \alpha, 0)$$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>The goal: Minimize this over the dataset.</li>
+    </ul>
+  </li>
+  <li><strong>Important Points:</strong>
+    <ul>
+      <li>To train, you need multiple images of the same person.</li>
+      <li>Choosing triplets isn’t random. You choose “hard” triplets, where <code class="language-plaintext highlighter-rouge">d(A,P)</code> is close to <code class="language-plaintext highlighter-rouge">d(A,N)</code> to ensure efficient training.</li>
+      <li>Systems like FaceNet by Florian Schroff, Dmitry Kalinichenko, and James Philbin recommend these methods.</li>
+    </ul>
+  </li>
+  <li><strong>Training on Large Datasets:</strong>
+    <ul>
+      <li>Commercial systems often train on very large datasets, often over a million images.</li>
+      <li>Due to the size and difficulty in gathering such datasets, it’s common to use pre-trained models in the industry.</li>
+      <li>However, understanding the training process is crucial if one has to train from scratch or make modifications.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="face-verification-and-binary-classification">Face Verification and Binary Classification</h2>
+
+<ol>
+  <li><strong>Triplet Loss and Binary Classification:</strong>
+    <ul>
+      <li>Triplet Loss: Commonly used in face recognition systems. It works by taking an anchor image, a positive image (same person as anchor), and a negative image (different person than anchor) and adjusting the neural network weights to bring the anchor and positive images’ encodings closer, and push the anchor and negative images’ encodings apart.</li>
+      <li>Binary Classification: An alternative to Triplet Loss. In this method, pairs of images are fed into a Siamese network, which then computes embeddings for both. A logistic regression unit can then be used to determine if the images are of the same person (output = 1) or different people (output = 0).</li>
+    </ul>
+  </li>
+  <li><strong>Computing the Similarity:</strong>
+    <ul>
+      <li>Instead of directly feeding encodings to the logistic regression unit, the difference between encodings can be used. This difference can be calculated in various ways, for example:
+        <ul>
+          <li>The element-wise absolute difference between encodings.</li>
+          <li>The chi-square similarity formula, among others.</li>
+        </ul>
+      </li>
+      <li>This difference serves as the feature to the logistic regression, which then predicts if the images are of the same person or not.</li>
+    </ul>
+  </li>
+  <li><strong>Training the Siamese Network:</strong>
+    <ul>
+      <li>The network is trained using pairs of images where the output is 0 (different persons) or 1 (same person).</li>
+      <li>The weights and parameters of the two networks in the Siamese architecture are tied, meaning they’re identical and updated simultaneously during training.</li>
+    </ul>
+  </li>
+  <li><strong>Pre-computation of Encodings:</strong>
+    <ul>
+      <li>For efficient deployment, especially with large databases, pre-computed encodings can be used. Instead of computing encodings for each image in the database every time a new image needs to be verified, the encodings for the database images can be pre-computed and stored.</li>
+      <li>When a new image comes in, only its encoding needs to be computed, which can then be compared with the pre-computed encodings, saving significant computational resources.</li>
+    </ul>
+  </li>
+  <li><strong>Conclusion:</strong>
+    <ul>
+      <li>Face verification can be approached as a supervised learning problem, where pairs of images form the input data. These pairs are labeled either 1 (if the images are of the same person) or 0 (if they are of different people).</li>
+      <li>The binary classification approach to face verification and recognition works effectively, enabling one-shot learning.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="deep-cnns">Deep CNNs</h2>
+
+<ul>
+  <li>What Do Deep CNNs Learn?</li>
+</ul>
+
+<ol>
+  <li><strong>Layer 1:</strong>
+    <ul>
+      <li>In the initial layer of CNNs, individual neurons (or hidden units) often look for simple features like edges or specific colors.</li>
+      <li>By analyzing the image patches that maximally activate each neuron in the first layer, it’s observed that different neurons tend to activate for specific edge orientations or colors.</li>
+      <li>For instance, one neuron might activate for vertical edges, while another might activate for green regions in the image.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 2:</strong>
+    <ul>
+      <li>As you move deeper into the network to the second layer, the patterns that activate the neurons become more complex.</li>
+      <li>Instead of just edges or colors, layer 2 neurons might activate for textures, basic shapes, or specific orientations of lines.</li>
+      <li>For example, a neuron might activate for circular patterns or another for vertical line textures.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 3:</strong>
+    <ul>
+      <li>Moving further deep, the third layer detects even more complex patterns and shapes.</li>
+      <li>The neurons here can get activated by parts of objects like wheels, specific textures, or even parts of animals like legs.</li>
+      <li>It begins to assemble the simple patterns from earlier layers into more recognizable object parts.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 4:</strong>
+    <ul>
+      <li>In this layer, the neurons have the capability to recognize more complex objects or parts of objects.</li>
+      <li>Some neurons might serve as rudimentary “dog detectors”, activating for specific breeds of dogs, while others might activate for specific textures like water or the legs of a bird.</li>
+    </ul>
+  </li>
+  <li><strong>Layer 5:</strong>
+    <ul>
+      <li>In the deepest layers, the network is capable of recognizing sophisticated objects and patterns.</li>
+      <li>For instance, one neuron might activate for various types of dogs, while others detect keyboards, text, or flowers.</li>
+      <li>These are quite advanced features, integrating a lot of the simpler features from earlier layers.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>The intuition gained from understanding what individual layers in a CNN are computing can be beneficial. In the context of the video, this understanding will be used to devise a neural-style transfer algorithm.</li>
+  <li>Overall, as we progress deeper into a neural network, the complexity of features that the network can recognize increases, starting from simple edges in the early layers to full object detection in the deeper layers.</li>
+</ul>
+
+<h2 id="neural-style-transfer">Neural style transfer</h2>
+<ul>
+  <li>Neural Style Transfer aims to produce an image that blends the content of one image and the style of another. Here’s a breakdown of how it works:</li>
+</ul>
+
+<ol>
+  <li><strong>Problem Formulation:</strong>
+    <ul>
+      <li>You have a content image (C), a style image (S), and you aim to produce a generated image (G).</li>
+    </ul>
+  </li>
+  <li><strong>Cost Function:</strong>
+    <ul>
+      <li>The cost function, \(J(G)\), measures the quality of the generated image.</li>
+      <li>The cost function comprises two main components: the content cost and the style cost.</li>
+    </ul>
+  </li>
+  <li><strong>Content Cost:</strong>
+    <ul>
+      <li>Measures how similar the content of G is to the content of C.</li>
+    </ul>
+  </li>
+  <li><strong>Style Cost:</strong>
+    <ul>
+      <li>Measures how similar the style of G is to the style of S.</li>
+    </ul>
+  </li>
+  <li><strong>Weighting Hyperparameters:</strong>
+    <ul>
+      <li>\(\alpha\) and \(\beta\) are hyperparameters to adjust the relative importance of the content and style cost. Using two hyperparameters follows the original paper’s convention, even if it might seem redundant.</li>
+    </ul>
+  </li>
+  <li><strong>Algorithm Procedure:</strong>
+    <ul>
+      <li>Initialization: Begin with an image G that is randomly initialized.</li>
+      <li>Gradient Descent: Define the cost function \(J(G)\). Adjust the pixel values of G using gradient descent to minimize \(J(G)\). This process updates the pixel values of G.</li>
+    </ul>
+  </li>
+  <li><strong>Example:</strong>
+    <ul>
+      <li>Given a content image and a style image, a randomly initialized G starts as white noise. With iterations of gradient descent, G evolves to represent the content of the content image in the style of the style image.</li>
+    </ul>
+  </li>
+  <li><strong>Next Steps:</strong>
+    <ul>
+      <li>Dive deeper into defining the content cost function and the style cost function.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>The foundation of the Neural Style Transfer Algorithm comes from the paper by Leon Gatys, Alexander Ecker, and Matthias. After understanding the high-level overview, the subsequent steps involve understanding the intricate details of the cost functions.</li>
+</ul>
+
+<h2 id="cost-function-1">Cost function</h2>
+
+<p>For the Neural Style Transfer algorithm, the cost function has two parts: content cost and style cost. Let’s delve into the Content Cost:</p>
+
+<ol>
+  <li><strong>Purpose of Content Cost:</strong>
+    <ul>
+      <li>The content cost ensures that the generated image G resembles the content of the original content image C.</li>
+    </ul>
+  </li>
+  <li><strong>Selection of Layer l:</strong>
+    <ul>
+      <li>Using too shallow a layer (e.g., layer 1) forces G to have pixel values closely resembling C.</li>
+      <li>Using a very deep layer ensures only high-level content resemblance (like ensuring a dog in C results in a dog somewhere in G).</li>
+      <li>In practice, the layer l used for computing the content cost is chosen from the middle layers of the neural network.</li>
+    </ul>
+  </li>
+  <li><strong>Using Pre-trained CNN:</strong>
+    <ul>
+      <li>A pre-trained convolutional network, such as VGG, can be employed to compute content cost.</li>
+      <li>Measure the similarity of the content between the content image C and the generated image G using activations from the chosen layer l. Represent these activations as \(a^{[l](c)}\) and \(a^{[l](g)}\).</li>
+    </ul>
+  </li>
+  <li><strong>Computing the Content Cost:</strong>
+    <ul>
+      <li>If the activations of layer \(l\) for images C and G are similar, it implies the contents of the images are also similar.</li>
+      <li>The content cost \(J_{content}(C,G)\) is computed as the squared difference of the activations from layer \(l\) for both images.</li>
+      <li>This involves element-wise subtraction and squaring of the difference. The result gives an idea of how similar/different the content of both images is at that layer.</li>
+      <li>To clarify, the activations are unrolled into vectors, making it a squared L2 norm of the difference between the two activations.</li>
+      <li>This essentially boils down to the sum of squared differences between the activations for the content and generated images at layer \(l\).</li>
+    </ul>
+  </li>
+  <li><strong>Gradient Descent:</strong>
+    <ul>
+      <li>When gradient descent is applied to minimize the cost function \(J(G)\), the content cost component encourages the algorithm to generate an image G with activations similar to the content image C at layer l.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="style-cost-function-in-neural-style-transfer">Style cost function in neural style transfer</h2>
+
+<ol>
+  <li><strong>Style Definition</strong>:
+    <ul>
+      <li>The style of an image is defined based on the correlation between activations across different channels in a certain layer.</li>
+      <li>If two channels are highly correlated, it implies that the features those channels detect appear together in the image.</li>
+    </ul>
+  </li>
+  <li><strong>Style Matrix</strong>:
+    <ul>
+      <li>For a given image and a specific layer, the “style matrix” (or Gram matrix) is computed. This matrix captures the correlations between the activations of each channel in that layer.</li>
+      <li>The element \(G_{kk'}\) of the style matrix is the unnormalized correlation between channels \(k\) and \(k'\) across all positions of the image.</li>
+    </ul>
+  </li>
+  <li><strong>Style Cost Function</strong>:
+    <ul>
+      <li>For a given layer, the style cost between a generated image \(G\) and a style image \(S\) is the difference between their respective style matrices for that layer.</li>
+      <li>The Frobenius norm of the difference between these matrices (squared) gives a measure of how different their styles are.</li>
+      <li>To make the algorithm robust and generate visually appealing results, the style cost is computed across multiple layers and combined, giving different layers different weights.</li>
+    </ul>
+  </li>
+  <li><strong>Overall Objective</strong>:
+    <ul>
+      <li>The overall objective for neural style transfer is a combination of the content cost (ensuring the generated image resembles the content image) and the style cost (ensuring the generated image has the style of the style image).</li>
+      <li>This objective is minimized using gradient descent or other optimization techniques to produce the final stylized image.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>Finally, this technique allows for the generation of unique artwork by blending the content of one image with the style of another. This exciting combination of art and AI has led to many innovative applications and showcases the creative potential of deep learning.</li>
+</ul>
+
+<h2 id="1d-and-3d-generalizations">1D and 3D Generalizations</h2>
+<ul>
+  <li>So far, the predominant focus has been on 2D data like images, but the principles of CNNs can be extended to 1D and 3D data as well.</li>
+</ul>
+
+<ol>
+  <li><strong>2D CNNs</strong>:
+    <ul>
+      <li>Typical examples involve images.</li>
+      <li>Convolution operation involves taking a 2D filter (e.g., 5x5) and moving it across a 2D input (like a 14x14 image) to produce an output (e.g., 10x10).</li>
+      <li>If the image has multiple channels (like RGB with 3 channels), the filter must also have matching channels.</li>
+    </ul>
+  </li>
+  <li><strong>1D CNNs</strong>:
+    <ul>
+      <li>Example provided was the Electrocardiogram (EKG or ECG) data, which measures heart beats over time.</li>
+      <li>Instead of 2D filters, one would use 1D filters.</li>
+      <li>This allows detection of features like heartbeats in time series data.</li>
+      <li>While Recurrent Neural Networks (RNNs) are popular for 1D data, some practitioners also experiment with CNNs.</li>
+    </ul>
+  </li>
+  <li><strong>3D CNNs</strong>:
+    <ul>
+      <li>An example of 3D data is the CT scan, which provides slices of human body, giving a three-dimensional perspective.</li>
+      <li>For 3D CNNs, one would use 3D filters to detect features across 3D data.</li>
+      <li>This can be applied to data such as medical scans and movie data, with the latter treating different time frames as “slices” in a 3D volume.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In conclusion, while 2D data (images) are the most common application for CNNs, the principles can be effectively applied to 1D and 3D data. The course on CNNs concludes with this discussion, and the next course will delve into sequence models like RNNs.</li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/CourseraDL/convolutional-neural-networks/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:17 GMT -->
+</html>

@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/nlp/word-vectors/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:34 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Natural Language Processing • Word Vectors/Embeddings</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Natural Language Processing • Word Vectors/Embeddings</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#how-do-we-represent-the-meaning-of-a-word" id="markdown-toc-how-do-we-represent-the-meaning-of-a-word">How do we represent the meaning of a word?</a></li>
+  <li><a href="#overview-1" id="markdown-toc-overview-1">Overview</a></li>
+  <li><a href="#word-embeddings" id="markdown-toc-word-embeddings">Word Embeddings</a></li>
+  <li><a href="#related-wordnet" id="markdown-toc-related-wordnet">Related: WordNet</a></li>
+  <li><a href="#term-frequency-inverse-document-frequency-tf-idf" id="markdown-toc-term-frequency-inverse-document-frequency-tf-idf">Term Frequency-Inverse Document Frequency (TF-IDF)</a>    <ul>
+      <li><a href="#limitations-of-tf-idf" id="markdown-toc-limitations-of-tf-idf">Limitations of TF-IDF</a></li>
+    </ul>
+  </li>
+  <li><a href="#bm25" id="markdown-toc-bm25">BM25</a>    <ul>
+      <li><a href="#key-components-of-bm25" id="markdown-toc-key-components-of-bm25">Key Components of BM25</a></li>
+      <li><a href="#example" id="markdown-toc-example">Example</a></li>
+      <li><a href="#differences-compared-to-tf-idf" id="markdown-toc-differences-compared-to-tf-idf">Differences compared to TF-IDF</a>        <ul>
+          <li><a href="#bm25-1" id="markdown-toc-bm25-1">BM25</a></li>
+          <li><a href="#tf-idf" id="markdown-toc-tf-idf">TF-IDF</a></li>
+          <li><a href="#example-1" id="markdown-toc-example-1">Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#limitations-of-bm25" id="markdown-toc-limitations-of-bm25">Limitations of BM25</a></li>
+    </ul>
+  </li>
+  <li><a href="#word2vec" id="markdown-toc-word2vec">Word2Vec</a>    <ul>
+      <li><a href="#motivation-behind-word2vec-the-need-for-context-based-semantic-understanding" id="markdown-toc-motivation-behind-word2vec-the-need-for-context-based-semantic-understanding">Motivation behind Word2Vec: The Need for Context-based Semantic Understanding</a></li>
+      <li><a href="#core-idea" id="markdown-toc-core-idea">Core Idea</a></li>
+      <li><a href="#word2vec-architectures" id="markdown-toc-word2vec-architectures">Word2Vec Architectures</a></li>
+      <li><a href="#training-and-optimization" id="markdown-toc-training-and-optimization">Training and Optimization</a></li>
+      <li><a href="#embedding-and-semantic-relationships" id="markdown-toc-embedding-and-semantic-relationships">Embedding and Semantic Relationships</a></li>
+      <li><a href="#distinction-from-traditional-models" id="markdown-toc-distinction-from-traditional-models">Distinction from Traditional Models</a></li>
+      <li><a href="#semantic-nature-of-word2vec-embeddings" id="markdown-toc-semantic-nature-of-word2vec-embeddings">Semantic Nature of Word2Vec Embeddings</a></li>
+      <li><a href="#further-learning-resources" id="markdown-toc-further-learning-resources">Further Learning Resources</a></li>
+      <li><a href="#key-limitations-of-word2vec" id="markdown-toc-key-limitations-of-word2vec">Key Limitations of Word2Vec</a></li>
+    </ul>
+  </li>
+  <li><a href="#glove" id="markdown-toc-glove">GloVe</a>    <ul>
+      <li><a href="#overview-2" id="markdown-toc-overview-2">Overview</a></li>
+      <li><a href="#how-glove-works" id="markdown-toc-how-glove-works">How GloVe Works</a></li>
+      <li><a href="#example-of-glove-in-action" id="markdown-toc-example-of-glove-in-action">Example of GloVe in Action</a></li>
+      <li><a href="#significance-of-glove" id="markdown-toc-significance-of-glove">Significance of GloVe</a></li>
+      <li><a href="#differences-compared-to-word2vec-and-fasttext" id="markdown-toc-differences-compared-to-word2vec-and-fasttext">Differences compared to Word2Vec and fastText</a>        <ul>
+          <li><a href="#glove-global-vectors-for-word-representation" id="markdown-toc-glove-global-vectors-for-word-representation">GloVe (Global Vectors for Word Representation)</a></li>
+          <li><a href="#fasttext" id="markdown-toc-fasttext">fastText</a></li>
+          <li><a href="#word2vec-1" id="markdown-toc-word2vec-1">Word2Vec</a></li>
+          <li><a href="#summary-of-differences" id="markdown-toc-summary-of-differences">Summary of Differences</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#fasttext-1" id="markdown-toc-fasttext-1">fastText</a>    <ul>
+      <li><a href="#overview-3" id="markdown-toc-overview-3">Overview</a></li>
+      <li><a href="#core-features-of-fasttext" id="markdown-toc-core-features-of-fasttext">Core Features of fastText</a></li>
+      <li><a href="#example-of-fasttext" id="markdown-toc-example-of-fasttext">Example of fastText</a></li>
+      <li><a href="#differences-compared-to-word2vec-and-glove" id="markdown-toc-differences-compared-to-word2vec-and-glove">Differences compared to Word2Vec and GloVe</a>        <ul>
+          <li><a href="#fasttext-2" id="markdown-toc-fasttext-2">fastText</a></li>
+          <li><a href="#glove-1" id="markdown-toc-glove-1">GloVe</a></li>
+          <li><a href="#word2vec-2" id="markdown-toc-word2vec-2">Word2Vec</a></li>
+          <li><a href="#key-differences" id="markdown-toc-key-differences">Key Differences</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#example-tf-idf-bm25-word2vec-and-glove-embeddings" id="markdown-toc-example-tf-idf-bm25-word2vec-and-glove-embeddings">Example: TF-IDF, BM25, Word2Vec, and GloVe Embeddings</a>    <ul>
+      <li><a href="#tf-idf-embedding-for-cat" id="markdown-toc-tf-idf-embedding-for-cat">TF-IDF Embedding for “Cat”</a></li>
+      <li><a href="#bm25-embedding-for-cat" id="markdown-toc-bm25-embedding-for-cat">BM25 Embedding for “Cat”</a></li>
+      <li><a href="#word2vec-embedding-for-cat" id="markdown-toc-word2vec-embedding-for-cat">Word2Vec Embedding for “Cat”</a></li>
+      <li><a href="#glove-embedding-for-cat" id="markdown-toc-glove-embedding-for-cat">GloVe Embedding for “Cat”</a></li>
+      <li><a href="#fasttext-embedding-for-cat" id="markdown-toc-fasttext-embedding-for-cat">fastText Embedding for “Cat”</a></li>
+    </ul>
+  </li>
+  <li><a href="#summary-types-of-embeddings" id="markdown-toc-summary-types-of-embeddings">Summary: Types of Embeddings</a>    <ul>
+      <li><a href="#bag-of-words-based-embeddings" id="markdown-toc-bag-of-words-based-embeddings">Bag-of-Words-based Embeddings</a></li>
+      <li><a href="#predictive-word-embeddings" id="markdown-toc-predictive-word-embeddings">Predictive Word Embeddings</a></li>
+      <li><a href="#contextual-and-sequential-data-embeddings" id="markdown-toc-contextual-and-sequential-data-embeddings">Contextual and Sequential Data Embeddings</a></li>
+      <li><a href="#contextual-embeddings" id="markdown-toc-contextual-embeddings">Contextual Embeddings</a></li>
+      <li><a href="#sentencedocument-embeddings" id="markdown-toc-sentencedocument-embeddings">Sentence/Document Embeddings</a></li>
+      <li><a href="#positional-embeddings" id="markdown-toc-positional-embeddings">Positional Embeddings</a></li>
+      <li><a href="#relative-embeddings" id="markdown-toc-relative-embeddings">Relative Embeddings</a></li>
+    </ul>
+  </li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>We can think of information existing in a continuous stream or in discrete chunks. Large Language Models (LLMs) fall under the category of continuous knowledge representation.</li>
+  <li>LLM embeddings are dense, continuous real-valued vectors existing in a high-dimensional space (e.g., 768 dimensional in case of <a href="/bert.html">BERT</a>). Think of them as coordinates on a map: just as longitude and latitude can pinpoint a location on a two-dimensional map, embeddings guide us to rough positions in a multi-dimensional ‘semantic space’ made up of the connections between the words on the internet. Since the embedding vectors are continuous, they allow for an infinite range of values within a given interval, making the embeddings’ coordinates ‘fuzzy’.</li>
+  <li>An LLM embedding for ‘Jennifer Aniston’ will be a several-thousand-dimensional continuous vector that leads to a location in a several-billion-parameter ‘word-space’. If we add the ‘TV series’ embedding to this vector then I will be pulled towards the position of the ‘Friends’ vector. Magic! But this magic comes with a price: you can never quite trust the answers. Hallucination and creativity are two sides of the same coin.</li>
+  <li>In the domain of Natural Language Processing (NLP), representing the meaning of words is of paramount importance. This article aims to discuss the evolving techniques of capturing word semantics and their underlying mechanisms, with a specific focus on <a href="#word2vec">Word2Vec</a>, a popular algorithm for learning word vectors.</li>
+  <li><strong>Key takeaway</strong>
+    <ul>
+      <li>Word meaning can be represented not perfectly, but decently well by a vector of real numbers.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="how-do-we-represent-the-meaning-of-a-word">How do we represent the meaning of a word?</h2>
+
+<p><img src="../assets/intro/14.jpg" alt="" /></p>
+
+<ul>
+  <li>Let’s start with what is meaning. We can look up the Webster Dictionary and here’s what it says:
+    <ul>
+      <li>The idea that is represented by a word, phrase, etc.</li>
+      <li>The idea that a person wants to express by using word, signs, etc.</li>
+      <li>The idea that is expressed in a work of writing, art, etc.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="overview-1">Overview</h2>
+
+<blockquote>
+  <p>“You shall know a word by the company it keeps” - J.R. Firth</p>
+</blockquote>
+
+<ul>
+  <li>Natural language processing (NLP) is a crucial part of artificial intelligence (AI), modeling how people share information.</li>
+  <li>In recent years, deep learning approaches have obtained very high performance on many NLP tasks.</li>
+  <li>Natural language processing (NLP) is the ability of a computer program to understand human language as it is spoken and written – referred to as natural language. It is a component of artificial intelligence (AI).</li>
+  <li>NLP has existed for more than 50 years and has roots in the field of linguistics.</li>
+</ul>
+
+<h2 id="word-embeddings">Word Embeddings</h2>
+
+<ul>
+  <li>
+    <p>Word embeddings, also known as word vectors, provide a dense, continuous, and compact representation of words, encapsulating their semantic and syntactic attributes. They are essentially real-valued vectors, and the proximity of these vectors in a multidimensional space is indicative of the linguistic relationships between words.</p>
+  </li>
+  <li>
+    <p>This concept is rooted in the Distributional Hypothesis, which posits that words appearing in similar contexts are likely to bear similar meanings. Consequently, in a high-dimensional vector space, vectors representing semantically related words (e.g., ‘apple’ and ‘orange’, both fruits) are positioned closer to each other compared to those representing semantically distant words (e.g., ‘apple’ and ‘dog’).</p>
+  </li>
+  <li>
+    <p>Word embeddings are constructed by forming dense vectors for each word, chosen in such a way that they resemble vectors of contextually similar words. This process effectively embeds words in a high-dimensional vector space, with each dimension contributing to the representation of a word’s meaning. For example, the concept of ‘banking’ is distributed across all dimensions of its vector, with its entire semantic essence embedded within this multidimensional space.</p>
+  </li>
+</ul>
+
+<p><img src="../assets/intro/11.jpg" alt="" /></p>
+
+<p><img src="../assets/intro/12.jpg" alt="" /></p>
+
+<ul>
+  <li>
+    <p>The term ‘embedding’ in this context refers to the transformation of discrete words into continuous vectors, achieved through word embedding algorithms. These algorithms are designed to convert words into vectors that encapsulate a significant portion of their semantic content. A classic example of the effectiveness of these embeddings is the vector arithmetic that yields meaningful analogies, such as <code class="language-plaintext highlighter-rouge">'king' - 'man' + 'woman' ≈ 'queen'</code>.</p>
+  </li>
+  <li>
+    <p>Word embeddings are typically pre-trained on large, unlabeled text corpora. This training often involves optimizing auxiliary objectives, like predicting a word based on its contextual neighbors, as demonstrated in <a href="#word2vec">Word2Vec</a> by <a href="../../papers/index.html#efficient-estimation-of-word-representations-in-vector-space">Mikolov et al. (2013)</a>. Through this process, the resultant word vectors encapsulate both syntactic and semantic properties of words.</p>
+  </li>
+  <li>
+    <p>These embeddings have shown remarkable efficiency in capturing contextual similarities, analogies, and, owing to their reduced dimensionality, facilitate rapid and effective computation in various natural language processing tasks. Similarity between word vectors can be quantitatively assessed using measures such as cosine similarity.</p>
+  </li>
+  <li>
+    <p>In deep learning models, word embeddings are frequently employed as the initial layer of data processing. This foundational role of embeddings will be further elaborated upon in our discussion of advanced models like BERT.</p>
+  </li>
+  <li>
+    <p>In summary, word embeddings not only efficiently encapsulate the semantic and syntactic nuances of language but also play a pivotal role in enhancing the computational efficiency of numerous natural language processing tasks.</p>
+  </li>
+</ul>
+
+<h2 id="related-wordnet">Related: WordNet</h2>
+
+<ul>
+  <li>One of the initial attempts to digitally encapsulate a word’s meaning was through the development of <a href="https://wordnet.princeton.edu/">WordNet</a>. WordNet functioned as an extensive thesaurus, encompassing a compilation of synonym sets and hypernyms, the latter representing a type of hierarchical relationship among words.</li>
+  <li>Despite its innovative approach, WordNet encountered several limitations:
+    <ul>
+      <li>Inefficacy in capturing the full scope of word meanings.</li>
+      <li>Inadequacy in reflecting the subtle nuances associated with words.</li>
+      <li>An inability to incorporate evolving meanings of words over time.</li>
+      <li>Challenges in maintaining its currency and relevance in an ever-changing linguistic landscape.</li>
+    </ul>
+  </li>
+  <li>Moreover, WordNet employed the principles of distributional semantics, which posits that a word’s meaning is largely determined by the words that frequently appear in close proximity to it.</li>
+  <li>Subsequently, the field of Natural Language Processing (NLP) witnessed a paradigm shift with the advent of word embeddings. These embeddings marked a significant departure from the constraints of traditional lexical databases like WordNet. Unlike its predecessors, word embeddings provided a more dynamic and contextually sensitive approach to understanding language. By representing words as vectors in a continuous vector space, these embeddings could capture a broader array of linguistic relationships, including semantic similarity and syntactic patterns.</li>
+  <li>Today, word embeddings continue to be a cornerstone technology in NLP, powering a wide array of applications and tasks. Their ability to efficiently encode word meanings into a dense vector space has not only enhanced the performance of various NLP tasks but also has laid the groundwork for more advanced language processing and understanding technologies.</li>
+</ul>
+
+<h2 id="term-frequency-inverse-document-frequency-tf-idf">Term Frequency-Inverse Document Frequency (TF-IDF)</h2>
+
+<ul>
+  <li>Term Frequency-Inverse Document Frequency (TF-IDF) is a statistical measure used to evaluate the importance of a word to a document in a collection or corpus. It is often used in information retrieval and text mining to rank the relevance of documents to a specific query. The TF-IDF value increases proportionally with the number of times a word appears in the document, but this is offset by the frequency of the word in the corpus, which helps to control for the fact that some words are generally more common than others.</li>
+</ul>
+
+<p><strong>1. Term Frequency (TF):</strong></p>
+<ul>
+  <li>Term Frequency measures how frequently a term occurs in a document. Since every document is different in length, it is possible that a term would appear much more times in long documents than shorter ones. Thus, the term frequency is often divided by the document length (the total number of terms in the document) as a way of normalization:</li>
+</ul>
+
+\[\text{TF(t)} = \frac{\text{Number of times term }t\text{ appears in a document}}{\text{Total number of terms in the document}}\]
+
+<p><strong>2. Inverse Document Frequency (IDF):</strong></p>
+<ul>
+  <li>Inverse Document Frequency measures how important a term is. While computing TF, all terms are considered equally important. However, certain terms, like “is”, “of”, and “that”, may appear a lot of times but have little importance. Thus, we need to weigh down the frequent terms while scaling up the rare ones, by computing the following:</li>
+</ul>
+
+\[\text{IDF(t)} = \log \left( \frac{\text{Total number of documents}}{\text{Number of documents with term }t\text{ in it}} \right)\]
+
+<ul>
+  <li><strong>TF-IDF Example:</strong>
+    <ul>
+      <li>Consider a document collection with two documents:
+        <ul>
+          <li>Doc 1: “The sky is blue.”</li>
+          <li>Doc 2: “The sun is bright.”</li>
+        </ul>
+      </li>
+      <li>Let’s calculate the TF-IDF for the word “blue” in Doc 1.
+        <ul>
+          <li>TF for “blue” in Doc 1 = 1 / 4 (the word “blue” appears once in 4 words).</li>
+          <li>Assume our document collection contains 10 documents, and the word “blue” appears in 2 of these. Then, IDF for “blue” = log(10/2) = log(5).</li>
+        </ul>
+      </li>
+      <li>Finally, the TF-IDF score for “blue” in Doc 1 = TF * IDF = (1/4) * log(5).</li>
+      <li>The TF-IDF score for “blue” in Doc 1 is thus a measure of its importance in that document, within the context of the given document collection. This score would be different in a different document or a different collection, reflecting the term’s varying importance. TF-IDF is a fundamental technique in text processing, often used for tasks like document classification, search engine ranking, and information retrieval.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="limitations-of-tf-idf">Limitations of TF-IDF</h3>
+
+<ul>
+  <li>
+    <p>TF-IDF is a widely used technique in information retrieval and text processing, but it comes with several limitations:</p>
+
+    <ol>
+      <li>
+        <p><strong>Lack of Context and Word Order</strong>: TF-IDF treats each word in a document independently and does not consider the context in which a word appears. This means it cannot capture the meaning of words based on their surrounding words or the overall semantic structure of the text. The word order is also ignored, which can be crucial in understanding the meaning of a sentence.</p>
+      </li>
+      <li>
+        <p><strong>Does Not Account for Polysemy</strong>: Words with multiple meanings (polysemy) are treated the same regardless of their context. For example, the word “bank” would have the same representation in “river bank” and “savings bank”, even though it has different meanings in these contexts.</p>
+      </li>
+      <li>
+        <p><strong>Lack of Semantic Understanding</strong>: TF-IDF relies purely on the statistical occurrence of words in documents, which means it lacks any understanding of the semantics of the words. It cannot capture synonyms or related terms unless they appear in similar documents within the corpus.</p>
+      </li>
+      <li>
+        <p><strong>Bias Towards Rare Terms</strong>: While the IDF component of TF-IDF aims to balance the frequency of terms, it can sometimes overly emphasize rare terms. This might lead to overvaluing words that appear infrequently but are not necessarily more relevant or important in the context of the document.</p>
+      </li>
+      <li>
+        <p><strong>Vocabulary Limitation</strong>: The TF-IDF model is limited to the vocabulary of the corpus it was trained on. It cannot handle new words that were not in the training corpus, making it less effective for dynamic content or languages that evolve rapidly.</p>
+      </li>
+      <li>
+        <p><strong>Normalization Issues</strong>: The normalization process in TF-IDF (e.g., dividing by the total number of words in a document) may not always be effective in balancing document lengths and word frequencies, potentially leading to skewed results.</p>
+      </li>
+      <li>
+        <p><strong>Requires a Large and Representative Corpus</strong>: For the IDF part of TF-IDF to be effective, it needs a large and representative corpus. If the corpus is not representative of the language or the domain of interest, the IDF scores may not accurately reflect the importance of the words.</p>
+      </li>
+      <li>
+        <p><strong>No Distinction Between Different Types of Documents</strong>: TF-IDF treats all documents in the corpus equally, without considering the type or quality of the documents. This means that all sources are considered equally authoritative, which may not be the case.</p>
+      </li>
+      <li>
+        <p><strong>Poor Performance with Short Texts</strong>: In very short documents, like tweets or SMS messages, the TF-IDF scores can be less meaningful because of the limited word occurrence and context.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>In conclusion, while TF-IDF is a powerful tool for certain applications, these limitations make it less suitable for tasks that require deep understanding of language, such as semantic search, word sense disambiguation, or processing of very short or dynamically changing texts. This has led to the development and adoption of more advanced techniques like word embeddings and neural network-based models in natural language processing.</p>
+  </li>
+</ul>
+
+<h2 id="bm25">BM25</h2>
+
+<ul>
+  <li>BM25 is a ranking function used in information retrieval systems, particularly in search engines, to rank documents based on their relevance to a given search query. It’s a part of the family of probabilistic information retrieval models and is an extension of the TF-IDF (Term Frequency-Inverse Document Frequency) approach, though it introduces several improvements and modifications.</li>
+</ul>
+
+<h3 id="key-components-of-bm25">Key Components of BM25</h3>
+
+<ol>
+  <li>
+    <p><strong>Term Frequency (TF)</strong>: BM25 modifies the term frequency component of TF-IDF to address the issue of term saturation. In TF-IDF, the more frequently a term appears in a document, the more it is considered relevant. However, this can lead to a problem where beyond a certain point, additional occurrences of a term don’t really indicate more relevance. BM25 addresses this by using a logarithmic scale for term frequency, which allows for a point of diminishing returns, preventing a term’s frequency from having an unbounded impact on the document’s relevance.</p>
+  </li>
+  <li>
+    <p><strong>Inverse Document Frequency (IDF)</strong>: Like TF-IDF, BM25 includes an IDF component, which helps to weight a term’s importance based on how rare or common it is across all documents. The idea is that terms that appear in many documents are less informative than those that appear in fewer documents.</p>
+  </li>
+  <li>
+    <p><strong>Document Length Normalization</strong>: BM25 introduces a sophisticated way of handling document length. Unlike TF-IDF, which may unfairly penalize longer documents, BM25 normalizes for length in a more balanced manner, reducing the impact of document length on the calculation of relevance.</p>
+  </li>
+  <li>
+    <p><strong>Tunable Parameters</strong>: BM25 includes parameters like <code class="language-plaintext highlighter-rouge">k1</code> and <code class="language-plaintext highlighter-rouge">b</code>, which can be adjusted to optimize performance for specific datasets and needs. <code class="language-plaintext highlighter-rouge">k1</code> controls how quickly an increase in term frequency leads to term saturation, and <code class="language-plaintext highlighter-rouge">b</code> controls the degree of length normalization.</p>
+  </li>
+</ol>
+
+<h3 id="example">Example</h3>
+
+<ul>
+  <li>
+    <p>Imagine you have a collection of documents and a user searches for “solar energy advantages”.</p>
+
+    <ul>
+      <li><strong>Document A</strong> is 300 words long and mentions “solar energy” 4 times and “advantages” 3 times.</li>
+      <li><strong>Document B</strong> is 1000 words long and mentions “solar energy” 10 times and “advantages” 1 time.</li>
+    </ul>
+  </li>
+  <li>Using BM25:
+    <ul>
+      <li><strong>Term Frequency</strong>: The term “solar energy” appears more times in Document B, but due to term saturation, the additional occurrences don’t contribute as much to its relevance score as the first few mentions.</li>
+      <li><strong>Inverse Document Frequency</strong>: If “solar energy” and “advantages” are relatively rare in the overall document set, their appearances in these documents increase the relevance score more significantly.</li>
+      <li><strong>Document Length Normalization</strong>: Although Document B is longer, BM25’s length normalization ensures that it’s not unduly penalized simply for having more words. The relevance of the terms is balanced against the length of the document.</li>
+    </ul>
+  </li>
+  <li>So, despite Document B having more mentions of “solar energy”, BM25 will calculate the relevance of both documents in a way that balances term frequency, term rarity, and document length, potentially ranking them differently based on how these factors interplay. The final relevance scores would then determine their ranking in the search results for the query “solar energy advantages”.</li>
+</ul>
+
+<h3 id="differences-compared-to-tf-idf">Differences compared to TF-IDF</h3>
+
+<ul>
+  <li>BM25 is a ranking function used by search engines to estimate the relevance of documents to a given search query. It’s part of the probabilistic information retrieval model and is considered an evolution of the TF-IDF (Term Frequency-Inverse Document Frequency) model. Both are used to rank documents based on their relevance to a query, but they differ in how they calculate this relevance.</li>
+</ul>
+
+<h4 id="bm25-1">BM25</h4>
+<ul>
+  <li><strong>Term Frequency Component</strong>: Like TF-IDF, BM25 considers the frequency of the query term in a document. However, it adds a saturation point to prevent a term’s frequency from disproportionately influencing the document’s relevance.</li>
+  <li><strong>Length Normalization</strong>: BM25 adjusts for the length of the document, penalizing longer documents less harshly than TF-IDF.</li>
+  <li><strong>Tuning Parameters</strong>: It includes two parameters, <code class="language-plaintext highlighter-rouge">k1</code> and <code class="language-plaintext highlighter-rouge">b</code>, which control term saturation and length normalization, respectively. These can be tuned to suit specific types of documents or queries.</li>
+</ul>
+
+<h4 id="tf-idf">TF-IDF</h4>
+<ul>
+  <li><strong>Term Frequency</strong>: TF-IDF measures the frequency of a term in a document. The more times the term appears, the higher the score.</li>
+  <li><strong>Inverse Document Frequency</strong>: This component reduces the weight of terms that appear in many documents across the corpus, assuming they are less informative.</li>
+  <li><strong>Simpler Model</strong>: TF-IDF is generally simpler than BM25 and doesn’t involve parameters like <code class="language-plaintext highlighter-rouge">k1</code> or <code class="language-plaintext highlighter-rouge">b</code>.</li>
+</ul>
+
+<h4 id="example-1">Example</h4>
+<ul>
+  <li>
+    <p>Imagine a search query “chocolate cake recipe” and two documents:</p>
+
+    <ul>
+      <li><strong>Document A</strong>: 100 words, “chocolate cake recipe” appears 10 times.</li>
+      <li><strong>Document B</strong>: 1000 words, “chocolate cake recipe” appears 15 times.</li>
+    </ul>
+
+    <p><strong>Using TF-IDF</strong>:</p>
+    <ul>
+      <li>The term frequency for “chocolate cake recipe” would be higher in Document A.</li>
+      <li>Document B, being longer, might get a lower relevance score due to less frequency of the term.</li>
+    </ul>
+
+    <p><strong>Using BM25</strong>:</p>
+    <ul>
+      <li>The term frequency component would reach a saturation point, meaning after a certain frequency, additional occurrences of “chocolate cake recipe” contribute less to the score.</li>
+      <li>Length normalization in BM25 would not penalize Document B as heavily as TF-IDF, considering its length.</li>
+      <li>The tuning parameters <code class="language-plaintext highlighter-rouge">k1</code> and <code class="language-plaintext highlighter-rouge">b</code> could be adjusted to optimize the balance between term frequency and document length.</li>
+    </ul>
+  </li>
+  <li>
+    <p>In essence, while both models aim to determine the relevance of documents to a query, BM25 offers a more nuanced and adjustable approach, especially beneficial in handling longer documents and ensuring that term frequency doesn’t disproportionately affect relevance.</p>
+  </li>
+</ul>
+
+<h3 id="limitations-of-bm25">Limitations of BM25</h3>
+
+<ul>
+  <li>
+    <p>BM25, while a powerful and widely-used ranking function in information retrieval, has several limitations:</p>
+
+    <ol>
+      <li>
+        <p><strong>Parameter Sensitivity</strong>: BM25 includes parameters like <code class="language-plaintext highlighter-rouge">k1</code> and <code class="language-plaintext highlighter-rouge">b</code>, which need to be fine-tuned for optimal performance. This tuning process can be complex and is highly dependent on the specific nature of the document collection and queries. Inappropriate parameter settings can lead to suboptimal results.</p>
+      </li>
+      <li>
+        <p><strong>Non-Handling of Semantic Similarities</strong>: BM25 primarily relies on exact keyword matching. It does not account for the semantic relationships between words. For instance, it would not recognize “automobile” and “car” as related terms unless explicitly programmed to do so. This limitation makes BM25 less effective in understanding the context or capturing the nuances of language.</p>
+      </li>
+      <li>
+        <p><strong>Ineffectiveness with Short Queries or Documents</strong>: BM25’s effectiveness can decrease with very short queries or documents, as there are fewer words to analyze, making it harder to distinguish relevant documents from irrelevant ones.</p>
+      </li>
+      <li>
+        <p><strong>Length Normalization Challenges</strong>: While BM25’s length normalization aims to prevent longer documents from being unfairly penalized, it can sometimes lead to the opposite problem, where shorter documents are unduly favored. The balance is not always perfect, and the effectiveness of the normalization can vary based on the dataset.</p>
+      </li>
+      <li>
+        <p><strong>Query Term Independence</strong>: BM25 assumes independence between query terms. It doesn’t consider the possibility that the presence of certain terms together might change the relevance of a document compared to the presence of those terms individually.</p>
+      </li>
+      <li>
+        <p><strong>Difficulty with Rare Terms</strong>: Like TF-IDF, BM25 can struggle with very rare terms. If a term appears in very few documents, its IDF (Inverse Document Frequency) component can become disproportionately high, skewing results.</p>
+      </li>
+      <li>
+        <p><strong>Performance in Specialized Domains</strong>: In specialized domains with unique linguistic features (like legal, medical, or technical fields), BM25 might require significant customization to perform well. This is because standard parameter settings and term-weighting mechanisms may not align well with the unique characteristics of these specialized texts.</p>
+      </li>
+      <li>
+        <p><strong>Ignoring Document Quality</strong>: BM25 focuses on term frequency and document length but doesn’t consider other aspects that might indicate document quality, such as authoritativeness, readability, or the freshness of information.</p>
+      </li>
+      <li>
+        <p><strong>Vulnerability to Keyword Stuffing</strong>: Like many other keyword-based algorithms, BM25 can be susceptible to keyword stuffing, where documents are artificially loaded with keywords to boost relevance.</p>
+      </li>
+      <li>
+        <p><strong>Incompatibility with Complex Queries</strong>: BM25 is less effective for complex queries, such as those involving natural language questions or multi-faceted information needs. It is designed for keyword-based queries and may not perform well with queries that require understanding of context or intent.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>Understanding these limitations is crucial when implementing BM25 in a search engine or information retrieval system, as it helps in identifying cases where BM25 might need to be supplemented with other techniques or algorithms for better performance.</p>
+  </li>
+</ul>
+
+<h2 id="word2vec">Word2Vec</h2>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/1301.3781">Efficient Estimation of Word Representations in Vector Space</a> by Mikolov et al. (2013), the Word2Vec algorithm represents a significant advancement in the field of natural language processing (NLP). It utilizes a vector space model to encapsulate words in a manner that captures both semantic and syntactic relationships. This method enables the algorithm to discern similarities and differences between words, as well as to identify analogous relationships, such as the parallel between “Stockholm” and “Sweden” and “Cairo” and “Egypt.”</li>
+  <li>Word2Vec’s methodology of representing words as vectors in a semantic and syntactic space has profoundly impacted the field of NLP, offering a robust framework for capturing the intricacies of language and its usage.</li>
+</ul>
+
+<h3 id="motivation-behind-word2vec-the-need-for-context-based-semantic-understanding">Motivation behind Word2Vec: The Need for Context-based Semantic Understanding</h3>
+
+<ul>
+  <li>
+    <p>TF-IDF and BM25 are methods used in information retrieval to rank documents based on their relevance to a query. While they provide useful measures for text analysis, they do not offer context-based “semantic” embeddings (in the same way that <a href="#word2vec">Word2Vec</a> or <a href="#bert">BERT</a> embeddings do). Here’s why:</p>
+
+    <ol>
+      <li>
+        <p><strong>TF-IDF</strong>: This method calculates a weight for each word in a document, which increases with the number of times the word appears in the document but decreases based on the frequency of the word across all documents. TF-IDF is good at identifying important words in a document but doesn’t capture the meaning of the words or their relationships with each other. It’s more about word importance than word meaning.</p>
+      </li>
+      <li>
+        <p><strong>BM25</strong>: An extension of TF-IDF, BM25 is a ranking function used by search engines to estimate the relevance of documents to a given search query. While it improves upon TF-IDF by incorporating probabilistic understanding of term occurrence and handling of term saturation, it still fundamentally operates on term frequency and inverse document frequency. Like TF-IDF, BM25 doesn’t inherently capture semantic relationships between words.</p>
+      </li>
+    </ol>
+  </li>
+  <li>In contrast, semantic embeddings (like those from <a href="#word2vec">Word2Vec</a>, <a href="#bert">BERT</a>, etc.) are designed to capture the meanings of words and their relationships to each other. These embeddings represent words as vectors in a way that words with similar meanings are located close to each other in the vector space, enabling the capture of semantic relationships and nuances in language.</li>
+  <li>Therefore, while TF-IDF and BM25 are valuable tools for information retrieval and determining document relevance, they do not provide semantic embeddings of words or phrases. They are more focused on word occurrence and frequency rather than on capturing the underlying meanings and relationships of words.</li>
+</ul>
+
+<h3 id="core-idea">Core Idea</h3>
+
+<ul>
+  <li>Word2Vec employs a shallow neural network, trained on a large textual corpus, to predict the context surrounding a given word. The essence of Word2Vec lies in its ability to convert words into high-dimensional vectors. This representation allows the algorithm to capture the meaning, semantic similarity, and relationships with surrounding text. A notable feature of Word2Vec is its capacity to perform arithmetic operations with these vectors to reveal linguistic patterns, such as the famous analogy ‘king - man + woman = queen’.</li>
+</ul>
+
+<p><img src="../assets/intro/13.jpg" alt="Word2Vec Illustration" /></p>
+
+<h3 id="word2vec-architectures">Word2Vec Architectures</h3>
+
+<ul>
+  <li>
+    <p>Word2Vec offers two distinct architectures for training:</p>
+
+    <ol>
+      <li>
+        <p><strong>Continuous Bag-of-Words (CBOW)</strong>: This model predicts a target word based on its context words. The input is a summation of the word vectors of the surrounding context words, with the output being the current word. This approach is depicted in the following image:
+<img src="../assets/intro/16.jpg" alt="CBOW" /></p>
+      </li>
+      <li>
+        <p><strong>Skip-gram</strong>: Conversely, the Skip-gram model predicts the surrounding context words from a given target word. The input is the target word, and the output is a softmax classification over the entire vocabulary to predict the context words.</p>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="training-and-optimization">Training and Optimization</h3>
+
+<ul>
+  <li>The training of Word2Vec involves representing every word in a fixed vocabulary by a vector and then optimizing these vectors to predict surrounding words accurately. This is achieved through stochastic gradient descent, minimizing a loss function that indicates the discrepancy between predicted and actual context words. The algorithm uses a sliding window approach to maximize the probability of context words given a center word, as illustrated in the accompanying diagram:</li>
+</ul>
+
+<p><img src="../assets/intro/14.jpg" alt="Word2Vec Training" /></p>
+
+<h3 id="embedding-and-semantic-relationships">Embedding and Semantic Relationships</h3>
+
+<ul>
+  <li>Through the training process, Word2Vec places words with similar meanings in proximity within the high-dimensional vector space. For example, ‘bread’ and ‘croissant’ would have closely aligned vectors, just as ‘woman’, ‘king’, and ‘man’ would demonstrate meaningful relationships through vector arithmetic:</li>
+</ul>
+
+<p><img src="../assets/intro/15.jpg" alt="Word2Vec Analogies" /></p>
+
+<h3 id="distinction-from-traditional-models">Distinction from Traditional Models</h3>
+
+<ul>
+  <li>A key differentiation between Word2Vec and traditional count-based language models is its reliance on embeddings. Deep learning-based NLP models, including Word2Vec, represent words, phrases, and even sentences using these embeddings, which encode much richer contextual and semantic information.</li>
+</ul>
+
+<h3 id="semantic-nature-of-word2vec-embeddings">Semantic Nature of Word2Vec Embeddings</h3>
+
+<ul>
+  <li>Word2Vec embeddings are considered semantic in the sense that they capture semantic relationships between words based on their usage in the text. The key idea behind Word2Vec is that words used in similar contexts tend to have similar meanings. This is often summarized by the phrase “a word is characterized by the company it keeps.”</li>
+  <li>When Word2Vec is trained on a large corpus of text, it learns vector representations (embeddings) for words such that words with similar meanings have similar embeddings. This is achieved through either of two model architectures: Continuous Bag-of-Words (CBOW) or Skip-Gram.
+    <ol>
+      <li><strong>CBOW Model</strong>: This model predicts a target word based on context words. For example, in the sentence “The cat sat on the ___”, the model tries to predict the word ‘mat’ based on the context provided by the other words.</li>
+      <li><strong>Skip-Gram Model</strong>: This model works the other way around, where it uses a target word to predict context words. For instance, given the word ‘cat’, it tries to predict ‘the’, ‘sat’, ‘on’, and ‘mat’.</li>
+    </ol>
+  </li>
+  <li>
+    <p>These embeddings capture various semantic relationships, such as:</p>
+  </li>
+  <li><strong>Similarity</strong>: Words with similar meanings have embeddings that are close in the vector space.</li>
+  <li><strong>Analogy</strong>: Relationships like “man is to woman as king is to queen” can often be captured through vector arithmetic (e.g., <code class="language-plaintext highlighter-rouge">vector('king') - vector('man') + vector('woman')</code> is close to <code class="language-plaintext highlighter-rouge">vector('queen')</code>).</li>
+  <li>
+    <p><strong>Clustering</strong>: Words with similar meanings tend to cluster together in the vector space.</p>
+  </li>
+  <li>However, it’s important to note that while Word2Vec captures many semantic relationships, it also has limitations. For example, it doesn’t capture polysemy well (the same word having different meanings in different contexts) and sometimes the relationships it learns are more syntactic than semantic. More advanced models like BERT and GPT have since been developed to address some of these limitations.</li>
+</ul>
+
+<h3 id="further-learning-resources">Further Learning Resources</h3>
+
+<ul>
+  <li>For those interested in a deeper exploration of Word2Vec, the following resources provide comprehensive insights into the foundational aspects of Word2Vec:
+    <ul>
+      <li>Chris McCormick’s <a href="http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/">Word2Vec Tutorial - The Skip-Gram Model</a></li>
+      <li><a href="http://mccormickml.com/2017/01/11/word2vec-tutorial-part-2-negative-sampling/">Word2Vec Tutorial Part 2 - Negative Sampling</a></li>
+      <li><a href="http://mccormickml.com/2018/06/15/applying-word2vec-to-recommenders-and-advertising/">Applying word2vec to Recommenders and Advertising</a></li>
+      <li>Jay Alammar’s <a href="http://jalammar.github.io/illustrated-word2vec/">The Illustrated Word2vec</a>; <a href="https://www.youtube.com/watch?v=ISPId9Lhc1g">Video</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>Word2Vec, a pivotal development in natural language processing, has been instrumental in advancing our understanding of semantic relationships between words through vector embeddings. However, despite its breakthrough status, Word2Vec is not without limitations, many of which have been highlighted and addressed in subsequent developments within the field.</p>
+
+<h3 id="key-limitations-of-word2vec">Key Limitations of Word2Vec</h3>
+
+<ul>
+  <li>While Word2Vec’s method of word embedding results in a context-agnostic, single representation for each word, this becomes a significant limitation when dealing with polysemous words, i.e., words that possess multiple meanings based on their context. More advanced models such as BERT and ELMo have since been developed to provide context-dependent embeddings, where the representation of a word can dynamically vary based on its usage within a sentence. Here are the specifics:</li>
+</ul>
+
+<ol>
+  <li><strong>Static, Non-Contextualized Nature</strong>:
+    <ul>
+      <li><strong>Single Vector Per Word</strong>: Word2Vec assigns a unique vector to each word, which remains static regardless of the word’s varying context in different sentences. This results in a representation that cannot dynamically adapt to different usages of the same word.</li>
+      <li><strong>Combination of Contexts</strong>: In cases where a word like “bank” appears in multiple contexts (“river bank” vs. “financial bank”), Word2Vec does not generate distinct embeddings for each scenario. Instead, it creates a singular, averaged representation that amalgamates all the contexts in which the word appears, leading to a generalized semantic representation.</li>
+      <li><strong>Lack of Disambiguation</strong>: The model’s inability to differentiate between the multiple meanings of polysemous words means that words like “bank” are represented by a single vector, irrespective of the specific meaning in a given context.</li>
+      <li><strong>Context Window Limitation</strong>: Word2Vec employs a fixed-size context window, capturing only local co-occurrence patterns without a deeper understanding of the word’s role in the broader sentence or paragraph.</li>
+    </ul>
+  </li>
+  <li><strong>Training Process and Computational Intensity</strong>:
+    <ul>
+      <li><strong>Adjustments During Training</strong>: Throughout the training process, the word vectors are continually adjusted, not to switch between meanings but to refine the word’s placement in the semantic space based on an aggregate of its various uses.</li>
+      <li><strong>Resource Demands</strong>: Training Word2Vec, particularly for large vocabularies, requires significant computational resources and time. Techniques like negative sampling were introduced to alleviate some of these demands, but computational intensity remains a challenge.</li>
+    </ul>
+  </li>
+  <li><strong>Handling of Special Cases</strong>:
+    <ul>
+      <li><strong>Phrase Representation</strong>: Word2Vec struggles with representing phrases or idioms where the meaning is not simply an aggregation of the meanings of individual words.</li>
+      <li><strong>Out-of-Vocabulary Words</strong>: The model faces challenges with unknown or out-of-vocabulary (OOV) words. This issue is better addressed in models that treat words as compositions of characters, such as character embeddings, which are especially beneficial for languages with non-segmented script.</li>
+    </ul>
+  </li>
+  <li><strong>Global Vector Representation Limitations</strong>:
+    <ul>
+      <li><strong>Uniform Representation Across Contexts</strong>: Word2Vec, like other traditional methods, generates a global vector representation for each word, which does not account for the various meanings a word can have in different contexts. For example, the different senses of “bank” in diverse sentences are not captured distinctively.</li>
+    </ul>
+  </li>
+  <li><strong>Resulting Embedding Compromises</strong>:
+    <ul>
+      <li>The resulting vector for words with distinct meanings is a compromise that reflects its diverse uses, leading to less precise representations for tasks requiring accurate contextual understanding.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>These limitations of Word2Vec have spurred advancements in the field, leading to the development of more sophisticated language models that address issues of context sensitivity, polysemy, computational efficiency, and handling of OOV words. This progression towards more robust and context-aware word representations underscores the ongoing evolution and potential of natural language processing.</li>
+</ul>
+
+<h2 id="glove">GloVe</h2>
+
+<h3 id="overview-2">Overview</h3>
+
+<ul>
+  <li>Proposed in <a href="https://aclanthology.org/D14-1162">GloVe: Global Vectors for Word Representation</a> by Pennington et al. (2014), Global Vectors for Word Representation (GloVe) embeddings are a type of word representation used in NLP. They are designed to capture not just the local context of words but also their global co-occurrence statistics in a corpus, thus providing a rich and nuanced word representation.</li>
+  <li>By blending these approaches, GloVe captures a fuller picture of word meaning and usage, making it a valuable tool for various NLP tasks, such as sentiment analysis, machine translation, and information retrieval.</li>
+  <li>Here’s a detailed explanation along with an example:</li>
+</ul>
+
+<h3 id="how-glove-works">How GloVe Works</h3>
+
+<ol>
+  <li>
+    <p><strong>Co-Occurrence Matrix:</strong> GloVe starts by constructing a large matrix that represents the co-occurrence statistics of words in a given corpus. This matrix has dimensions of <code class="language-plaintext highlighter-rouge">[vocabulary size] x [vocabulary size]</code>, where each entry \((i, j)\) in the matrix represents how often word i occurs in the context of word j.</p>
+  </li>
+  <li>
+    <p><strong>Matrix Factorization:</strong> The algorithm then applies matrix factorization techniques to this co-occurrence matrix. The goal is to reduce the dimensions of each word into a lower-dimensional space (the embedding space), while preserving the co-occurrence information.</p>
+  </li>
+  <li>
+    <p><strong>Word Vectors:</strong> The end result is that each word in the corpus is represented by a vector in this embedding space. Words with similar meanings or that often appear in similar contexts will have similar vectors.</p>
+  </li>
+  <li>
+    <p><strong>Relationships and Analogies:</strong> These vectors capture complex patterns and relationships between words. For example, they can capture analogies like “man is to king as woman is to queen” by showing that the vector ‘king’ - ‘man’ + ‘woman’ is close to ‘queen’.</p>
+  </li>
+</ol>
+
+<h3 id="example-of-glove-in-action">Example of GloVe in Action</h3>
+
+<ul>
+  <li>Imagine a simple corpus with the following sentences:
+    <ul>
+      <li>“The cat sat on the mat.”</li>
+      <li>“The dog sat on the log.”</li>
+    </ul>
+  </li>
+  <li>From this corpus, a co-occurrence matrix is constructed. For instance, ‘cat’ and ‘mat’ will have a higher co-occurrence score because they appear close to each other in the sentences. Similarly, ‘dog’ and ‘log’ will be close in the embedding space.</li>
+  <li>After applying GloVe, each word (like ‘cat’, ‘dog’, ‘mat’, ‘log’) will be represented as a vector. The vector representation captures the essence of each word, not just based on the context within its immediate sentence, but also based on how these words co-occur in the entire corpus.</li>
+  <li>In a large and diverse corpus, GloVe can capture complex relationships. For example, it might learn that ‘cat’ and ‘dog’ are both pets, and this will be reflected in how their vectors are positioned relative to each other and to other words like ‘pet’, ‘animal’, etc.</li>
+</ul>
+
+<h3 id="significance-of-glove">Significance of GloVe</h3>
+
+<ul>
+  <li>GloVe is powerful because it combines the benefits of two major approaches in word representation:
+    <ul>
+      <li><strong>Local Context Window Methods (like Word2Vec):</strong> These methods look at the local context, but might miss the broader context of word usage across the entire corpus.</li>
+      <li><strong>Global Matrix Factorization Methods:</strong> These methods, like Latent Semantic Analysis (LSA), consider global word co-occurrence but might miss the nuances of local word usage.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="differences-compared-to-word2vec-and-fasttext">Differences compared to Word2Vec and fastText</h3>
+
+<ul>
+  <li>GloVe, fastText, and Word2Vec are all popular methods for generating word embeddings in natural language processing, but they differ significantly in their approaches and the type of information they capture.</li>
+  <li>Each method has its unique strengths and applications, and the choice between them often depends on the specific requirements of the NLP task, such as the nature of the language being processed, the need to handle OOV words, and the computational resources available.</li>
+  <li>Here’s a detailed comparison:</li>
+</ul>
+
+<h4 id="glove-global-vectors-for-word-representation">GloVe (Global Vectors for Word Representation)</h4>
+<ul>
+  <li><strong>Approach:</strong> GloVe creates word embeddings by constructing a word-context co-occurrence matrix from a corpus. It then uses matrix factorization techniques on this matrix.</li>
+  <li><strong>Focus:</strong> GloVe captures global statistics of word co-occurrences across the entire corpus.</li>
+  <li><strong>Strengths:</strong> It’s effective at capturing both the global co-occurrence statistics and local context of words, leading to rich and nuanced word representations.</li>
+  <li><strong>Limitations:</strong> GloVe does not account for word order and is not as effective in capturing morphological nuances as fastText.</li>
+</ul>
+
+<h4 id="fasttext">fastText</h4>
+<ul>
+  <li><strong>Approach:</strong> Developed by Facebook’s AI Research lab, fastText extends the Word2Vec model by not just considering words as whole entities but also breaking them down into subword units (n-grams).</li>
+  <li><strong>Focus:</strong> fastText captures morphological information by considering these sub-word units, which is especially useful for languages with rich morphology.</li>
+  <li><strong>Strengths:</strong> It can generate embeddings for out-of-vocabulary (OOV) words based on their subword components, making it robust in handling uncommon or new words.</li>
+  <li><strong>Limitations:</strong> While powerful in handling morphology and OOV words, fastText might generate less meaningful embeddings for entire words since it emphasizes subword information.</li>
+</ul>
+
+<h4 id="word2vec-1">Word2Vec</h4>
+<ul>
+  <li><strong>Approach:</strong> Word2Vec, developed by Google, generates word embeddings using either of two models: Continuous Bag of Words (CBOW) or Skip-Gram. Both these models use local word context for learning representations.</li>
+  <li><strong>Focus:</strong> Word2Vec primarily focuses on the context in which a word appears, using the surrounding words as predictors for a target word (or vice versa).</li>
+  <li><strong>Strengths:</strong> It’s efficient and effective at capturing syntactic and semantic word relationships based on local context.</li>
+  <li><strong>Limitations:</strong> Word2Vec does not consider global co-occurrence statistics (unlike GloVe) and cannot handle OOV words or capture word morphology (unlike fastText).</li>
+</ul>
+
+<h4 id="summary-of-differences">Summary of Differences</h4>
+<ul>
+  <li><strong>Global vs. Local Context:</strong> GloVe combines global word co-occurrence statistics with local context, whereas Word2Vec focuses only on local context.</li>
+  <li><strong>Morphological Richness:</strong> fastText excels in capturing subword information, making it superior for understanding morphologically rich languages and handling OOV words.</li>
+  <li><strong>Word Representations:</strong> GloVe provides more nuanced word representations by considering overall corpus statistics, while Word2Vec offers efficient, context-focused representations. fastText adds the dimension of subword information to the mix.</li>
+</ul>
+
+<h2 id="fasttext-1">fastText</h2>
+
+<h3 id="overview-3">Overview</h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/1607.04606">Enriching Word Vectors with Subword Information</a> by Bojanowski et al. (2017), fastText is an advanced word representation and sentence classification library developed by Facebook’s AI Research (FAIR) lab. It’s primarily used for text classification and word embeddings in Natural Language Processing (NLP). fastText differs from traditional word embedding techniques through its unique approach to representing words, which is particularly beneficial for understanding morphologically complex languages or handling rare words.</li>
+  <li>Specifically, fastText’s innovative approach of using subword information makes it a powerful tool for a variety of NLP tasks, especially in dealing with languages that have extensive word forms and in situations where the dataset contains many rare words. By learning embeddings that incorporate subword information, fastText provides a more nuanced and comprehensive understanding of language semantics compared to traditional word embedding methods.</li>
+  <li>Here’s a detailed look at fastText with an example.</li>
+</ul>
+
+<h3 id="core-features-of-fasttext">Core Features of fastText</h3>
+
+<ol>
+  <li>
+    <p><strong>Subword Information</strong>: Unlike traditional models that treat words as the smallest unit for training, fastText breaks down words into smaller units - subwords or character n-grams. For instance, for the word “fast”, with a chosen n-gram range of 3 to 6, some of the subwords would be “fas”, “fast”, “ast”, etc. This technique helps in capturing the morphology of words.</p>
+  </li>
+  <li>
+    <p><strong>Handling of Rare Words</strong>: Due to its subword approach, fastText can effectively handle rare words or even words not seen during training. It generates embeddings for these words based on their subword units, allowing it to infer some meaning from these subcomponents.</p>
+  </li>
+  <li>
+    <p><strong>Efficiency in Learning Word Representations</strong>: fastText is efficient in learning representations for words that appear infrequently in the corpus, which is a significant limitation in many other word embedding techniques.</p>
+  </li>
+  <li>
+    <p><strong>Applicability to Various Languages</strong>: Its subword feature makes it particularly suitable for languages with rich word formations and complex morphology, like Turkish or Finnish.</p>
+  </li>
+  <li>
+    <p><strong>Word Embedding and Text Classification</strong>: fastText can be used both for generating word embeddings and for text classification purposes, providing versatile applications in NLP tasks.</p>
+  </li>
+</ol>
+
+<h3 id="example-of-fasttext">Example of fastText</h3>
+
+<ul>
+  <li>Consider the task of building a sentiment analysis model using word embeddings for an input sentence like “The movie was breathtakingly beautiful”. In traditional models like Word2Vec, each word is treated as a distinct unit, and if words like “breathtakingly” are rare in the training dataset, the model may not have a meaningful representation for them.</li>
+  <li>With fastText, “breathtakingly” is broken down into subwords (e.g., “breat”, “eathtaking”, “htakingly”, etc.). fastText then learns vectors for these subwords. When computing the vector for “breathtakingly”, it aggregates the vectors of its subwords. This approach allows fastText to handle rare words more effectively, as it can utilize the information from common subwords to understand less common or even out-of-vocabulary words.</li>
+</ul>
+
+<h3 id="differences-compared-to-word2vec-and-glove">Differences compared to Word2Vec and GloVe</h3>
+
+<ul>
+  <li>fastText, Word2Vec, and GloVe are all popular methods for generating word embeddings in NLP. However, they differ significantly in their approach and underlying principles. The choice between these three models depends on the specific requirements of the NLP task, the characteristics of the language data, and the importance of accurately representing rare or morphologically complex words.</li>
+</ul>
+
+<h4 id="fasttext-2">fastText</h4>
+
+<ol>
+  <li>
+    <p><strong>Subword Information</strong>: Developed by Facebook’s AI Research lab, fastText represents words as bags of character n-grams. This means that it breaks down words into smaller components (subwords) and learns representations for these subword units. This approach is particularly beneficial for handling morphologically rich languages and rare or out-of-vocabulary words.</p>
+  </li>
+  <li>
+    <p><strong>Handling of Rare Words</strong>: fastText excels in handling rare words by inferring their meanings based on the subword components, offering a unique advantage in dealing with words not seen in training data.</p>
+  </li>
+  <li>
+    <p><strong>Morphological Awareness</strong>: Ideal for languages with complex word formations, as it captures the nuances of word morphology through subwords.</p>
+  </li>
+</ol>
+
+<h4 id="glove-1">GloVe</h4>
+
+<ol>
+  <li>
+    <p><strong>Global Matrix Factorization</strong>: GloVe, developed at Stanford, operates on word co-occurrence matrices. It focuses on constructing a global co-occurrence matrix of words from a corpus and then applying matrix factorization to derive word vectors.</p>
+  </li>
+  <li>
+    <p><strong>Global Context</strong>: GloVe considers the entire corpus to ascertain word co-occurrence statistics, thereby capturing global word-word relationships.</p>
+  </li>
+  <li>
+    <p><strong>Emphasis on Semantic Relationships</strong>: Known for capturing fine-grained semantic and syntactic regularities using vector arithmetic, GloVe is effective in revealing word associations based on the global context.</p>
+  </li>
+</ol>
+
+<h4 id="word2vec-2">Word2Vec</h4>
+
+<ol>
+  <li>
+    <p><strong>Local Context Window</strong>: Developed by researchers at Google, Word2Vec employs a sliding window to capture local contextual information. It uses two main architectures: Continuous Bag of Words (CBOW), where context words are used to predict a target word, and Skip-Gram, where a word is used to predict its context words.</p>
+  </li>
+  <li>
+    <p><strong>Word-Level Features</strong>: Word2Vec treats each word as a distinct entity without considering its internal structure (unlike fastText). It does not inherently capture subword information or morphological patterns.</p>
+  </li>
+  <li>
+    <p><strong>Less Effective with Rare Words</strong>: Due to its word-level approach, Word2Vec is not as effective as fastText in dealing with rare or unseen words.</p>
+  </li>
+</ol>
+
+<h4 id="key-differences">Key Differences</h4>
+
+<ul>
+  <li><strong>Word Representation</strong>: fastText’s use of subword information, as opposed to the word-level approaches of GloVe and Word2Vec.</li>
+  <li><strong>Contextual Analysis</strong>: Word2Vec’s reliance on local context windows, contrasted with GloVe’s global co-occurrence matrix and fastText’s focus on internal word structure.</li>
+  <li><strong>Handling Rare Words</strong>: fastText’s superior ability to handle rare and unseen words thanks to its subword approach, a capability that GloVe and Word2Vec lack.</li>
+  <li><strong>Computational Complexity</strong>: GloVe and Word2Vec are generally more computationally efficient than fastText, especially for larger datasets, due to the latter’s more complex model involving subwords.</li>
+</ul>
+
+<h2 id="example-tf-idf-bm25-word2vec-and-glove-embeddings">Example: TF-IDF, BM25, Word2Vec, and GloVe Embeddings</h2>
+
+<ul>
+  <li>Let’s expand on the example involving the word “cat” to illustrate how different embedding techniques (TF-IDF, BM25, Word2Vec, and GloVe) might represent it. We’ll consider the same documents as before:
+    <ul>
+      <li>Document 1: “Cat sat on the mat.”</li>
+      <li>Document 2: “Dog sat on the log.”</li>
+      <li>Document 3: “Cat chased the dog.”</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="tf-idf-embedding-for-cat">TF-IDF Embedding for “Cat”</h3>
+
+<ul>
+  <li>In TF-IDF, each word in a document is assigned a weight. This weight increases with the number of times the word appears in the document but is offset by the frequency of the word in the corpus.</li>
+  <li>TF-IDF assigns a weight to a word in each document, reflecting its importance. The steps are:
+    <ul>
+      <li>Calculate Term Frequency (TF): Count of “cat” in each document divided by the total number of words in that document.</li>
+      <li>Calculate Inverse Document Frequency (IDF): Logarithm of the total number of documents divided by the number of documents containing “cat”.</li>
+      <li>Multiply TF by IDF for each document.</li>
+    </ul>
+  </li>
+  <li>For instance, the TF-IDF weight for the word “cat” in Document 1 would be calculated as follows (simplified calculation):
+    <ul>
+      <li>Term Frequency (TF) of “cat” in Document 1 = 1/5 (it appears once out of five words).</li>
+      <li>Inverse Document Frequency (IDF) of “cat” = log(3/2) (it appears in 2 out of 3 documents, and we use the logarithm to dampen the effect).</li>
+      <li>TF-IDF for “cat” in Document 1 = TF * IDF = (1/5) * log(3/2).</li>
+    </ul>
+  </li>
+  <li>Final TF-IDF Embedding for “Cat”: <code class="language-plaintext highlighter-rouge">[0.18, 0, 0.18]</code> (assuming normalized values for simplicity).</li>
+</ul>
+
+<h3 id="bm25-embedding-for-cat">BM25 Embedding for “Cat”</h3>
+
+<ul>
+  <li>BM25 builds on top of TF-IDF and thus is more complex than TF-IDF. It considers term frequency, document frequency, document length, and two parameters: k1 and b. The final BM25 score for “cat” in each document might look like this (assuming certain values for \(k1\) and \(b\)):</li>
+  <li>Final BM25 Score for “Cat”: <code class="language-plaintext highlighter-rouge">[2.5, 0, 2.3]</code> (hypothetical values).</li>
+</ul>
+
+<h3 id="word2vec-embedding-for-cat">Word2Vec Embedding for “Cat”</h3>
+
+<ul>
+  <li>Word2Vec provides a dense vector for each word. This vector is learned based on the context in which the word appears across the entire corpus, not just our three documents as in the example above.</li>
+  <li>The model might represent the word “cat” as a vector, such as <code class="language-plaintext highlighter-rouge">[0.76, -0.21, 0.58, ...]</code> (assuming a 3-dimensional space for simplicity, but in reality, these vectors often have hundreds of dimensions).</li>
+</ul>
+
+<h3 id="glove-embedding-for-cat">GloVe Embedding for “Cat”</h3>
+
+<ul>
+  <li>GloVe, like Word2Vec, provides a dense vector for each word based on the aggregate global word-word co-occurrence statistics from a corpus.</li>
+  <li>Hypothetical GloVe Embedding for “Cat”: In a 3-dimensional space, <code class="language-plaintext highlighter-rouge">[0.81, -0.45, 0.30]</code>. As with Word2Vec, real-world GloVe embeddings would have a much higher dimensionality.</li>
+</ul>
+
+<blockquote>
+  <p>In these examples, it’s important to note that the TF-IDF and BM25 scores depend on the context of the specific documents, whereas the Word2Vec and GloVe embeddings are more general, trained on a larger corpus and representing the word’s meaning in a broader context. On the flip side, Word2Vec, GloVe, and fastText embeddings, lack contextualized representations (so they cannot represent polysemous works effectively), however, models such as ELMo and BERT overcome that limitation using contextualized embeddings. The specific values used here for TF-IDF, BM25, Word2Vec, and GloVe are illustrative and would vary based on the actual computation and dimensions used.</p>
+</blockquote>
+
+<h3 id="fasttext-embedding-for-cat">fastText Embedding for “Cat”</h3>
+
+<ul>
+  <li>fastText, like Word2Vec and GloVe, is a method for learning word embeddings, but it differs in its treatment of words. fastText treats each word as a bag of character n-grams, which allows it to better represent rare words or words not seen during training by breaking them down into smaller units.</li>
+  <li>Hypothetical fastText Embedding for “Cat”: Assuming a 3-dimensional space, <code class="language-plaintext highlighter-rouge">[0.72, -0.25, 0.63]</code>. Like the others, real fastText embeddings typically have a much higher dimensionality.</li>
+  <li>In this expanded example, the key addition of fastText is its ability to handle out-of-vocabulary words by breaking them down into n-grams, offering a more flexible representation, especially for languages with rich morphology or a lot of word forms. The specific values for fastText, like the others, are illustrative and depend</li>
+</ul>
+
+<h2 id="summary-types-of-embeddings">Summary: Types of Embeddings</h2>
+
+<ul>
+  <li>In the field of natural language processing (NLP), a variety of embedding techniques have been developed, each suited to specific applications and use cases. This article categorizes and delves into different types of word embeddings and their functionalities.</li>
+</ul>
+
+<h3 id="bag-of-words-based-embeddings">Bag-of-Words-based Embeddings</h3>
+
+<ul>
+  <li>These embeddings do not consider the order of words.
+    <ul>
+      <li><strong>Bag of Words (BoW)</strong>: The simplest text representation method, BoW is a count-based approach that tallies the occurrences of each word in a document. However, it disregards any information about the order or structure of words, treating the text as a mere “bag” of words. It focuses only on the presence or absence of words, not their positioning within the document.</li>
+      <li><strong>TF-IDF (Term Frequency-Inverse Document Frequency)</strong>: An advanced version of count vectors, TF-IDF considers the frequency of words in a document as well as their overall frequency in the corpus. Common words like “the” have lower TF-IDF scores, while unique or rare words have higher scores, reflecting their relative importance.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="predictive-word-embeddings">Predictive Word Embeddings</h3>
+
+<ul>
+  <li>These models predict words based on their context.
+    <ul>
+      <li><strong>Word2Vec</strong>: A neural network-based model that learns to represent words as vectors in a high-dimensional space. Words with similar meanings are represented by proximate vectors. Word2Vec facilitates capturing meanings, semantic similarities, and relationships within text, exemplified by analogies like <code class="language-plaintext highlighter-rouge">king - man + woman = queen</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="contextual-and-sequential-data-embeddings">Contextual and Sequential Data Embeddings</h3>
+
+<ul>
+  <li>Representing order and context of words, and suited for sequential data like text.
+    <ul>
+      <li><strong>Recurrent Neural Networks (RNNs)</strong>: RNNs, and their advanced variants like LSTMs (Long Short-Term Memory), are adept at handling sequential data. They process inputs in a sequence, with each step’s output feeding into the next, capturing information from previous steps.</li>
+      <li><strong>Transformer</strong>: A model that revolutionized NLP with its encoder-decoder architecture, leveraging self-attention mechanisms. Transformers excel in learning long-range dependencies, allowing them to focus on specific parts of the input sequence and better understand sentence meanings.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="contextual-embeddings">Contextual Embeddings</h3>
+
+<ul>
+  <li>
+    <p>These consider the order and context of words.</p>
+
+    <ul>
+      <li><strong>ELMo (Embeddings from Language Models)</strong>: Generates contextual embeddings from the internal states of a bi-directional LSTM.</li>
+      <li><strong>BERT (Bidirectional Encoder Representations from Transformers) Embeddings</strong>: Provides contextual embeddings based on the entire context of word usage.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="sentencedocument-embeddings">Sentence/Document Embeddings</h3>
+
+<ul>
+  <li>
+    <p>For broader textual units like sentences or documents.</p>
+
+    <ul>
+      <li><strong>Doc2Vec</strong>: Extends Word2Vec to represent entire documents.</li>
+      <li><strong>Sentence-BERT</strong>: Adapts BERT for sentence-level embeddings.</li>
+      <li><strong>Universal Sentence Encoder</strong>: Encodes sentences into vectors for various tasks.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="positional-embeddings">Positional Embeddings</h3>
+
+<ul>
+  <li>
+    <p>Encodes the position of words within sequences.</p>
+
+    <ul>
+      <li><strong>Absolute Positional Embeddings</strong>: Used in Transformers to encode the absolute position of words.</li>
+      <li><strong>Relative Positional Embeddings</strong>: Focuses on relative distances between words, beneficial in models like Transformer-XL and T5.</li>
+      <li><strong>Rotary Positional Embeddings/RoPE (Rotary Positional Encoding)</strong>: Employs rotational operations to encode relative positions.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="relative-embeddings">Relative Embeddings</h3>
+
+<ul>
+  <li>
+    <p>Capture relative positions between word pairs in sequences.</p>
+
+    <ul>
+      <li><strong>Relative Positional Embeddings</strong>: Encodes the relative positioning of words, like in the sentence “Alice threw the ball to Bob,” where “ball” has a relative position to other words. In Transformer models, the difference between positions \(i\) and \(j\) in the input sequence is used to retrieve corresponding embedding vectors, enhancing the model’s ability to generalize to new sequence lengths.</li>
+    </ul>
+  </li>
+  <li>
+    <p>This categorization of embedding techniques underscores the diversity and evolution of approaches in representing linguistic elements in NLP, each with distinct advantages and suited for specific applications.</p>
+  </li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2021Distilled,
+  title   = {Word Vectors},
+  author  = {Jain, Vinija and Chadha, Aman},
+  journal = {Distilled AI},
+  year    = {2021},
+  note    = {\url{https://aman.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/nlp/word-vectors/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:36 GMT -->
+</html>

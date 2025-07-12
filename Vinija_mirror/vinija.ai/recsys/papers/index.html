@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/recsys/papers/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Recommendation Systems • Research Papers</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Recommendation Systems • Research Papers</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#apple" id="markdown-toc-apple">Apple</a>    <ul>
+      <li><a href="#controllable-music-production-with-diffusion-models-and-guidance-gradients" id="markdown-toc-controllable-music-production-with-diffusion-models-and-guidance-gradients">Controllable Music Production with Diffusion Models and Guidance Gradients</a></li>
+      <li><a href="#lyric-document-embeddings-for-music-tagging" id="markdown-toc-lyric-document-embeddings-for-music-tagging">Lyric document embeddings for music tagging</a></li>
+    </ul>
+  </li>
+  <li><a href="#deepmind" id="markdown-toc-deepmind">DeepMind</a>    <ul>
+      <li><a href="#recommender-systems-with-generative-retrieval" id="markdown-toc-recommender-systems-with-generative-retrieval">Recommender Systems with Generative Retrieval</a></li>
+    </ul>
+  </li>
+  <li><a href="#alibaba" id="markdown-toc-alibaba">Alibaba</a>    <ul>
+      <li><a href="#behavior-sequence-transformer-for-e-commerce-recommendation" id="markdown-toc-behavior-sequence-transformer-for-e-commerce-recommendation">Behavior Sequence Transformer for E-commerce Recommendation</a></li>
+    </ul>
+  </li>
+  <li><a href="#tiktok" id="markdown-toc-tiktok">TikTok</a>    <ul>
+      <li><a href="#deep-retrieval-learning-a-retrievable-structure-for-large-scale-recommendations" id="markdown-toc-deep-retrieval-learning-a-retrievable-structure-for-large-scale-recommendations">Deep Retrieval: Learning A Retrievable Structure for Large-Scale Recommendations</a></li>
+      <li><a href="#monolith-real-time-recommendation-system-with-collisionless-embedding-table" id="markdown-toc-monolith-real-time-recommendation-system-with-collisionless-embedding-table">Monolith: Real Time Recommendation System With Collisionless Embedding Table</a></li>
+    </ul>
+  </li>
+  <li><a href="#netflix" id="markdown-toc-netflix">Netflix</a>    <ul>
+      <li><a href="#the-netflix-recommender-system-algorithms-business-value-and-innovation" id="markdown-toc-the-netflix-recommender-system-algorithms-business-value-and-innovation">The Netflix Recommender System: Algorithms, Business Value, and Innovation</a></li>
+    </ul>
+  </li>
+  <li><a href="#linkedin" id="markdown-toc-linkedin">LinkedIn</a>    <ul>
+      <li><a href="#talent-search-and-recommendation-systems-at-linkedin-practical-challenges-and-lessons-learned" id="markdown-toc-talent-search-and-recommendation-systems-at-linkedin-practical-challenges-and-lessons-learned">Talent Search and Recommendation Systems at LinkedIn: Practical Challenges and Lessons Learned</a></li>
+    </ul>
+  </li>
+  <li><a href="#doordash" id="markdown-toc-doordash">DoorDash</a>    <ul>
+      <li><a href="#powering-search--recommendations-at-doordash" id="markdown-toc-powering-search--recommendations-at-doordash">Powering Search &amp; Recommendations at DoorDash</a></li>
+    </ul>
+  </li>
+  <li><a href="#google" id="markdown-toc-google">Google</a>    <ul>
+      <li><a href="#deep-neural-networks-for-youtube-recommendations" id="markdown-toc-deep-neural-networks-for-youtube-recommendations">Deep Neural Networks for YouTube Recommendations</a></li>
+      <li><a href="#wide--deep-learning-for-recommender-systems" id="markdown-toc-wide--deep-learning-for-recommender-systems">Wide &amp; Deep Learning for Recommender Systems</a></li>
+    </ul>
+  </li>
+  <li><a href="#pinterest" id="markdown-toc-pinterest">Pinterest</a>    <ul>
+      <li><a href="#pixie-a-system-for-recommending-3-billion-items-to-200-million-users-in-real-time" id="markdown-toc-pixie-a-system-for-recommending-3-billion-items-to-200-million-users-in-real-time">Pixie: A System for Recommending 3+ Billion Items to 200+ Million Users in Real-Time</a></li>
+      <li><a href="#pinsage-graph-convolutional-neural-networks-for-web-scale-recommender-systems" id="markdown-toc-pinsage-graph-convolutional-neural-networks-for-web-scale-recommender-systems">PinSage: Graph Convolutional Neural Networks for Web-Scale Recommender Systems</a></li>
+    </ul>
+  </li>
+  <li><a href="#snap-inc" id="markdown-toc-snap-inc">Snap Inc</a>    <ul>
+      <li><a href="#friend-story-ranking-with-edge-contextual-local-graph-convolutions" id="markdown-toc-friend-story-ranking-with-edge-contextual-local-graph-convolutions">Friend Story Ranking with Edge-Contextual Local Graph Convolutions</a></li>
+      <li><a href="#graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms" id="markdown-toc-graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms">Graph Neural Networks for Friend Ranking in Large-scale Social Platforms</a></li>
+      <li><a href="#embedding-based-retrieval-in-friend-recommendation" id="markdown-toc-embedding-based-retrieval-in-friend-recommendation">Embedding Based Retrieval in Friend Recommendation</a></li>
+      <li><a href="#dynamic-ensemble-of-contextual-bandits-to-satisfy-users-changing-interests" id="markdown-toc-dynamic-ensemble-of-contextual-bandits-to-satisfy-users-changing-interests">Dynamic Ensemble of Contextual Bandits to Satisfy Users’ Changing Interests</a></li>
+      <li><a href="#embedding-based-retrieval-with-two-tower-models-in-spotlight" id="markdown-toc-embedding-based-retrieval-with-two-tower-models-in-spotlight">Embedding-based Retrieval with Two-Tower Models in Spotlight</a></li>
+      <li><a href="#multi-objective-hyper-parameter-optimization-of-behavioral-song-embeddings" id="markdown-toc-multi-objective-hyper-parameter-optimization-of-behavioral-song-embeddings">Multi-objective hyper-parameter optimization of behavioral song embeddings</a></li>
+      <li><a href="#background" id="markdown-toc-background">Background</a></li>
+      <li><a href="#what-the-paper-provides" id="markdown-toc-what-the-paper-provides">What the paper provides</a></li>
+      <li><a href="#how-it-all-works" id="markdown-toc-how-it-all-works">How it all works</a></li>
+      <li><a href="#the-experiments" id="markdown-toc-the-experiments">The Experiments</a></li>
+      <li><a href="#tldr" id="markdown-toc-tldr">TL;DR</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="introduction">Introduction</h2>
+<ul>
+  <li>Up until now, in all the sections previously, we’ve looked through many of the foundational elements of a recommendation system.</li>
+  <li>We’ve talked about topics ranging from candidate generation, to ranking and re-ranking, to a hands-on music rec project coded using pyspark.</li>
+  <li>Now, lets talk about the current research within this domain. As I make my way through more papers, I’ll keep updating this page with all the information I think is vital to share!</li>
+</ul>
+
+<h2 id="apple">Apple</h2>
+
+<h3 id="controllable-music-production-with-diffusion-models-and-guidance-gradients"><a href="https://arxiv.org/abs/2311.00613.pdf">Controllable Music Production with Diffusion Models and Guidance Gradients</a></h3>
+<ul>
+  <li>Authors: Mark Levy, Bruno Di Giorgi, Floris Weers, Angelos Katharopoulos, and Tom Nickson from Apple.</li>
+  <li>This paper demonstrates the use of conditional generation from diffusion models for various realistic tasks in producing 44.1kHz stereo audio music. It covers techniques like continuation, inpainting, regeneration of musical audio, smooth transitions between tracks, and stylistic transfer to audio clips. The method applies guidance at sampling time, combining reconstruction and classification losses, allowing the generated audio to match its context or conform to a class distribution.</li>
+  <li>Key Contributions:
+    <ol>
+      <li>Approach: Utilizing conditional generation with guidance gradients for high-quality music production.</li>
+      <li>Techniques: Incorporating both reconstruction and classification losses for versatile audio generation.</li>
+      <li>Applications: The paper covers applications such as audio continuation, inpainting, regeneration, and style transfer.</li>
+      <li>Results: The generated audio can either match the existing context or adhere to specific class distributions or latent representations.</li>
+      <li>Technical Innovation: The paper proposes a simple yet effective framework supporting both reconstruction and classification losses, which is novel in the context of music production using diffusion models.</li>
+    </ol>
+  </li>
+  <li>The paper represents a significant contribution to the field of music production, showcasing the potential of diffusion models in generating high-fidelity audio for a variety of creative applications.</li>
+</ul>
+
+<h3 id="lyric-document-embeddings-for-music-tagging"><a href="https://arxiv.org/abs/2112.11436.pdf">Lyric document embeddings for music tagging</a></h3>
+
+<p><img src="../assets/papers/apple.png" alt="" /></p>
+
+<ul>
+  <li>Authors: Matt McVicar, Bruno Di Giorgi, Baris Dundar, and Matthias Mauch</li>
+  <li>This paper looked to embedd lyrics for effective music tagging, using five methods for token-level and four methods for document-level embeddings, trained on an industrial-scale dataset.</li>
+  <li>Implementation details:
+    <ol>
+      <li>Word Embeddings:
+        <ul>
+          <li>Baseline Models: Includes random embeddings, bag-of-words, and TF-IDF models.</li>
+          <li>Custom-Trained Word2Vec: Utilizing Gensim, training on the dataset for optimized embeddings.</li>
+          <li>Pre-Trained Word2Vec: Using Google News 300 dataset for a broad semantic understanding.</li>
+          <li>Warm-Start Word2Vec: Merging vocabularies of custom and pre-trained models for enhanced initial states.</li>
+        </ul>
+      </li>
+      <li>Document Embedding Summaries:
+        <ul>
+          <li>Methods include averaging word2vec embeddings, doc2vec, and sophisticated LSTM and attention-based neural architectures.</li>
+          <li>These embeddings are evaluated on different tagging tasks including genre, mood, era, and explicit content detection.</li>
+        </ul>
+      </li>
+      <li>Tagging Framework:
+        <ul>
+          <li>Multi-Label Tagging: A multi-task neural network architecture is used, where predictions on different tag vocabularies are treated as separate tasks.</li>
+          <li>Multi-Task Tagging: Utilizing multiple datasets with distinct tag vocabularies and tasks, handling missing annotations while training in parallel.</li>
+        </ul>
+      </li>
+      <li>Datasets:
+        <ul>
+          <li>Lyrics Dataset: Comprising over 17 million English language documents.</li>
+          <li>Tagging Dataset: Includes manually curated datasets and metadata-derived datasets, spanning genres, moods, release dates, and more.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>Results and Findings:
+    <ul>
+      <li>Word Embeddings: The study found that averaging word embeddings generally outperformed more complex architectures in many downstream metrics.</li>
+      <li>Document Embeddings: Attention networks showed comparable or superior performance to word2vec in specific tasks like mood and explicit content tagging.</li>
+      <li>Incremental Training: The study explored the impact of training set size on performance and found that increasing training set size beyond a certain point did not significantly improve tagging performance.</li>
+    </ul>
+  </li>
+  <li>The paper concludes that simple models trained on in-house data are hard to surpass in performance. Sequence modeling showed potential improvements, but results were not conclusive. The study also suggests exploring embeddings in languages other than English and their application in tasks like music recommendation.</li>
+</ul>
+
+<h2 id="deepmind">DeepMind</h2>
+
+<h3 id="recommender-systems-with-generative-retrieval"><a href="https://arxiv.org/abs/2305.05065.pdf">Recommender Systems with Generative Retrieval</a></h3>
+<ul>
+  <li>Authors: Shashank Rajput, Nikhil Mehta, Anima Singh, Raghunandan Keshavan, Trung Vu, Lukasz Heldt, Lichan Hong, Yi Tay, Vinh Q. Tran, Jonah Samost, Maciej Kula, Ed H. Chi, Maheswaran Sathiamoorthy</li>
+  <li>This paper proposes a new paradigm called TIGER (Transformer Index for GEnerative Recommenders) for retrieval in recommender systems using generative modeling rather than query-candidate matching.</li>
+  <li>It represents each item as a Semantic ID, which is a tuple of semantic codewords generated by quantizing item content embeddings. This provides a compact and semantically meaningful representation.</li>
+  <li>It also uses a Transformer sequence-to-sequence model that takes in user context and item interaction history, and predicts the Semantic ID of the next item token-by-token.</li>
+  <li>The results show that they are able to outperform state-of-the-art baselines on sequential recommendation benchmarks, with gains of up to 29% in NDCG.</li>
+  <li>Semantic ID representation enables new capabilities like cold-start recommendation and controlled diversity through temperature sampling.</li>
+  <li>Codewords in Semantic IDs are hierarchical, with the first code capturing coarse categories and later codes refining granularity.</li>
+  <li>Avoids needing large item embedding tables unlike dual-encoder methods. The Transformer memory acts as the retrieval index.</li>
+  <li>While computationally heavier than approximate nearest neighbor search during inference, proposes a new direction of generative modeling for retrieval.</li>
+  <li>The key innovation this paper introduces is using Semantic IDs with a sequence-to-sequence model for generative retrieval in recommender systems, achieving gains over traditional query-candidate matching approaches. The semantic representation enables new capabilities.</li>
+</ul>
+
+<h2 id="alibaba">Alibaba</h2>
+
+<h3 id="behavior-sequence-transformer-for-e-commerce-recommendation"><a href="https://arxiv.org/abs/1905.06874v1.pdf">Behavior Sequence Transformer for E-commerce Recommendation</a></h3>
+<ul>
+  <li>Authors: Qiwei Chen, Huan Zhao, Wei Li, Pipei Huang, and Wenwu Ou.</li>
+  <li>Alibaba, the largest e-commerce platform in China, uses a Transformer model to capture the reasons or signals for the users’ behaviour sequence in order to generate recommendations.</li>
+  <li>Alibaba utilizes this recommender with an end goal of increasing their Gross Merchandise Volume (GMV) and revenues. To do so, they implement a two stage pipeline: match and rank. With matching, they take a set of similar items, depending on what the user interacted with, and then a fine-tuned prediction model is learned to predict the probability of the user clicking the candidate item.</li>
+  <li>This paper, however, delves deeper into the ranking stage, which is built on top of Google’s Wide and Deep Learning model, which is when the model runs the recommendation task as ClickThrough Rate (CTR) prediction problem.</li>
+  <li>The architecture below <a href="https://arxiv.org/abs/1905.06874v1.pdf">(source)</a> shows the high level architecture of Behavior Sequence Transformer (BST).</li>
+</ul>
+
+<p><img src="../assets/papers/12.png" alt="" /></p>
+
+<ul>
+  <li>BST first starts by embedding previously clicked items and related features into low dimensional vectors. There are a multitude of features, such as user profile features, item features, context features, and the combination of features or cross features.</li>
+  <li>The Transformer layer learns a deeper representation  of each item by capturing relationship of each item in the behavior sequence the LeakyReLU layers are used along with dropout to avoid overfitting.</li>
+  <li>Then, to predict whether the user will click on the target item or not, BST models it as a binary classification problem which is why the sigmoid function is used.</li>
+  <li>Using the transformer architecture has allowed BST to capture sequential relations.</li>
+</ul>
+
+<h2 id="tiktok">TikTok</h2>
+
+<h3 id="deep-retrieval-learning-a-retrievable-structure-for-large-scale-recommendations"><a href="https://arxiv.org/abs/2007.07203.pdf">Deep Retrieval: Learning A Retrievable Structure for Large-Scale Recommendations</a></h3>
+<ul>
+  <li>Authors: Weihao Gao, Xiangjun Fan, Chong Wang, Jiankai Sun, Kai Jia, Wenzhi Xiao, Ruofan Ding, Xingyan Bin, Hui Yang, and Xiaobing Liu.</li>
+  <li>Recommendation systems usually first learn an inner-product model and then use some approximate nearest neighbor search algorithm to find the top candidate. In this paper, TikTok introduces Deep Retrieval, a novel approach to accurately retrieve top candidates in sub-linear time. TikTok aims to learn a retrievable structure directly from the user-item interactions, such as clicks, in lieu of the Euclidean space assumption in approximate nearest neighbor (ANN) algorithm. In other words, unlike traditional approaches that utilize Approximate Nearest Neighbor algorithms with Euclidean space, TikTok’s Deep Retrieval encodes candidates into a discrete latent space for more efficient and effective recommendations.</li>
+  <li>Deep Retrieval takes in a user and returns candidates for that user by doing the following:</li>
+</ul>
+
+<p>“1) A user ID is converted into its latent representation from an embedding table.
+2) The Deep Retrieval model learns the latent representations of related items.
+3) The item representations are mapped back to the items themselves.” <a href="https://www.linkedin.com/feed/update/urn:li:activity:7054841198284267520?utm_source=share&amp;utm_medium=member_desktop">(source)</a></p>
+
+<ul>
+  <li>The architecture diagram below <a href="https://arxiv.org/abs/2007.07203.pdf">(source)</a> depicts the Deep Retrieval (DR) system in more detail.</li>
+</ul>
+
+<p><img src="../assets/papers/13.png" alt="" /></p>
+
+<ul>
+  <li>The basic DR model has D layers, each layer consisting of a multilayered perceptron (MLP) with a softmax function over \(K\) nodes that outputs the probability of the \(K\) cluster it belongs to.</li>
+  <li>“The input to layer \(D1\) is an embedding of the user( embedding takes into account their previous actions, and a recurrent neural network with GRU is used to project the behavior sequence onto a fixed dimension embedding as the input). The target is the cluster of the item with which the user has interacted with (e.g., clicked or purchased). The output of \(D1\), let’s call it \(K1\), is then concatenated with user embedding and used as input for \(D2\). An output \(K2\) is then concatenated with \(K1\) and user embedding and used as an input for \(D3\).” <a href="https://medium.com/@valeriybabushkin/article-review-of-deep-retrieval-learning-a-retrievable-structure-for-large-scale-recommendations-57a512e20397">(source)</a></li>
+  <li>As we saw earlier, DR has up to \(K\) clusters and an advantage with DR is that any item can belong to multiple clusters, which is accomplished by its tree-based deep model structure.
+    <ul>
+      <li>For example, kebab would belong to food cluster where flowers would belong to gift cluster. However, chocolates could belong to both the former clusters.</li>
+    </ul>
+  </li>
+  <li>So how are the original clusters determined? In the first iteration, the clusters are distributed randomly and we train the model.
+    <ul>
+      <li>Then, we re-train the items mapping to the cluster to maximize the model’s output.</li>
+    </ul>
+  </li>
+  <li>So then how does DR work during inference? In the inference, we need to retrieve items from DR given user embeddings as input.
+    <ul>
+      <li>To do so, DR uses beam search to retrieve the most probable path by selecting the top B nodes in each layer.
+        <ul>
+          <li>“We input the user’s embedding -&gt; we get \(N\) paths (the greedy algorithm outputs one path)</li>
+          <li>We gather all items that are in these paths</li>
+          <li>We run them through the intermediate reranker” <a href="https://medium.com/@valeriybabushkin/article-review-of-deep-retrieval-learning-a-retrievable-structure-for-large-scale-recommendations-57a512e20397">(source)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="monolith-real-time-recommendation-system-with-collisionless-embedding-table"><a href="https://arxiv.org/abs/2209.07663.pdf">Monolith: Real Time Recommendation System With Collisionless Embedding Table</a></h3>
+<ul>
+  <li>Authors: Zhuoran Liu, Leqi Zou, Xuan Zou, Caihua Wang, Biao Zhang, Da Tang, Bolin Zhu, Yijie Zhu, Peng Wu, Ke Wang, and Youlong Cheng.</li>
+  <li>Monolith is a real-time recommender, that trains in real-time, with collision-less embedding table.</li>
+  <li>“A collisionless embedding table is a type of data structure that is used to store information in a way that minimizes the chances of two pieces of information colliding or conflicting with each other. This is often done by using a hashing algorithm to map data to specific locations in the table, which reduces the likelihood of two pieces of data being stored in the same location.”<a href="https://news.ycombinator.com/item?id=33494796">YCombinator</a></li>
+  <li>Monolith uses the most recent data to update the model as soon as possible. This allows it to provide personalized recommendations for each user in real-time.</li>
+  <li>They key benefit of this architecture is it reduces memory footprint with collision-less embedding table using optimizations like expirable embeddings embedding and frequency filtering.</li>
+  <li><a href="https://haneulkim.medium.com/paper-review-monolith-tiktoks-real-time-recommender-system-72b90bece653">Reference Haneul Kim’s blog</a></li>
+</ul>
+
+<h2 id="netflix">Netflix</h2>
+
+<h3 id="the-netflix-recommender-system-algorithms-business-value-and-innovation"><a href="https://dl.acm.org/doi/abs/10.1145/2843948">The Netflix Recommender System: Algorithms, Business Value, and Innovation</a></h3>
+<ul>
+  <li>Authors: Carlos A. Gomez-Uribe and Neil Hunt.</li>
+</ul>
+
+<p><img src="../assets/papers/6.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>The image above is from <a href="https://maity-anirban06.medium.com/understanding-netflixs-personalized-recommendation-system-1d1157478d28">source</a>.</p>
+  </li>
+  <li>“Historically, the Netflix recommendation problem has been thought of as equivalent to the problem of predicting the number of stars that a person would rate a video after watching it, on a scale from 1 to 5.”<a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+  <li>This paper details the algorithms that Netflix’s recommender uses to solve the above problem. Let’s take a deeper look:</li>
+  <li>i) Personalized Video Ranker (PVR):
+    <ul>
+      <li>Genre recommendations for each member on Netflix’s home page are driven and individualized by PVR.</li>
+      <li>“The resulting ordering is used to select the order of the videos in genre and other rows, and is the reason why the same genre row shown to different members often has completely different videos”.<a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+    </ul>
+  </li>
+  <li>ii) Top-N Video Ranker:
+    <ul>
+      <li>This algorithm is used to determine each users ‘Top Picks’ row and find a few, best personalized recommendations for each member.</li>
+      <li>This entails focusing only on the head of the ranking.</li>
+    </ul>
+  </li>
+  <li>iii) Trending Now Ranker:
+    <ul>
+      <li>This algorithm captures more temporal trends that can be short-term lasting from a few minutes to a few days.</li>
+      <li>These can also capture seasonal trends and be repeated, for example, showing more Santa movies during Christmas.</li>
+    </ul>
+  </li>
+  <li>iv) Continue Watching Ranker:
+    <ul>
+      <li>“Most of our rankers sort unviewed titles on which we have only inferred information. In contrast, the continue watching ranker sorts the subset of recently viewed titles based on our best estimate of whether the member intends to resume watching or rewatch, or whether the member has abandoned something not as interesting as anticipated.” <a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+      <li>This ranker calculates the probability of whether the member will continue watching the current series with accordance to other signals such as time elapsed since viewing, point of abandonment etc.</li>
+    </ul>
+  </li>
+  <li>v) Video-Video Similarity Ranker:
+    <ul>
+      <li>The ‘Because You Watched’ (BYW) row on Netflix’s homepage is another type of categorization.</li>
+      <li>My best guess is this is similar to content-based filtering as it’s doing an item to item recommendation via similarity matrix.</li>
+    </ul>
+  </li>
+  <li>vi) Page Generation: Row Selection and Ranking:</li>
+</ul>
+
+<p><img src="../assets/papers/5.png" alt="" /></p>
+
+<ul>
+  <li>The image above is from <a href="https://maity-anirban06.medium.com/understanding-netflixs-personalized-recommendation-system-1d1157478d28">source</a>.
+    <ul>
+      <li>Page generation uses the recommendations produced from all the above listed algorithms and decides how each page is constructed with relevance and diversity of each row and page taken into consideration.</li>
+      <li>“So, how does Netflix decide which of these 10,000s of rows to display after these algorithms generate different rows (already ranked within each row vector)? For this Netflix used a template-based approach. This tackles the problem of Page Generation i.e. which rows to include in user’s interface.”<a href="https://maity-anirban06.medium.com/understanding-netflixs-personalized-recommendation-system-1d1157478d28">source</a></li>
+    </ul>
+  </li>
+  <li>vii) Evidence Selection:
+    <ul>
+      <li>Evidence selection algorithms work together with the above recommendation algorithms to help Netflix members decide if the video is right for them.</li>
+      <li>“For example, evidence algorithms decide whether to show that a certain movie won an Oscar or instead show the member that the movie is similar to another video recently watched by that member; they also decide which image out of several versions use to best support a given recommendation.” <a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+    </ul>
+  </li>
+  <li>viii) Search
+    <ul>
+      <li>Finally, 80% of Netflix’s recommendations come from its home page while 20% come from it’s search.</li>
+      <li>Often, when users search Netflix for an actor or a movie that is not available on the platform, instead of offering no content, Netflix shows the next best option.</li>
+      <li>Other than this, the search algorithm is also responsible for showing recommendations as the user is typing real-type:</li>
+      <li>“The search experience is built around several algorithms.</li>
+      <li>One algorithm attempts to find the videos that match a given query, for example, to retrieve Frenemies for the partial query “fren.” Another algorithm predicts interest in a concept given a partial query, for example, identifying the concept French Movies for the query “fren.”</li>
+      <li>A third algorithm finds video recommendations for a given concept, for example, to populate the videos recommended under the concept French Movies.</li>
+      <li>Our search algorithms combine play data, search data, and metadata to arrive at the results and recommendations that we offer. <a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="linkedin">LinkedIn</h2>
+
+<h3 id="talent-search-and-recommendation-systems-at-linkedin-practical-challenges-and-lessons-learned"><a href="https://arxiv.org/abs/1809.06481.pdf">Talent Search and Recommendation Systems at LinkedIn: Practical Challenges and Lessons Learned</a></h3>
+<ul>
+  <li>Authors: Sahin Cem Geyik, Qi Guo, Bo Hu, Cagri Ozcaglar, Ketan Thakkar, Xianren Wu, and Krishnaram Kenthapadi.</li>
+</ul>
+
+<p><img src="../assets/papers/7.png" alt="" /></p>
+
+<ul>
+  <li>It seems fitting that LinkedIn’s information retrieval, search and recommendation systems focus on talent search.</li>
+  <li>“We require not just that a candidate shown must be relevant to the recruiter’s query, but also that the candidate contacted by the recruiter must show interest in the job opportunity” <a href="https://arxiv.org/abs/1809.06481.pdf">Original Paper</a></li>
+  <li>LinkedIn’s architecture for talent search is a mixture of both:
+    <ul>
+      <li>Online system architecture:
+        <ul>
+          <li>Works on gathering the query from the recruiter and ranking it against the candidate’s search and qualifications.</li>
+        </ul>
+      </li>
+      <li>Offline modeling pipeline:
+        <ul>
+          <li>“Our offline system periodically trains the ranking models using recruiter usage logs. The training data is generated from recruiter interactions (and candidate responses to recruiter messages) over the search results displayed” <a href="https://dl.acm.org/doi/abs/10.1145/2843948">Original Paper</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="doordash">DoorDash</h2>
+
+<h3 id="powering-search--recommendations-at-doordash"><a href="https://doordash.news/company/powering-search-recommendations-at-doordash/">Powering Search &amp; Recommendations at DoorDash</a></h3>
+<ul>
+  <li>Authors: Aamir Manasawala and Mitchell Koch.</li>
+  <li>Like most recommenders, DoorDash’s challenges include sparsity (as not every consumer can see every store), cold-start problem (new stores or consumers enter the system) as well as tradeoff between relevance versus diversity.</li>
+</ul>
+
+<p><img src="../assets/papers/8.png" alt="" /></p>
+
+<ul>
+  <li>DoorDash’s recommender system uses a hybrid approach with a combination of collaborative filtering and content-based filtering to make personalized restaurant recommendations for users.
+    <ul>
+      <li>Collaborative filtering is a technique that uses the past behavior and preferences of similar users to make recommendations.</li>
+      <li>Content-based filtering uses information about the restaurants themselves, such as the cuisine or location, to make recommendations.</li>
+    </ul>
+  </li>
+  <li>DoorDash’s system also takes into account factors such as the time of day and the user’s location to make more relevant recommendations.</li>
+  <li>The goal of the system is to present users with a selection of restaurants that are tailored to their individual tastes and preferences, making it more likely that they will find something they will enjoy.</li>
+</ul>
+
+<h2 id="google">Google</h2>
+
+<h3 id="deep-neural-networks-for-youtube-recommendations"><a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf">Deep Neural Networks for YouTube Recommendations</a></h3>
+<ul>
+  <li>Authors: Paul Covington, Jay Adams, and Emre Sargin.</li>
+</ul>
+
+<p><img src="../assets/papers/9.png" alt="" /></p>
+
+<ul>
+  <li>The above image, taken from the original paper, illustrates the overall architecture of the YouTube recommender system.</li>
+  <li>The system comprises of two neural networks, one for candidate generation and one for ranking.</li>
+  <li>The candidate generation neural network offers broad personalization via collaborative filtering and takes in the users YouTube activity history as input.
+    <ul>
+      <li>The predecessor to this was a matrix factorization approach trained with rank loss.</li>
+    </ul>
+  </li>
+  <li>The ranking network then presents a few best refined recommendations in a list with high recall.
+    <ul>
+      <li>The ranking network scores each video according to a desired task/objective function and the highest scoring videos are shown to the user.</li>
+    </ul>
+  </li>
+  <li>“During development, we make extensive use of offline metrics (precision, recall, ranking loss, etc.) to guide iterative improvements to our system. However for the final deter- mination of the effectiveness of an algorithm or model, we rely on A/B testing via live experiments.”<a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf">original paper</a></li>
+  <li>Now lets talk a bit about the model’s architecture:
+    <ul>
+      <li>The model learns high dimensional embeddings for each video in a fixed vocabulary and feeds them into a feedforward neural network.</li>
+      <li>User’s watch history is kept track of by a variable-length sequence of sparse video ID’s mapped to dense vector representation via the embeddings.</li>
+      <li>The embeddings are trained jointly in a multimodal way with strategies such as sum, component-wise max etc. along with model parameters via gradient descent and backpropogation.</li>
+    </ul>
+  </li>
+  <li>In the image below, from the original paper, we see the architecture of the candidate generation showing embedded sparse features with the dense features.</li>
+</ul>
+
+<p><img src="../assets/papers/10.png" alt="" /></p>
+
+<ul>
+  <li>Similarly with ranking, “We use a deep neural network with similar architecture as candidate generation to assign an independent score to each video impression using logistic regression”<a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf">original paper</a></li>
+</ul>
+
+<p><img src="../assets/papers/11.png" alt="" /></p>
+
+<h3 id="wide--deep-learning-for-recommender-systems"><a href="https://arxiv.org/abs/1606.07792">Wide &amp; Deep Learning for Recommender Systems</a></h3>
+<ul>
+  <li>Authors: Heng-Tze Cheng, Levent Koc, Jeremiah Harmsen, Tal Shaked, Tushar Chandra, Hrishi Aradhye, Glen Anderson, Greg Corrado, Wei Chai, Mustafa Ispir, Rohan Anil, Zakaria Haque, Lichan Hong, Vihan Jain, Xiaobing Liu, and Hemal Shah.</li>
+  <li>This research explores the problem of whether we can teach computers to learn as humans do.</li>
+  <li>
+    <p>Inorder to solve this, they chose to use joint training of a wide linear model (for memorization) as well as a deep neural network (for generalization) thus becoming the “Wide &amp; Deep Learning”.</p>
+  </li>
+  <li>Note: All the images below are from <a href="https://ai.googleblog.com/2016/06/wide-deep-learning-better-together-with.html#1">Google Research</a> and belong to them.</li>
+</ul>
+
+<p><img src="../assets/papers/1.jpg" alt="" /></p>
+
+<ul>
+  <li>Above, we see the architecture of the Wide and Deep network leveraged from <a href="https://ai.googleblog.com/2016/06/wide-deep-learning-better-together-with.html#1">Google Research.</a></li>
+  <li>Let’s break down how each of these models work individually and together.</li>
+  <li>The Wide model: this model is able to memorize very well the co-occurrence of query-items features based on your target label.</li>
+</ul>
+
+<p><img src="../assets/papers/2.png" alt="" /></p>
+
+<ul>
+  <li>The Deep model: motivates the “surprise me” recommendation which is close to previous preferences, however is more generalized rather than memorized. For example: recommending a burger to someone who likes hot dogs.</li>
+</ul>
+
+<p><img src="../assets/papers/3.png" alt="" /></p>
+
+<ul>
+  <li>Wide and Deep model: Using these models in silos may either cause you to have only highly memorized model, or very generalized recommendations. Using both would be the better approach here.
+    <ul>
+      <li>In order to do that, the query will be submitted to both, the wide and deep model.</li>
+      <li>“During training, the prediction errors are backpropagated to both sides to train the model parameters. The cross-feature transformation in the wide model component can memorize all those sparse, specific rules, while the deep model component can generalize to similar items via embeddings.” <a href="https://ai.googleblog.com/2016/06/wide-deep-learning-better-together-with.html#1">Google Research.</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/papers/4.png" alt="" /></p>
+
+<h2 id="pinterest">Pinterest</h2>
+
+<h3 id="pixie-a-system-for-recommending-3-billion-items-to-200-million-users-in-real-time"><a href="https://cs.stanford.edu/people/jure/pubs/pixie-www18.pdf">Pixie: A System for Recommending 3+ Billion Items to 200+ Million Users in Real-Time</a></h3>
+<ul>
+  <li>Authors: Chantat Eksombatchai, Pranav Jindal, Jerry Zitao Liu, Yuchen Liu, Rahul Sharma, Charles Sugnet, Mark Ulrich, and Jure Leskovec.</li>
+  <li>In <a href="https://cs.stanford.edu/people/jure/pubs/pixie-www18.pdf">this paper</a> by Eksombatchai et al. from Pinterest have generated a GNN based, real-time recommendation system called Pixie.</li>
+  <li>Pixie is able to recommend in real time by utilizing Pixie Random Walk algorithm and is able to generate recommendations in less than 60 milliseconds.
+    <ul>
+      <li>GNN based recommenders often use the Random Walk algorithm, however, what differentiates Pixie is that it’s able to work on very large data and utilize the Pinterest object graph of 3 billion nodes and 17 billion edges.</li>
+    </ul>
+  </li>
+  <li>Additionally, Pixie is able to recommend more than 3 billion items to over 200 million users. It uses a combination of collaborative filtering and content-based techniques to generate recommendations for users.</li>
+  <li>One of the key challenges in building a recommendation system at such a large scale is the need to efficiently process and store a vast amount of data.
+    <ul>
+      <li>Pixie uses a number of techniques, including data compression and indexing, to optimize its performance.</li>
+    </ul>
+  </li>
+  <li>Pixie is able to recommend content based on multiple, previous random walks and is able to reinforce/reward behavior where the recommendation was valid for multiple queries.</li>
+  <li>Pixie Random Walk also has enabled early stopping which allows it to not overfit to any particular dataset. However, one of the biggest advantages to Pixie’s Random Walk algorithm is the fact that it can apply constructive bias to the walk.
+    <ul>
+      <li>For example, it can control the length of the walk or can choose to bias the walk via a users demographic details.</li>
+    </ul>
+  </li>
+  <li>This recommender system can be seen live today on Pinterest when you click on a pin and see related pins.</li>
+</ul>
+
+<h3 id="pinsage-graph-convolutional-neural-networks-for-web-scale-recommender-systems"><a href="https://arxiv.org/abs/1806.01973.pdf">PinSage: Graph Convolutional Neural Networks for Web-Scale Recommender Systems</a></h3>
+<ul>
+  <li>Authors: Rex Ying, Ruining He, Kaifeng Chen, Pong Eksombatchai, William L. Hamilton, Jure Leskovec</li>
+  <li>The paper discusses non-euclidean domain, specifically graphs, that are leveraged for Pinterest.</li>
+  <li>PinSage is a graph convolutional neural network (GCN) model developed for learning embeddings for nodes in web-scale graphs containing billions of objects. It uses a random-walk sampling approach to construct the neighborhoods of each node and perform graph convolutions on them. The model can scale to very large graphs and is designed for use in recommender systems, where the nodes correspond to items and the edges correspond to user-item interactions. PinSage has shown promising results in improving the recommendation accuracy and efficiency compared to traditional methods.</li>
+  <li>PinSage creates dense vector representations of nodes or Pins and connects them in a large graph. When the Pins borrow information by nearby nodes, the resulting embedding of the node becomes more accurate and robust.</li>
+  <li>Pinterest is modeled as a bipartite graph consisting of nodes in two disjoint sets, Pins and boards.</li>
+</ul>
+
+<h2 id="snap-inc">Snap Inc</h2>
+
+<h3 id="friend-story-ranking-with-edge-contextual-local-graph-convolutions"><a href="https://arxiv.org/abs/2211.13319.pdf">Friend Story Ranking with Edge-Contextual Local Graph Convolutions</a></h3>
+<ul>
+  <li>In this work, the authors are studying the problem of ranking friend stories on a social network, which is a link ranking task. They are interested in making inferences about existing links (relations) between friends, rather than predicting new links. This is different from common tasks in graph representation learning, which focus on node or graph-based tasks, or link prediction tasks, which aim to predict new links in a network. Essentially, the authors are trying to rank the importance or relevance of existing links between friends, rather than predicting new links that may form in the future.</li>
+  <li>They leverage ELR which is a graph embedding approach that aims to address social sparsity challenges by taking into account local graph structure, differences between local edge types and directionality, and rich edge attributes. It builds on the backbone of graph convolutions, a popular technique for learning graph embeddings.</li>
+  <li>Edge-contextual Local Graph Convolutions for Friend Story Ranking or ELR is introduced by Snap, and it uses a method called edge-contextual approach, which means it considers the local graph structure, including the surrounding nodes and the multiple edge types that connect them. By incorporating rich edge attributes, ELR can differentiate between different types of edges and take into account their directionality.
+    <ul>
+      <li>To delve deeper into ELR, here are it’s characteristics as per the paper “..(i) utilizes local neighborhood information, (ii) heavily leverages edge attributes (ii) differentiates relation types, and (iv) attends over neighbors to learn predict Friend Story affinity.”</li>
+    </ul>
+  </li>
+  <li>To deal with social sparsity challenges, where some nodes have few connections, ELR considers and attends over neighboring nodes, allowing it to learn more robust embeddings even in sparse regions of the graph.</li>
+  <li>Preliminaries:
+    <ul>
+      <li>“Social Network: We consider a social network to be described by a graphG,where nodes are defined over a set of registered users V,and edges are defined over dyadic ties between users (commonly called edges or links) E, reflecting friendships on the platform.”</li>
+      <li>“The ego network (egonet) [10] of 𝑢 is a subgraph of the whole social network graph G. Nodes in the egonet include the focal node (ego) 𝑢 and neighbors N (𝑢) (alters).”</li>
+      <li>“Friend Story Affinity: Friend Story affinity measures the possibility of a user engaging with a friend’s Stories.” Affinity score is used to quanitfy the engagement.</li>
+    </ul>
+  </li>
+  <li>This is how to friends story ranking problem is defined:</li>
+  <li>“Problem(FriendStoryRanking). Given graphG(V,E),node features X and edge features E, design a model to predict the future Friend Story affinity score 𝑠𝑢𝑣 for each (𝑢,𝑣) ∈ E.”</li>
+  <li>The authors here share how a tabular model approach falls short in addressing the Friend Story Ranking (FSR) problem, which involves predicting the affinity between two users based on their local communities and interactions. Instead, the authors propose an edge-contextual approach called ELR that utilizes graph representation learning to incorporate information from neighboring nodes, edges, and their features into the inference. This approach takes into account social factors beyond the relation of interest, such as shared friends, to improve the assessment of the future affinity between two users. The ELR model is designed to differentiate multiple types of relationships and use self-attention over neighbors to improve learning over sparse user activity.</li>
+  <li>“The local graph encoding module leverages a GNN-inspired neural network to learn representations for both users and relations in the local community graph; the friendship categorization module differentiates three types of relations including pairwise relation, intra-ego relation and inter-ego relation according to their relative locations and status in the local graph. Finally, the affinity score prediction module jointly utilizes the three types of relations to predict the affinity score 𝑠𝑢𝑣.” <a href="http://nshah.net/publications/EdgeRanking.WSDM.22.pdf">source</a></li>
+  <li>“To capture complex associations between nodes, their features and interactions, our first step is to encode the edge-contextual graph into Euclidean space. To this end, we utilize a GNN-based encoding scheme. We adopt GraphSAGE [16] as our GNN model because of its scalability in industrial scenarios [57]” <a href="http://nshah.net/publications/EdgeRanking.WSDM.22.pdf">source</a></li>
+  <li>Link based affinity is important for ELR.</li>
+  <li>“User Representation. We can generally capture multiple orders of graph proximity using multiple Edge-GNN layers. In practice, we use two Edge-GNN layers on the edge-contextual graph input to ensure that both first-order and second-order proximity are considered.”</li>
+  <li>“Link Representation. Given a link (𝑢, 𝑣), we use the corresponding pairwise edge features e𝑢𝑣 and the associated user representations from the edge-contextual graph, h𝑢 and h𝑣 to characterize the link between users.”</li>
+  <li>Friendship Categorization is done by predicting friend’s storys affinity score. The authors assume Friend Story affinity is correlated to pairwise relation between the two users because frequent historical data of engagement between the two will indicate likeliness of watching the stories.
+    <ul>
+      <li>Intra-ego: “𝑢 shares similar affinity to 𝑣’s stories as his/her first-order friends;”</li>
+      <li>Inter-ego: “the level of interest from 𝑢’s friends towards stories of𝑣’s friends can imply𝑢’s interest in 𝑣’s stories, due to properties of homophily and shared preferences between friends”</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/papers/14.png" alt="" /></p>
+
+<p><img src="../assets/papers/15.png" alt="" /></p>
+
+<ul>
+  <li>“Lastly, we predict the Friend Story affinity score by jointly modeling the pairwise relation, intra-ego relations and inter-ego relations. To construct a complete view of the edge-contextual graph, We first concatenate the three types of representations, then use a neural network 𝜑(·) to generate the predicted score: 𝑠ˆ𝑢𝑣 =𝜑(r𝑢𝑣 ⊕r𝑢+⊕r𝑣+⊕r𝑢𝑣+). (9) we use mean square error as the loss function:”</li>
+  <li>“We use mean square error (MSE) and mean absolute error (MAE) as the evaluation metrics for all compared methods.We treat the ranking task as a pointwise prediction one. In general, lower MSE/MAE also strongly correlate with traditional ranking metrics given our observations. We note that we could also adapt our task to a listwise or pairwise ranking setting, but do not discuss these aspects in our work for simplicity. Note that we do not directly predict/optimize mean  reciprocal rank (MRR) and/or normalized discounted cumulative gain (NDCG) of the ranked friend stories.”</li>
+  <li>ELR is running inference over an existing network links rather than inferring missing or future ones.</li>
+  <li>“In this work, we study the problem of Friend Story Ranking (FSR). FSR is an instantiation of a more general link ranking problem, tasked with inference over existing network links, rather than inferring over missing or future ones. We tackle the problem from a graph representation learning perspective, building upon recent advances in GNNs in the ELR model.</li>
+  <li>We incorporate socially-motivated intuitions into our model design, focusing our inference to a localized edge-contextual graph for each targetlink forinference, emphasizing importance of edge attributes in user-user relationships in message passing, while also learning distinguished representations across different types of pairwise, intra-ego, and inter-ego relations in local graph structure, and carefully attending over nodes in deriving these representations to overcome social interaction sparsity. Through extensive experiments, we show ELR outperforms baselines with an impressive 8% error reduction in Friend Story CTR prediction. We further show ELR’s generality, the relative importance of modeling components, and qualitative findings.”</li>
+</ul>
+
+<h3 id="graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms"><a href="https://assets.ctfassets.net/btheynltg5cn/53nweIQ8YcXmh9uRxAssqi/e43c35ef60dd613fe25689ca55e35ac9/GrafRank.WWW.21.pdf">Graph Neural Networks for Friend Ranking in Large-scale Social Platforms</a></h3>
+<ul>
+  <li>Authors: Aravind Sankar, Yozen Liu, Jun Yu, and Neil Shah</li>
+  <li>The authors discuss the application of Graph Neural Networks (GNNs) for friend suggestion, specifically in the context of large-scale social platforms. The authors highlight the challenges of modeling user-user interactions in such platforms, including heavy-tailed degree distributions, limited structural and engagement information for inactive users, and diverse interaction patterns.</li>
+  <li>To address these challenges, the authors propose GraFRank, a neural architecture that leverages GNNs to learn expressive user representations from multiple feature modalities and user-user interactions. GraFRank incorporates modality-specific neighbor aggregators and cross-modality attentions to capture the multi-faceted nature of user interactions.</li>
+  <li>Experiments conducted on large datasets from Snapchat demonstrate the effectiveness of GraFRank compared to state-of-the-art approaches. GraFRank outperforms existing methods in candidate retrieval and ranking tasks, improving Mean Reciprocal Rank (MRR) by 30% and 20%, respectively. The qualitative analysis also highlights the significant gains achieved for less-active and low-degree users, indicating the potential of GraFRank to improve friend suggestions for critical user populations.</li>
+  <li>The excerpt highlights the significance of learning latent user representations in enhancing user understanding and its widespread adoption in various industrial applications. Deep models have proven to be effective in learning user representations, replacing or complementing traditional collaborative filtering methods. These learned representations have versatile applications, such as suggesting friendships and inferring profile attributes like age and gender in social networks.
+    <ul>
+      <li>Latent user representation refers to a learned, low-dimensional representation of users in a recommender system or any other user-centric application. It aims to capture the underlying characteristics, preferences, and behaviors of users in a compact and meaningful way. These representations are typically derived using machine learning techniques, such as deep learning models or matrix factorization methods.</li>
+      <li>The term “latent” refers to the fact that these representations are inferred or learned from observed user data, such as user interactions, preferences, or demographic information, without explicitly specifying or knowing the exact features that define a user. Instead, the model uncovers hidden patterns or factors that explain the observed user behavior. By capturing these latent factors, the representations can capture complex relationships and similarities between users, facilitating various downstream tasks such as personalized recommendations, user clustering, or user profiling.</li>
+    </ul>
+  </li>
+  <li>In this work, the authors address the challenges of structural and interactional sparsity in friend recommendation on social networks. We leverage the diverse in-platform actions and formulate friend recommendation as a multi-faceted friend ranking problem on an evolving friendship graph. Our approach incorporates multi-modal user features and link communication features.</li>
+  <li>To represent users, the authors utilize heterogeneous feature sets that include static profile attributes and time-sensitive in-platform activities. They also consider pairwise link features that capture recent communication activities within the platform. Through an empirical analysis, the authors investigate attribute homophily and cross-modality correlations to gain insights into friendship formation.</li>
+  <li>Based on their observations, the authors propose GraFRank (Graph Attentional Friend Ranker), an end-to-end Graph Neural Network (GNN) architecture for multi-faceted friend ranking. GraFRank learns user representations by aggregating neighborhood information specific to each modality and incorporating friendship attentions. They handle the heterogeneity in modality homophily by employing modality-specific neighbor aggregators. Furthermore, they introduce a cross-modality attention module to capture non-linear correlations across modalities and compute the final user representation.</li>
+  <li>By combining these techniques, the authors’ proposed GraFRank enables effective friend ranking by considering various factors impacting friendship formation and leveraging the rich knowledge of user interactions within the social network.</li>
+  <li>The image below shows the multi-modalities used in this framework:</li>
+</ul>
+
+<p><img src="../assets/papers/16.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>“Profile Attributes: a set of (mostly) static demographic features describing the user, including age, gender, recent locations, languages, etc., that are listed or inferred from their profile.
+• Content Interests: a real-valued feature vector describing the textual content (e.g., posts, stories) interacted by the user within the platform, e.g., topics of stories viewed by the user on Snapchat.
+• Friending Activity: aggregated number of sent/received friend requests, reciprocated friendships, and viewed suggestions of the user in different time ranges (e.g., daily, weekly, and monthly).
+• Engagement Activity: aggregated number of in-app direct and indirect engagements for the user (e.g., text messages, snaps, and comments on posts) with other friends in different time ranges”</p>
+  </li>
+  <li>The authors describe the different information sources relevant to friend suggestion in a social platform. Each individual user is denoted by 𝑢 or 𝑣, and a friendship between two users is represented as an undirected relationship. The authors assume a set of users, denoted as V, existing in the platform until the latest observation time. The friendship graph, denoted as G, evolves as new users join the platform and new friendships form.</li>
+  <li>Traditionally, dynamic networks are represented as a sequence of static snapshots due to scaling concerns. However, this approach may not capture the continuous-time nature of the network accurately. To address this, the authors propose a hybrid data model that combines the expressiveness of a continuous-time dynamic graph with time-aware features recorded at different time scales.</li>
+  <li>The friendship graph G is represented as a continuous-time dynamic graph (CTDG) that records friendship creation events at the finest temporal granularity. The features associated with users and edges are represented as a sequence of daily snapshots, where time-sensitive features, such as engagement activity, are recorded at different time scales.</li>
+  <li>The authors define the friendship graph G as a timed sequence of friend creation events over a time range (0, 𝑡𝑒). Each friendship link (edge) 𝑒 = (𝑢, 𝑣, 𝑡) is assigned a unique timestamp 𝑡 that represents the link creation time. The function T maps each timestamp 𝑡 to a corresponding snapshot index in the range [0, 𝑆], where 𝑆 is the number of daily snapshots. The friendship graph G includes all friendships with time-stamped links in the interval (0, 𝑡𝑒). The temporal neighbors of a user 𝑣 at time 𝑡 are defined as the set of friends created before 𝑡, denoted as 𝑁𝑡(𝑣).</li>
+  <li>By representing the friendship graph as a continuous-time dynamic graph and incorporating time-aware features, the authors aim to capture the temporal dynamics of the social network and leverage this information for friend suggestion.</li>
+  <li>The authors found correlation between cross modalities.</li>
+</ul>
+
+<h3 id="embedding-based-retrieval-in-friend-recommendation"><a href="http://nshah.net/publications/FriendingEBR.SIGIR.23.pdf">Embedding Based Retrieval in Friend Recommendation</a></h3>
+<ul>
+  <li>Authors: Jiahui Shi, Vivek Chaurasiya, Yozen Liu, Shubham Vij, Yan Wu, Satya Kanduri, Neil Shah, Peicheng Yu, Nik Srivastava, Lei Shi, Ganesh Venkataraman, Jun Yu</li>
+</ul>
+
+<p><img src="../assets/papers/17.png" alt="" /></p>
+
+<ul>
+  <li>The authors mention that in online social and professional networks, the connections or friends that a user has play a crucial role in their engagement and retention. Studies have shown that having a certain number of connections from different companies can positively impact job transitions. Friend recommendation, which aims to suggest new connections to users, can be viewed as a link prediction problem. The goal is to predict the formation of new links in a social network based on a snapshot of the network at a previous time.</li>
+  <li>However, in the context of large-scale online networks with hundreds of millions or even billions of users, evaluating the likelihood of links between every pair of users becomes computationally infeasible. Therefore, in practice, friend recommendation is typically treated as an industrial recommendation problem and follows a two-tier architecture: Retrieval and Ranking.</li>
+  <li>The retrieval tier is responsible for quickly selecting a subset of potential candidates from the large user pool, narrowing down the search space. This step typically involves efficient algorithms and data structures to filter and retrieve potential friends based on certain criteria or constraints.</li>
+  <li>Once the candidate pool is retrieved, the ranking tier comes into play. This tier aims to determine the order or ranking of the potential friends based on their likelihood of being a good match or recommendation for the user. Various techniques, such as machine learning models or recommendation algorithms, can be employed to rank the candidates and provide personalized friend recommendations to users.</li>
+  <li>“These candidates are then ranked based on either heuristics or lightweight machine learning (ML) models, and roughly the top ten-thousand candidates are funneled to the next phase of ranking.</li>
+  <li>The goal of the retrieval phase is to include as many potential friends as possible to the next phase and recall is used to measure its effectiveness (i.e. the ratio of the number of relevant candidates retrieved to the number of all relevant candidates).”</li>
+  <li>“In the ranking phase, we rank retrieved candidates with a heavier deep neural network machine learning (ML) model, and send the top-𝐾 friend recommendations to the end users where 𝐾 is in the order of hundreds.</li>
+  <li>The ranker ML model is trained on historical friend recommendation outcomes and uses both user-level and user-to-user interaction features as signals to rank friend candidates. Different from the retrieval phase, the goal of ranking phase is to maximize precision, which measures the fraction of candidates surfaced to the users which they find relevant and worthwhile to friend request.</li>
+  <li>This two-tier recommendation system advantageously sidesteps quadratic complexity from considering all user-user pairs, while also enabling flexible trade-offs in recall, precision and infrastructure cost.”</li>
+  <li>The authors also note that retrieving friend recommendations in homogeneous graph-based friend recommendation systems presents unique challenges compared to product or content recommendations that rely on heterogeneous graphs. Traditional retrieval approaches based on user demographics and historical engagement are not effective in this context.</li>
+  <li>Graph traversal approaches, such as the Friends-of-Friends (FoF) algorithm, have been widely used in online social and professional networks like LinkedIn and Facebook. FoF traverses the graph using breadth-first traversal and an inverted index for fast querying. While effective, there are several challenges with this approach. In low-density networks with limited user adoption, FoF struggles to find high-quality friend candidates, leading to cold-start problems. Additionally, due to the small-world network properties, going beyond 2-hop connections becomes computationally expensive and can increase recommendation latency. Furthermore, FoF does not capture graph topology or connection strength well, requiring additional mechanisms for finding and ranking the top candidates for further recommendation stages.</li>
+  <li>Retrieval in homogeneous graph-based friend recommendation systems faces challenges related to cold-start problems, scalability in terms of hop connections, and capturing relevant graph topology and connection strength. Overcoming these challenges is essential to provide high-quality friend recommendations in real-time recommendation systems.</li>
+  <li>The authors proposed a new retrieval system for friend recommendation called Embedding Based Retrieval (EBR) to address the challenges in friend recommendation systems. EBR, widely used in content and product recommendation systems, leverages low-dimensional embeddings of nodes in large graphs to retrieve relevant items. In the context of friend recommendation, the authors generate embeddings for each user based on their rich information and friend connections. Users who are likely to be friends are closer in the embedding space. During online retrieval, the authors retrieve candidates as nearest neighbors to the target user’s embedding.</li>
+  <li>EBR overcomes limitations of graph traversal-based retrieval in several ways. First, the nearest-neighbor search in the embedding space is highly efficient, regardless of network density. Its time complexity remains constant. Second, EBR can retrieve high-quality candidates that may be multiple hops away from the target user, eliminating the need for cumbersome graph traversal.</li>
+  <li>The authors utilized Graph Neural Networks (GNNs) to generate user embeddings and implemented infrastructure optimizations to support EBR for friend recommendation at Snapchat scale in a cost-effective manner.</li>
+  <li>Retrieval (EBR) in Snapchat’s friend graph. They utilize Graph Neural Networks (GNNs), which are known for learning representations over graph data, to embed users. GNNs extend convolutions to graphs and have been successful in various industrial tasks, including recommendation and forecasting.</li>
+  <li>The authors employ a 2-layer GraphSAGE model, where aggregation is performed through mean-pooling and updating involves vector concatenation followed by a linear layer. The model is trained using a transductive link prediction setup with a max-margin ranking loss. The training is done in a large-scale setting, and scalability challenges are addressed through graph preprocessing, minibatch training, and a producer-consumer shared-memory setup.</li>
+  <li>To train the model, an internal framework is used, and training and inference are performed using a powerful virtual machine with CPUs and GPUs. Daily user embedding generation for hundreds of millions of Snapchat users is operationalized using this setup, and embedding quality is closely monitored based on offline ranking metrics.</li>
+  <li>The authors emphasize the importance of user embedding quality, utilize GNNs for embedding generation, address scalability challenges, and ensure tight monitoring of embedding quality in the EBR system for friend recommendation at Snapchat scale.</li>
+  <li>The first optimization involves indexing only active users, significantly reducing the index size. Since most friend links are established among active users, indexing only them is sufficient. Even after this pruning, the index remains large, around 2 terabytes in size. The authors then exploit the fact that a majority of friend links are established between users who are geographically closer together. They divide the index into segments based on geographic locations, such as North America, Europe, MENA, Asia, etc. This reduces the index size to a manageable memory footprint.</li>
+  <li>Additionally, instead of sending queries to all indexes, the authors direct the requests to the geographic partition based on the searcher’s location. This approach keeps the query latency low while capturing the majority of friending activities. By capitalizing on these characteristics of the friend graph, the authors have built a more scalable, robust, and cost-effective system, achieving significant business impact. The embedding query workflow is illustrated in Figure 2.</li>
+  <li>Snapchat’s EBR system optimizes candidate generation by indexing only active users, dividing the index based on geographic locations, and directing queries to the relevant partition. These optimizations result in a more efficient system with reduced resource requirements and improved performance.</li>
+</ul>
+
+<p><img src="../assets/papers/18.png" alt="" /></p>
+
+<h3 id="dynamic-ensemble-of-contextual-bandits-to-satisfy-users-changing-interests"><a href="https://huazhengwang.github.io/papers/WWW2019-DenBandit-Wu.pdf">Dynamic Ensemble of Contextual Bandits to Satisfy Users’ Changing Interests</a></h3>
+<ul>
+  <li>Authors: Qingyun Wu, Huazheng Wang, Yanen Li, and Hongning Wang</li>
+  <li>The authors of this passage focus on addressing the challenges faced by recommender systems in highly non-stationary environments. They emphasize that traditional solutions, which periodically rebuild their models, are computationally expensive and cannot automatically adapt to abrupt changes in trends caused by timely information. Furthermore, they acknowledge that the changes in reward distributions resulting from a non-stationary environment can be context-dependent.</li>
+  <li>To overcome these challenges, the authors propose utilizing contextual bandit algorithms for adaptive recommendations. They capitalize on the context-dependent property of reward changes to handle the non-stationary environment effectively. Specifically, they maintain a dynamic ensemble of contextual bandit models and monitor the reward estimation quality of each model based on the given context and potential environment changes. Only the models that are deemed suitable for the current environment are used for making recommendations.</li>
+  <li>The authors provide a rigorous upper regret bound analysis of their proposed algorithm, which assesses the trade-off between exploration and exploitation in decision-making and provides guarantees on the quality of recommendations. They also conduct extensive empirical evaluations on both synthetic and real-world datasets to validate the algorithm’s performance. The results confirm that the proposed approach outperforms existing non-stationary solutions that rely on creating new models whenever an environment change is detected.</li>
+  <li>Traditional approaches like content-based filtering, collaborative filtering, and hybrid methods rely on users’ past activities to provide recommendations. However, in practical applications such as news recommendation, both content popularity and user interests evolve frequently over time, making traditional offline learning approaches ineffective.</li>
+  <li>To address this dynamic nature of recommendations, contextual bandit algorithms have emerged as online learning solutions. They collect real-time user feedback to estimate the utility or reward of new content based on available context information. Contextual bandits offer a principled way to balance exploration and exploitation in recommendations and have been successfully deployed in practical scenarios. However, most existing contextual bandit algorithms assume a stationary environment, where the expected reward on each option remains fixed based on the given context. This assumption rarely holds in real-world applications, where the reward mapping undergoes changes due to various factors.</li>
+  <li>The work described in this paper focuses on a setting where there are unknown and abrupt changes in user preferences. Between consecutive changes, the reward distribution remains stationary but unknown, meaning it is piecewise stationary. Existing bandit algorithms address this dynamic environment by either introducing a forgetting mechanism to downweight historical observations or creating a new bandit model for each detected stationary period.</li>
+  <li>However, the authors recognize that user interests can be context-dependent, even though they may change frequently. For example, while a user’s overall interests may evolve, their preference for a specific type of item may remain stable over a longer period. The authors emphasize that existing strategies fail to consider this context-dependent property of the non-stationary environment.</li>
+  <li>The passage describes the authors’ contextual bandit algorithm designed to capitalize on the unique property of a changing environment in the context of user interest changes. The algorithm consists of a dynamic set of contextual bandit models called bandit experts, which estimate the underlying reward distribution. Additionally, there are bandit auditors that monitor each expert’s reward estimation quality in specific contexts.</li>
+  <li>During the interaction process, an ensemble of admissible bandit experts is created based on the predictions of the auditors. These experts estimate the reward of each arm, and the arm with the highest upper confidence bound is selected as the recommendation. The feedback acquired from the chosen arm is used to update the admissible bandit experts and their corresponding auditors. If no admissible expert exists, a new one is created and added to the set for evaluating future recommendations.</li>
+  <li>The authors provide a rigorous proof of a sublinear upper regret bound for their algorithm, indicating that the number of sub-optimal recommendations decreases over time. They highlight the importance of modeling the context-dependent changes and explain that failing to do so would result in a worse upper regret bound. To validate the algorithm’s effectiveness, extensive empirical evaluations are conducted using both synthetic and real-world datasets, demonstrating its capability in handling changing popularity and user preferences.</li>
+  <li>In summary, the authors’ proposed contextual bandit algorithm adapts arm selection and model update strategies based on users’ context-dependent interest changes. It utilizes a set of bandit experts and auditors to estimate rewards, select recommendations, and update models. The algorithm is shown to have a sublinear upper regret bound, reducing the number of sub-optimal recommendations over time. Empirical evaluations confirm its effectiveness in handling changing trends and user preferences in practical scenarios.</li>
+  <li>The passage discusses the challenges and goals in a non-stationary environment where users’ interests change at unknown time points. In such an environment, new bandit models need to be created to adapt to the changes in user interests. However, there may also be arms (options) that remain unchanged despite the shifts in user preferences. The passage emphasizes the importance of reusing bandit models estimated for earlier periods to achieve more accurate reward estimation for these change-invariant arms in a new stationary period, leading to reduced regret.</li>
+  <li>To address these challenges and achieve the goals, the passage highlights three key points. First, detecting potential changes in user interests and creating new bandit models to account for change-sensitive arms in a new environment is crucial. Second, as the reward changes for each arm are context-dependent, it is important to identify the change-invariant arms in the current period. This recognition allows the utilization of experience from previous models. Finally, when multiple bandit models exist simultaneously, a decision needs to be made on which arm to choose.</li>
+  <li>To ensure clarity in subsequent discussions, the passage refers to the bandit models created for reward estimation as “bandit experts.”</li>
+  <li>The passage describes a bandit algorithm called DenBand (Dynamic Ensemble of Bandit Experts) that addresses the challenges of a non-stationary environment in contextual bandit problems. It focuses on the three challenges: detecting changes in user interests, recognizing change-invariant arms, and selecting the appropriate arm when multiple bandit models exist.</li>
+  <li>To address these challenges, the algorithm introduces a companion bandit model called a bandit auditor for each bandit expert. The bandit expert estimates the reward based on the context and chosen arms, while the bandit auditor evaluates the expert’s prediction accuracy using the context and prediction errors. The bandit auditor determines whether a bandit expert is “admissible” for a given arm, indicating that either no change has occurred since the expert was created or the arm is change-invariant.</li>
+  <li>To handle the third challenge, the algorithm follows the principle of optimism in the face of uncertainty and chooses an arm based on the upper confidence bound of reward estimation from an ensemble of all admissible bandit experts. The feedback acquired from the selected arm is used to update the corresponding bandit experts and auditors.</li>
+  <li>The algorithm maintains bandit experts and auditors, estimating bandit parameters and badness (prediction errors) using a linear structure. The bandit auditors evaluate the change-invariance of arms with respect to the reward distributions specified by the underlying parameters.</li>
+  <li>By addressing these challenges and utilizing the ensemble of admissible bandit experts, DenBand aims to provide adaptive recommendations in a non-stationary environment, reducing regret over time.</li>
+  <li>Overall, the passage introduces the DenBand algorithm, which uses bandit experts and auditors to handle changes in user interests, recognize change-invariant arms, and select arms for recommendations. The algorithm’s goal is to adapt to a non-stationary environment and provide effective recommendations with reduced regret.</li>
+  <li>Bandit Expert Selection: The algorithm introduces the concept of admissible bandit experts, which are bandit experts that can accurately estimate the reward for a given arm. The badness estimation of bandit experts is bounded by B_beta, which represents the error in reward estimation. If the badness estimation is smaller than a threshold, the bandit expert is considered admissible. If no admissible bandit expert exists for an arm, a new bandit expert needs to be created to account for environment changes.</li>
+  <li>Arm Selection: The algorithm uses the Upper Confidence Bound (UCB) principle to select an arm from the candidate arm pool. For each admissible bandit expert, an upper confidence bound (UCB) of reward estimation is computed. The algorithm proposes two strategies for integrating the UCBs: the average ensemble strategy, which computes an average UCB based on all admissible experts, and the lower confidence bound (LCB) strategy, which selects an expert based on the LCB of its auditor’s estimated badness.</li>
+  <li>Model Update: After obtaining feedback from the environment on the selected arm, the algorithm updates the bandit experts and auditors in the admissible model set. The update decision is based on comparing the acquired feedback with each expert’s estimation. If the error in reward estimation is large or the arm is not change-invariant, the algorithm decides whether to update the bandit expert or the bandit auditor. The algorithm takes into account large noise from the environment and the possibility of arm non-change-invariance.</li>
+</ul>
+
+<h3 id="embedding-based-retrieval-with-two-tower-models-in-spotlight"><a href="https://eng.snap.com/embedding-based-retrieval">Embedding-based Retrieval with Two-Tower Models in Spotlight</a></h3>
+<ul>
+  <li>In this research, the user and story features are passed through a ResNet-like neural network first, then they go through an MLP (Multi-Layer Perceptron) and a deep cross network before the embeddings are generated.</li>
+  <li>While it may seem complex, each part of this process serves a specific purpose:
+    <ul>
+      <li>ResNet: The ResNet-style structure helps deal with the problem of vanishing gradients that can occur in deep networks. It allows the model to learn from large amounts of data more effectively by using skip connections or shortcuts.</li>
+      <li>Multi-Layer Perceptron (MLP): MLPs are powerful tools for processing complex patterns in the data. By passing the features through an MLP, the model is able to transform the original features into a higher-level feature space where they can be more easily separated.</li>
+      <li>Deep Cross Network: The deep cross network helps with learning high-order feature interactions. This means it’s capable of understanding complex relationships between different features, which can be crucial in generating high-quality embeddings.</li>
+    </ul>
+  </li>
+  <li>The embeddings themselves are a compact representation of the input data and these layers help in creating these embeddings that capture the essential aspects of the data in lower dimensions. The aim is to create embeddings that encapsulate as much useful information as possible from the input features. The combination of these layers allows the model to learn more complex representations and interactions, improving its predictive power.</li>
+  <li>However, there is always a trade-off between complexity and interpretability in machine learning models. More complex models like this one can provide better performance, but they can also be harder to understand and potentially overfit if not properly regularized or if they are used with insufficient amounts of data. It’s crucial to consider these factors when designing a machine learning architecture.</li>
+  <li>Two tower vs. Matrix factorization:
+    <ul>
+      <li>Matrix factorization is a classic technique used in recommendation systems, particularly for collaborative filtering. It works by decomposing the user-item interaction matrix into the product of two lower-dimensional matrices: one representing the users and the other representing the items. The idea is to capture the latent factors that explain the observed user-item interactions. Each user and each item is represented as a vector in this latent factor space, and recommendations can be made by taking the dot product of the user and item vectors.</li>
+      <li>The two-tower model described in your question is a form of deep learning-based collaborative filtering, and it’s conceptually different from matrix factorization in several ways:
+        <ul>
+          <li>Feature Utilization: Matrix factorization models typically only use the user-item interaction data. They do not use or have limited capacity to handle additional features. On the other hand, the two-tower model can effectively incorporate a wide range of features, including user demographics, story characteristics, and even sequence lists based on users’ past engagement. This allows the model to learn more complex and nuanced relationships.</li>
+          <li>Model Complexity: Matrix factorization models are relatively simple and have a fixed structure. In contrast, the two-tower model involves several components including a ResNet-style neural network, an MLP layer, and a deep cross network, allowing for more complex relationships and interactions to be modeled.</li>
+          <li>Representation Power: Matrix factorization produces a linear representation of the latent factors. In contrast, deep learning-based models like the two-tower model can learn nonlinear representations. This can lead to more powerful and expressive models, particularly when the relationships in the data are complex.</li>
+          <li>Learning Mechanism: Matrix factorization typically uses methods like stochastic gradient descent (SGD) to learn the factorization, while the two-tower model leverages more advanced optimization techniques like the Adam optimizer and uses learning rate warming up and cosine annealing techniques for smoother and more effective learning.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>In summary, while both matrix factorization and the two-tower model can be used for recommendation systems and both generate embeddings for users and items, they operate on different principles and have different strengths and limitations. The two-tower model can generally handle more complex relationships and a wider range of features, but it’s also more complex and computationally intensive.</li>
+</ul>
+
+<h3 id="multi-objective-hyper-parameter-optimization-of-behavioral-song-embeddings"><a href="https://arxiv.org/abs/2208.12724.pdf">Multi-objective hyper-parameter optimization of behavioral song embeddings</a></h3>
+<ul>
+  <li>Authors: Massimo Quadrana, Antoine Larreche-Mouly, and Matthias Mauch.</li>
+  <li>In this <a href="(https_/arxiv.org/abs/2208.12724.html">paper</a> by Quadrana et al. from Apple Music, they investigate the results of hyperparameter tuning on their song embeddings (which are based on Word2Vec) on a few downstream tasks. Specifically, the downstream tasks they focus on are next-song recommendation, false neighbor rejection and artist/genre clustering.</li>
+  <li>This paper also found that next-song recommendation quality of Word2Vec is anti-correlated with song popularity, helping negate the bias that comes with recommending popular songs.</li>
+</ul>
+
+<h3 id="background">Background</h3>
+
+<ul>
+  <li>Today’s Recommendation Systems utilize embedding vectors to represent users and items.</li>
+  <li>These embeddings are leveraged to execute several tasks such as: song recommendation, search, tagging, and generating artist/ genre representations to be used for music recommendation.</li>
+  <li>Usually, we create these embeddings early on in the RecSys pipeline, often through self-supervised methods such as Word2Vec.
+    <ul>
+      <li>Note: methods such as Word2Vec come with default hyperparameters tuned on non RecSys tasks such as NLP.</li>
+    </ul>
+  </li>
+  <li>Due to this, the field needs resilient metrics to compare against these optimizing embeddings.</li>
+  <li>Recent research states that hyperparameter optimization can drastically improve recommendation quality from these tasks.</li>
+  <li>These authors believe that people who leverage music RecSys could benefit from a deeper understanding of how the song embedding behaves when its optimizedin relation to factors such as song popularity to help alleviate popularity bias, amongst other things.</li>
+</ul>
+
+<h3 id="what-the-paper-provides">What the paper provides</h3>
+
+<ul>
+  <li>Now that we’ve gotten a good background on the matter, lets go ahead and figure out what changes and contributions this paper makes to the field of RecSys.</li>
+  <li>This paper provides a framework with which you can monitor the performance of embedding models. Additionally, it also provides a means to leverage embedding models for new and different tasks.</li>
+  <li>It does this by:
+    <ul>
+      <li>Defining metrics and optimization objectives for tasks such as next-song recommendation, false neighbor rejection, and genre/artist clustering.</li>
+      <li>Proposing a multi-objective optimization approach to combine recommendation and clustering tasks.</li>
+      <li>Showing next-song recommendation quality and song popularity are anti-correlated.</li>
+      <li>Studying different embedding optimizations at scale on a large dataset of billions of listening events.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="how-it-all-works">How it all works</h3>
+
+<ul>
+  <li>Embeddings:
+    <ul>
+      <li>This paper considers song embeddings based on Word2Vec. As we know, Word2Vec was created to represent words in a corpus through a self-supervised shallow neural network trained to learn dense vector representation of words from sentences based on their surrounding words using either Skipgram or CBOW.</li>
+      <li>This same principle is used in RecSys to compute item embeddings from user interactions such as site sessions or playlists.</li>
+      <li>This paper will study song embedding optimization for four tasks being: next-song prediction, false neighbor rejection, artist clustering, and genre clustering.</li>
+    </ul>
+  </li>
+  <li>Next-Song Prediction
+    <ul>
+      <li>This task recommends the next song to a user based on some context it has previously garnered. Sometimes, this means looking at the songs the user has previously listened to in a specific amount of time.</li>
+      <li>For this paper however, the goal was not to have the most efficient next song recommender but to study the effects of optimization on the embedding space and thus, they have only predicted next songs based on the single previously played song.</li>
+      <li>Here, the target song is the song from the evaluation set and the query song is the song the user has just played which we will use to recommend the target song.</li>
+      <li>HitRate is the number of times the target song was contained within the 100 nearest neighbors of the query song.</li>
+    </ul>
+  </li>
+  <li>False Neighbor Rejection
+    <ul>
+      <li>False Neighbor Rejection task looks to filtering out songs that are within the closest neighborhood of another song but have little bearing to each other and have low metadata similarity.</li>
+      <li>Essentially these are the songs that have appeared in close proximity merely due to chance.</li>
+      <li>To do this, the paper uses a chi-squared \(X^2\) test to identify false neighbors within the dataset.
+        <ul>
+          <li>This test compares the observed co-occurrence frequencies of every pair of songs against expected co-occurrence frequencies.</li>
+          <li>A limitation here is that this approach requires a large amount of events to be able to successfully identify co-occurrence song pairs.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Artist and Genre Clustering
+    <ul>
+      <li>Lastly, the paper is interested in knowing how well these two classes, Artist and Genre, exist closely together in an embedding space.</li>
+      <li>Here, they introduce a concept of Local Genre Coherence of the embedding space as the average fraction of nearest neighbors belonging to the same artist as the query song.</li>
+      <li>“For example, an embedding space has Local Genre Coherence = 0.5 if on average 50% of the nearest neighbors of each song have its same primary genre”.</li>
+      <li>However, since computing embeddings for every song can be very expensive, the paper proposes using a proxy metric called Calinski-Harabasz index or Variance Ratio Criterion (VRC).</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="the-experiments">The Experiments</h3>
+<ul>
+  <li>Now that we have a general understanding of the tasks the authors wanted to target in this paper, lets take a deeper dive into their experiment.</li>
+  <li>The authors optimize the hyperparameters of their skipgram Word2Vec embedding by running Bayesian Hyper-Parameter Optimization that they initialized with 10 iterations of Random Search before having the Bayesian Search converge.</li>
+  <li>Word2Vec here uses the skipgram architecture with negative sampling because it provides computational efficiency.</li>
+  <li>The image below details the hyperparameters that Word2Vec used for their experiment.</li>
+</ul>
+
+<p><img src="assets/papers/30.html" alt="" /></p>
+
+<ul>
+  <li>where,
+    <ul>
+      <li>\(d\) is the embedding size</li>
+      <li>\(L\) is the max window length</li>
+      <li>\(a\) alpha controls the negative sampling</li>
+      <li>\(N\) is the number of negative samples used to approximate the softmax</li>
+      <li>\(lambda\) is the learning rate</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="assets/papers/31.html" alt="" /></p>
+
+<ul>
+  <li>The table above represents the results of the two data sets when being optimized for a single or multiple tasks.</li>
+  <li>Next-Song Recommendation optimized:
+    <ul>
+      <li>Lets start by looking at the first task and how they optimized for it.)</li>
+      <li>The optimization was analyzed by running Hyper-Parameter Optimization (HPO) with the HitRate.</li>
+    </ul>
+  </li>
+  <li>Genre and Artist Clustering optimized
+    <ul>
+      <li>Let’s move on to the next task here.</li>
+      <li>This optimization was done via Variance Ratio Criterion as a proxy objective.</li>
+      <li>The result of this was that the optimal configurations here had significantly worse next-song recommendation quality vs. what we saw for single-objective next-song recommendation.</li>
+      <li>The learning here is that optimizing embeddings for clustering alone can hurt rather than help the recommendation quality.</li>
+    </ul>
+  </li>
+  <li>Multi-objective optimization
+    <ul>
+      <li>As we saw above, optimizing for one property can directly harm the other, thus the paper looks into simultaneous optimization of both properties by using Multi Objective Hyper-parameter Optimization (MOHPO).</li>
+      <li>This proved to be the most effective method; by combining recommendation and clustering objectives, both properties were able to mutually benefit from each other.</li>
+    </ul>
+  </li>
+  <li>Popularity bias problem
+    <ul>
+      <li>In order to run this test, the songs were categorized into buckets of popularity.</li>
+      <li>The HitRate drops as the query and target song begin to differ in popularity. Thus, the HitRate is anti-correlated with popularity.</li>
+      <li>Optimization seems to balance the recommendation accuracy more across popularity buckets, which is what we want.</li>
+    </ul>
+  </li>
+  <li>Try to use on another task
+    <ul>
+      <li>The authors also wanted to check if embedding optimization had benefits on tasks other than what it was originally optimized for.</li>
+      <li>It was found that “embedding optimization can have beneficial effects on tasks different from the one it was initially designed to address. Furthermore, it provides additional evidence on the superiority multi-objective optimization over single-objective one.”</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="tldr">TL;DR</h3>
+
+<ul>
+  <li>Let’s talk about the key take-aways from this paper now.</li>
+  <li>This paper analyzed offline optimization of song embeddings by looking at individual tasks that we defined above.</li>
+  <li>The paper also proposed a way to leverage and optimize Word2Vec hyperparameters on recommendation and clustering tasks individualy and jointly.</li>
+  <li>We saw that there was substantial benefit over single-objective optimization variants when we used multi-objective optimization approach.</li>
+  <li>Personally, I found leveraging Word2Vec for song embeddings and then optimizing for each task pretty fascinating!</li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/recsys/papers/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:29 GMT -->
+</html>

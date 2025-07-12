@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/recsys/metrics/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Recommendation Systems • Evaluation Metrics and Loss Functions</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Recommendation Systems • Evaluation Metrics and Loss Functions</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#offline-testing" id="markdown-toc-offline-testing">Offline testing</a></li>
+  <li><a href="#online-testing" id="markdown-toc-online-testing">Online testing</a>    <ul>
+      <li><a href="#ab-testing" id="markdown-toc-ab-testing">A/B Testing</a></li>
+    </ul>
+  </li>
+  <li><a href="#evaluating-candidate-generation" id="markdown-toc-evaluating-candidate-generation">Evaluating Candidate Generation</a>    <ul>
+      <li><a href="#precision" id="markdown-toc-precision">Precision</a></li>
+      <li><a href="#recall" id="markdown-toc-recall">Recall</a></li>
+      <li><a href="#precision-and-recall--k" id="markdown-toc-precision-and-recall--k">Precision and Recall @ \(k\)</a>        <ul>
+          <li><a href="#limitations" id="markdown-toc-limitations">Limitations</a></li>
+          <li><a href="#when-is-recallk-preferred-to-pure-recall" id="markdown-toc-when-is-recallk-preferred-to-pure-recall">When is Recall@\(k\) preferred to pure Recall?</a></li>
+        </ul>
+      </li>
+      <li><a href="#log-likelihood" id="markdown-toc-log-likelihood">Log-likelihood</a></li>
+    </ul>
+  </li>
+  <li><a href="#evaluating-candidate-ranking" id="markdown-toc-evaluating-candidate-ranking">Evaluating Candidate Ranking</a>    <ul>
+      <li><a href="#fraction-of-concordant-pairs-fcp" id="markdown-toc-fraction-of-concordant-pairs-fcp">Fraction of Concordant Pairs (FCP)</a>        <ul>
+          <li><a href="#definition-and-formula" id="markdown-toc-definition-and-formula">Definition and Formula</a></li>
+          <li><a href="#key-characteristics" id="markdown-toc-key-characteristics">Key Characteristics</a></li>
+          <li><a href="#advantages" id="markdown-toc-advantages">Advantages</a></li>
+          <li><a href="#limitations-1" id="markdown-toc-limitations-1">Limitations</a></li>
+          <li><a href="#use-cases" id="markdown-toc-use-cases">Use Cases</a></li>
+          <li><a href="#example" id="markdown-toc-example">Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#mean-reciprocal-rank-mrr" id="markdown-toc-mean-reciprocal-rank-mrr">Mean Reciprocal Rank (MRR)</a>        <ul>
+          <li><a href="#limitations-2" id="markdown-toc-limitations-2">Limitations</a></li>
+          <li><a href="#example-1" id="markdown-toc-example-1">Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#average-reciprocal-hit-rate-arhr" id="markdown-toc-average-reciprocal-hit-rate-arhr">Average Reciprocal Hit Rate (ARHR)</a></li>
+      <li><a href="#mean-average-precision-at-k-mapk-and-mean-average-recall-at-k-mark" id="markdown-toc-mean-average-precision-at-k-mapk-and-mean-average-recall-at-k-mark">Mean Average Precision at \(k\) (mAP@\(k\)) and Mean Average Recall at \(k\) (mAR@\(k\))</a>        <ul>
+          <li><a href="#average-precision-at-k-apk-and-average-recall-at-k-ark" id="markdown-toc-average-precision-at-k-apk-and-average-recall-at-k-ark">Average Precision at \(k\) (AP@\(k\)) and Average Recall at \(k\) (AR@\(k\))</a></li>
+          <li><a href="#mapk-and-mark" id="markdown-toc-mapk-and-mark">mAP@\(k\) and mAR@\(k\)</a></li>
+          <li><a href="#limitations-3" id="markdown-toc-limitations-3">Limitations</a></li>
+          <li><a href="#example-2" id="markdown-toc-example-2">Example</a></li>
+        </ul>
+      </li>
+      <li><a href="#normalized-discounted-cumulative-gain-ndcg" id="markdown-toc-normalized-discounted-cumulative-gain-ndcg">Normalized Discounted Cumulative Gain (nDCG)</a>        <ul>
+          <li><a href="#ndcg-an-in-depth-analysis" id="markdown-toc-ndcg-an-in-depth-analysis">nDCG: An In-Depth Analysis</a></li>
+          <li><a href="#cumulative-gain-cg" id="markdown-toc-cumulative-gain-cg">Cumulative Gain (CG)</a></li>
+          <li><a href="#discounted-cumulative-gain-dcg" id="markdown-toc-discounted-cumulative-gain-dcg">Discounted Cumulative Gain (DCG)</a></li>
+          <li><a href="#normalized-discounted-cumulative-gain-ndcg-1" id="markdown-toc-normalized-discounted-cumulative-gain-ndcg-1">Normalized Discounted Cumulative Gain (nDCG)</a></li>
+          <li><a href="#limitations-4" id="markdown-toc-limitations-4">Limitations</a></li>
+          <li><a href="#example-3" id="markdown-toc-example-3">Example</a>            <ul>
+              <li><a href="#ndcg-calculation-process" id="markdown-toc-ndcg-calculation-process">nDCG Calculation Process</a>                <ul>
+                  <li><a href="#compute-dcg" id="markdown-toc-compute-dcg">Compute DCG</a></li>
+                  <li><a href="#compute-idcg" id="markdown-toc-compute-idcg">Compute IDCG</a></li>
+                  <li><a href="#compute-ndcg" id="markdown-toc-compute-ndcg">Compute nDCG</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#choosing-between-precision-and-recall--k-mrr-arhr-map-or-ndcg" id="markdown-toc-choosing-between-precision-and-recall--k-mrr-arhr-map-or-ndcg">Choosing between Precision and Recall @ \(k\), MRR, ARHR, mAP, or nDCG</a>        <ul>
+          <li><a href="#summary" id="markdown-toc-summary">Summary</a></li>
+        </ul>
+      </li>
+      <li><a href="#regression-based-metrics" id="markdown-toc-regression-based-metrics">Regression-based Metrics</a>        <ul>
+          <li><a href="#root-mean-squared-error-rmse" id="markdown-toc-root-mean-squared-error-rmse">Root Mean Squared Error (RMSE)</a></li>
+          <li><a href="#mean-absolute-error-mae" id="markdown-toc-mean-absolute-error-mae">Mean Absolute Error (MAE)</a></li>
+        </ul>
+      </li>
+      <li><a href="#correlation-metrics" id="markdown-toc-correlation-metrics">Correlation Metrics</a>        <ul>
+          <li><a href="#kendall-rank-correlation-coefficient" id="markdown-toc-kendall-rank-correlation-coefficient">Kendall Rank Correlation Coefficient</a></li>
+          <li><a href="#pearson-correlation-coefficient" id="markdown-toc-pearson-correlation-coefficient">Pearson Correlation Coefficient</a></li>
+          <li><a href="#spearman-correlation-coefficient" id="markdown-toc-spearman-correlation-coefficient">Spearman Correlation Coefficient</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#evaluating-re-ranking" id="markdown-toc-evaluating-re-ranking">Evaluating Re-ranking</a>    <ul>
+      <li><a href="#diversity" id="markdown-toc-diversity">Diversity</a></li>
+      <li><a href="#noveltyfreshness" id="markdown-toc-noveltyfreshness">Novelty/Freshness</a></li>
+      <li><a href="#serendipity" id="markdown-toc-serendipity">Serendipity</a></li>
+      <li><a href="#integration-into-re-ranking" id="markdown-toc-integration-into-re-ranking">Integration into Re-Ranking</a></li>
+    </ul>
+  </li>
+  <li><a href="#user-engagementbusiness-metrics" id="markdown-toc-user-engagementbusiness-metrics">User Engagement/Business Metrics</a>    <ul>
+      <li><a href="#click-through-rate-ctr" id="markdown-toc-click-through-rate-ctr">Click-through rate (CTR)</a></li>
+      <li><a href="#average-number-of-clicks-per-user" id="markdown-toc-average-number-of-clicks-per-user">Average number of clicks per user</a></li>
+      <li><a href="#conversion-rate-cvr" id="markdown-toc-conversion-rate-cvr">Conversion Rate (CVR)</a></li>
+      <li><a href="#session-length" id="markdown-toc-session-length">Session Length</a></li>
+      <li><a href="#dwell-time" id="markdown-toc-dwell-time">Dwell Time</a></li>
+      <li><a href="#bounce-rate" id="markdown-toc-bounce-rate">Bounce Rate</a></li>
+      <li><a href="#hit-rate" id="markdown-toc-hit-rate">Hit Rate</a></li>
+    </ul>
+  </li>
+  <li><a href="#calibration" id="markdown-toc-calibration">Calibration</a></li>
+  <li><a href="#loss-functions-in-recommender-systems" id="markdown-toc-loss-functions-in-recommender-systems">Loss Functions in Recommender Systems</a>    <ul>
+      <li><a href="#cross-entropy-loss" id="markdown-toc-cross-entropy-loss">Cross-Entropy Loss</a></li>
+      <li><a href="#mean-squared-error-mse-loss" id="markdown-toc-mean-squared-error-mse-loss">Mean Squared Error (MSE) Loss</a></li>
+      <li><a href="#pairwise-ranking-loss-bpr-loss" id="markdown-toc-pairwise-ranking-loss-bpr-loss">Pairwise Ranking Loss (BPR Loss)</a></li>
+      <li><a href="#hinge-loss" id="markdown-toc-hinge-loss">Hinge Loss</a></li>
+      <li><a href="#fairness-loss" id="markdown-toc-fairness-loss">Fairness Loss</a></li>
+      <li><a href="#diversity-loss" id="markdown-toc-diversity-loss">Diversity Loss</a></li>
+      <li><a href="#margin-loss" id="markdown-toc-margin-loss">Margin Loss</a></li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<ul>
+  <li>In this primer, we will look at how different evaluation techniques, loss functions and metrics for recommender systems. When it comes to evaluating different types of recommender systems, the choice of metrics varies.</li>
+  <li>For content-based filtering, similarity metrics are commonly used, while predictive and classification metrics are more relevant for collaborative filtering, depending on whether the system predicts scores or binary outcomes.</li>
+  <li>Evaluation is essential to dissuade misalignment between the model and the user and choosing the correct metrics can help understand if your model is optimizing for the correct objective function.</li>
+  <li>Good recommender systems are obtained by constant improvement and that comes with attention to metrics. Additionally, in practice, there may be a need to use more than one metric and in this case, calculating a weighted average of multiple metrics can be used to obtain a single overall score.</li>
+  <li>Note that metrics in recommender systems are not just for user experience but also for creators (with metrics like Coverage) who build on the platform or for advertisers and all non-integrity violating items in the corpus should be fair game for recommendations.</li>
+</ul>
+
+<h2 id="offline-testing">Offline testing</h2>
+<ul>
+  <li>Offline testing or pre-deployment testing is an important step in evaluating recommender systems before deploying to production. The main purpose of offline testing is to estimate the model’s performance using historical data and benchmark it against other candidate models.</li>
+  <li>Offline evaluations generally follow a train-test evaluation procedure which entails:
+    <ol>
+      <li><strong>Data Preparation:</strong> The first step is to prepare and select the appropriate historical data set and partition it into training and test sets.</li>
+      <li><strong>Model Training:</strong> Next, we train the model using the training set which can involve choosing the right algorithms, tuning hyperparameters and selecting eval metrics.</li>
+      <li><strong>Model Evaluation:</strong> Once the model is trained, it’s evaluated using the test set and the metrics used here depend on the business use case.</li>
+      <li><strong>Model Selection:</strong> Based on the evaluation, the best performing model is selected for deployment.</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="online-testing">Online testing</h2>
+<ul>
+  <li>Online testing for recommender systems is the process of evaluating the system and it’s performance in a live environment. Once the pre-deployment/offline testing looks good, we test it on a small fraction of real user visits.</li>
+  <li>The goal of online testing is to ensure that the system works as expected in a real-world environment with respect to the objective function and metrics. This can be achieved by A/B testing and we will delve into it in detail below.</li>
+</ul>
+
+<h3 id="ab-testing">A/B Testing</h3>
+<ul>
+  <li>A/B testing involves running two (A/B) or more (A/B/C/…/n) versions of a model simultaneously and assigning users to either the control or the treatment bucket by leveraging a hash function.</li>
+  <li>The users in the treatment bucket will receive recommendations from the new model while the control bucket users will continue to receive recommendations from the existing model.</li>
+  <li>The performance of each model is measured with metrics based on the business need, for example, CTR can be used if the objective is to maximize clicks.</li>
+  <li>A/B testing can be used for any step in the recommendation system lifecycle, including candidate generation, scoring or ranking.</li>
+  <li>It can be used to identify the best configuration of hyperparameters, such as regularization strength, learning rate, and batch size. In addition, A/B testing can be used to test different recommendation strategies, such as popularity-based, personalized, and diversity-based, and to identify the most effective strategy for different user segments and business contexts.</li>
+</ul>
+
+<h2 id="evaluating-candidate-generation">Evaluating Candidate Generation</h2>
+
+<ul>
+  <li>Candidate generation involves selecting a set of items from a large pool of items that are relevant to a particular user. The candidate generation phase plays a crucial role in recommender systems, especially for large-scale systems with many items and users, as it helps to reduce the search space and improve the efficiency of the recommendation process.</li>
+  <li>It is essential to evaluate candidate generation as it affects the overall performance of the recommender system. Poor candidate generation can lead to a recommendation process that is either too narrow or too broad, resulting in a poor user experience. Additionally, it can lead to inefficient use of resources, as irrelevant items may be included in the recommendation process, requiring more computational power and time.</li>
+  <li>To effectively evaluate the performance of candidate generation, it is important to consider key metrics such as precision and recall, which provide insights into the accuracy and completeness of the recommendations.</li>
+</ul>
+
+<h3 id="precision">Precision</h3>
+
+<ul>
+  <li>Precision is the metric used to evaluate the accuracy of the system as it measures the number of relevant items that were recommended divided by the total number of recommended items. Put simply, precision measures the fraction of relevant items in the set of items that were recommended. Thus, precision focuses on the false positives.</li>
+</ul>
+
+\[Precision = \frac{\text {Number of recommended items that are relevant}}{\text{Total number of recommended items}}\]
+
+<h3 id="recall">Recall</h3>
+
+<ul>
+  <li>Recall is a metric that measures the percentage of relevant items that were recommended, out of all the relevant items available in the system.
+    <ul>
+      <li>Put simply, recall measures the fraction of relevant items that were recommended out of the total number of relevant items present. Thus, precision focuses on the false negatives.</li>
+      <li>A higher recall score indicates that the system is able to recommend a higher proportion of relevant items. In other words, it measures how complete the system is in recommending all relevant items to the user.</li>
+    </ul>
+  </li>
+</ul>
+
+\[Recall = \frac{\text {Number of recommended items that are relevant}}{\text{Total number of relevant items}}\]
+
+<h3 id="precision-and-recall--k">Precision and Recall @ \(k\)</h3>
+
+<ul>
+  <li>To ensure that the most relevant items appear at the top of the list, it is essential to penalize metrics when the most relevant items are positioned too far down in the ranking.</li>
+  <li>Given that traditional precision and recall metrics do not account for the order of items, we focus on precision and recall at a specific cutoff \(k\). This involves examining your list of \(k\) recommendations incrementally: first considering only the top-ranked element, then the top two elements, then the top three, and so forth (these subsets are indexed by \(k\)).</li>
+  <li>Precision and recall at \(k\) (also referred to as precision and recall “up to cutoff \(k\)”) are simply the precision and recall metrics calculated by considering only the subset of your recommendations from rank \(1\) through \(k\).</li>
+  <li>This approach is particularly useful for evaluating ranking performance across devices with varying viewport sizes (i.e., when the display window size differs across devices), where the value of \(k\) may vary with each device configuration.</li>
+  <li><strong>Precision @ \(k\)</strong> is defined as the proportion of recommended items within the top-\(k\) set that are relevant.</li>
+  <li>Its interpretation is as follows: Suppose the precision at 10 in a top-10 recommendation scenario is 80%. This implies that 80% of the recommendations provided are relevant to the user.</li>
+  <li>Mathematically, Precision @ \(k\) is defined as:</li>
+</ul>
+
+\[\text{Precision @ k} = \frac{\text{Number of recommended items @ k that are relevant}}{\text{Number of recommended items @ k}}\]
+
+<ul>
+  <li><strong>Recall @ \(k\)</strong> is defined as the proportion of relevant items found within the top-\(k\) recommendations.</li>
+  <li>For example, if recall at 10 is computed to be 40% in a top-10 recommendation system, this indicates that 40% of the total relevant items are present in the top-\(k\) results.</li>
+  <li>Mathematically, Recall @ \(k\) is defined as:</li>
+</ul>
+
+\[\text{Recall @ k} = \frac{\text{Number of recommended items @ k that are relevant}}{\text{Total number of relevant items}}\]
+
+<h4 id="limitations">Limitations</h4>
+
+<ul>
+  <li>It is important to note that the primary limitation of Precision and Recall @ \(k\) is that they focus solely on whether the items in the top \(k\) positions are relevant, without considering the order of these items within those \(k\) positions. These metrics thus do not measure the ranking quality of the results.</li>
+</ul>
+
+<h4 id="when-is-recallk-preferred-to-pure-recall">When is Recall@\(k\) preferred to pure Recall?</h4>
+
+<ul>
+  <li>highlights some of the limitations of this metric in certain contexts. Although recall quantifies the proportion of relevant items the model fails to retrieve in its output, it is not always an appropriate metric. To illustrate this, consider systems such as search engines, where the total number of relevant items can be exceptionally large. This results in a disproportionately large denominator in the recall calculation, which negatively impacts the metric. For instance, if the query image is a picture of a dog, the database may contain millions of dog images. The objective in such cases is not to retrieve every relevant dog image but rather to return a select subset of the most similar dog images. Let’s break down the reasoning:
+    <ol>
+      <li>
+        <p><strong>Definition of Recall</strong>: Recall measures the proportion of relevant items retrieved by the model out of the total number of relevant items available. It is defined as:
+\(\text{Recall} = \frac{\text{Number of relevant items retrieved}}{\text{Total number of relevant items in the database}}\)</p>
+      </li>
+      <li>
+        <p><strong>Large Number of Relevant Items</strong>: In cases where the total number of relevant items is very large (e.g., millions of dog images in a database), the denominator of the recall formula becomes very large. This can lead to low recall scores even if the system retrieves a sufficient number of high-quality results that are relevant to the query. Essentially, the model may be penalized for not retrieving the full set of millions of relevant items, which is impractical and unnecessary in many cases, like search engines.</p>
+      </li>
+      <li>
+        <p><strong>Search Engines and Precision</strong>: In systems like search engines, the goal is often to retrieve a small subset of the most relevant items rather than all possible relevant items. For example, when searching for dog images, returning a few of the most similar dog images to the query would be preferable to retrieving millions of similar images. In this context, recall can be misleading because it does not reflect the quality or precision of the results—it just emphasizes the proportion of total relevant items retrieved.</p>
+      </li>
+      <li>
+        <p><strong>Recall@k</strong>: While Recall@\(k\) addresses this to some extent by considering only the top \(k\) results, it still suffers from the limitation that it does not account for how similar the top results are to each other or to the query. It is focused purely on whether relevant items appear in the top \(k\), without differentiating between varying degrees of relevance or the quality of ranking within those \(k\) items.</p>
+      </li>
+    </ol>
+  </li>
+  <li>Thus, while recall is useful in some contexts, it may not be the best metric for systems like search engines where the goal is to retrieve a few highly relevant results from a large pool of relevant items. Precision, ranking quality, or other metrics that account for the relevance of the top results might be more appropriate in such scenarios.</li>
+</ul>
+
+<h3 id="log-likelihood">Log-likelihood</h3>
+
+<ul>
+  <li>Log-likelihood measures the goodness of fit of a model by calculating the logarithm of the likelihood function. It represents the logarithm of the probability that the model assigns to the observed data and is commonly applied to binary data, such as whether a user liked or disliked a particular item.</li>
+  <li>Log-likelihood can be used to evaluate how well the candidate generation model fits the observed data. For example, in collaborative filtering methods or latent factor models, the log-likelihood of observing the user-item interactions (clicks, purchases, etc.) given the model’s parameters can be a measure of how well the model captures the underlying patterns in the data. Higher log-likelihood indicates a better fit to the observed data, suggesting that the candidate generation step is effectively capturing user preferences.</li>
+</ul>
+
+<h2 id="evaluating-candidate-ranking">Evaluating Candidate Ranking</h2>
+
+<ul>
+  <li>Ranking refers to the process of ordering the items in the candidate set based on their predicted relevance to the user. The recommender system assigns a rank to each item, determining its position in the final list presented to the user.</li>
+  <li>Once the items are ranked, their position in the list significantly influences the system’s performance metrics, such as precision and recall, which assess the accuracy and completeness of the recommendations.</li>
+  <li>The ranking performance of a recommender system can be evaluated using metrics such as Normalized Discounted Cumulative Gain (nDCG), Mean Reciprocal Rank (MRR), etc.</li>
+</ul>
+
+<h3 id="fraction-of-concordant-pairs-fcp">Fraction of Concordant Pairs (FCP)</h3>
+
+<ul>
+  <li>Fraction of Concordant Pairs (FCP) is a ranking metric that evaluates how well the recommender system orders items in alignment with user preferences. FCP focuses on the pairwise correctness of rankings and provides a measure of ranking quality by comparing the relative positions of items.</li>
+</ul>
+
+<h4 id="definition-and-formula">Definition and Formula</h4>
+
+<ul>
+  <li>FCP is computed as the fraction of all item pairs \((i, j)\) for which the system’s ranking is consistent with the user’s preferences:</li>
+</ul>
+
+\[FCP = \frac{\text{Number of Concordant Pairs}}{\text{Number of Concordant Pairs} + \text{Number of Discordant Pairs}}\]
+
+<ul>
+  <li><strong>Concordant Pair</strong>: A pair \((i, j)\) is concordant if:
+    <ul>
+      <li>The user prefers item \(i\) over item \(j\) (e.g., based on clicks, ratings, or other implicit/explicit feedback), and</li>
+      <li>The system ranks \(i\) higher than \(j\).</li>
+    </ul>
+  </li>
+  <li><strong>Discordant Pair</strong>: A pair \((i, j)\) is discordant if:
+    <ul>
+      <li>The user prefers item \(i\) over item \(j\), but the system ranks \(j\) higher than \(i\).</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="key-characteristics">Key Characteristics</h4>
+
+<ol>
+  <li><strong>Pairwise Evaluation</strong>: FCP evaluates the ranking quality at the level of item pairs, making it particularly suited for systems where relative preferences between items are important.</li>
+  <li><strong>Scale</strong>: FCP values range from 0 to 1, with 1 indicating perfect concordance (all pairs are correctly ranked), and 0 indicating no concordance.</li>
+  <li><strong>Interpretability</strong>: The metric is easy to interpret, as it directly quantifies the proportion of pairs ranked correctly.</li>
+</ol>
+
+<h4 id="advantages">Advantages</h4>
+
+<ul>
+  <li><strong>Granularity</strong>: By focusing on pairwise comparisons, FCP captures nuanced details of ranking quality that aggregate metrics may overlook.</li>
+  <li><strong>Preference Alignment</strong>: It provides a direct measure of how well the system’s rankings reflect user preferences.</li>
+</ul>
+
+<h4 id="limitations-1">Limitations</h4>
+
+<ul>
+  <li><strong>Computational Cost</strong>: Calculating FCP for large datasets can be computationally expensive due to the quadratic growth in the number of item pairs as the dataset size increases.</li>
+  <li><strong>Data Dependency</strong>: FCP relies on having well-defined user preferences for pairs of items, which may not always be readily available.</li>
+</ul>
+
+<h4 id="use-cases">Use Cases</h4>
+
+<ul>
+  <li>FCP is especially relevant in domains where relative ordering is critical, such as:
+    <ul>
+      <li><strong>E-commerce</strong>: Ranking products based on user preferences.</li>
+      <li><strong>Entertainment</strong>: Ordering movies or songs by expected user enjoyment.</li>
+      <li><strong>Search and Retrieval</strong>: Optimizing the relevance of search results.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="example">Example</h4>
+
+<ul>
+  <li>Suppose a user has interacted with three items \(A\), \(B\), and \(C\), with their true preferences being \(A &gt; B &gt; C\). The system ranks them as \(B, A, C\):
+    <ul>
+      <li><strong>Concordant Pairs</strong>:
+        <ul>
+          <li>\(A &gt; C\) (System ranks \(A\) above \(C\), which matches user preference).</li>
+        </ul>
+      </li>
+      <li><strong>Discordant Pairs</strong>:
+        <ul>
+          <li>\(A &gt; B\) (System ranks \(B\) above \(A\)).</li>
+          <li>\(B &gt; C\) (System ranks \(C\) above \(B\)).</li>
+        </ul>
+      </li>
+      <li><strong>FCP Calculation</strong>:
+        <ul>
+          <li>Concordant Pairs: 1, Discordant Pairs: 2.</li>
+          <li>\(FCP = \frac{1}{1 + 2} = 0.33\).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>FCP complements metrics like Mean Reciprocal Rank (MRR) and Normalized Discounted Cumulative Gain (nDCG) by focusing specifically on the correctness of pairwise ordering in the rankings, providing an additional layer of evaluation for recommender systems.</li>
+</ul>
+
+<h3 id="mean-reciprocal-rank-mrr">Mean Reciprocal Rank (MRR)</h3>
+
+<ul>
+  <li>Mean Reciprocal Rank (MRR) is a crucial metric for evaluating the performance of recommender systems, particularly in scenarios where explicit relevance labels are unavailable. In such instances, the system relies on implicit signals, such as user clicks or interactions, to assess the relevance of recommended items. MRR considers the position of the recommended items when determining their relevance. In essence, MRR quantifies how effectively the algorithm ranks the correct item within a list of recommendations</li>
+  <li>Formally, the Reciprocal Rank (RR) is defined as the inverse of the rank of the first relevant item. Accordingly, MRR is calculated as the average RR across all users/queries. MRR thus evaluates the quality of a model by considering the position (or rank) of the first relevant item in each output list generated by the model (across multiple users or multiple queries per user), and subsequently averaging these positions.</li>
+  <li>The formula for MRR is as follows:</li>
+</ul>
+
+\[MRR = \frac{1}{m} \sum_{i=1}^{m} \frac{1}{rank_i}\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(m\) represents the total number of output lists (users or queries),</li>
+      <li>\(rank_i\) denotes the position of the first relevant item in the \(i^{th}\) output list.</li>
+    </ul>
+  </li>
+  <li>To illustrate MRR, consider the example of Facebook friend suggestions. Users are more inclined to click on a recommendation if it appears at the top of the list. Similar to nDCG, the position within the list serves as an indicator of relevance. MRR addresses the question: “How highly ranked is the first relevant recommendation in a list of suggestions?”</li>
+</ul>
+
+<h4 id="limitations-2">Limitations</h4>
+
+<ul>
+  <li>Since MRR considers only the first relevant item and ignores other relevant items in the output list, it does not measure the ranking quality beyond the first relevant element.</li>
+</ul>
+
+<h4 id="example-1">Example</h4>
+
+<ul>
+  <li>The figure below (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>) shows four ranked lists, where each list contains results (both relevant and non-relevant), and the first relevant item in each list determines the reciprocal rank. This example shows how MRR quantifies the effectiveness of ranking algorithms by averaging how far down the relevant results are in different ranked lists.</li>
+</ul>
+
+<p><img src="../assets/metrics/MRR.jpg" alt="" /></p>
+
+<ol>
+  <li><strong>Ranked List 1</strong>:
+    <ul>
+      <li>Non-relevant results appear in the first two positions.</li>
+      <li>The relevant result appears in the 3rd position (marked with ✓).</li>
+      <li><strong>Reciprocal Rank</strong>: 1/3 (since the first relevant result appears in the 3rd position).</li>
+    </ul>
+  </li>
+  <li><strong>Ranked List 2</strong>:
+    <ul>
+      <li>The first relevant result appears in the 1st position.</li>
+      <li>Another relevant result appears later, but it is irrelevant for MRR calculation.</li>
+      <li><strong>Reciprocal Rank</strong>: 1 (since the first relevant result is in the 1st position).</li>
+    </ul>
+  </li>
+  <li><strong>Ranked List 3</strong>:
+    <ul>
+      <li>Non-relevant results appear in the first two positions.</li>
+      <li>The relevant result appears in the 3rd position (marked with ✓).</li>
+      <li><strong>Reciprocal Rank</strong>: 1/3 (since the first relevant result appears in the 3rd position).</li>
+    </ul>
+  </li>
+  <li><strong>Ranked List 4</strong>:
+    <ul>
+      <li>All results are non-relevant.</li>
+      <li><strong>Reciprocal Rank</strong>: 0 (since there is no relevant result in the list).</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>
+    <p>MRR is calculated by taking the average of the reciprocal ranks of all the lists:</p>
+
+    <ul>
+      <li>MRR = (1/3 + 1 + 1/3 + 0) / 4</li>
+      <li>MRR ≈ 0.417</li>
+    </ul>
+  </li>
+  <li>
+    <p>This means that, on average, the first relevant result appears early in the ranked lists, with a mean reciprocal rank of approximately 0.417.</p>
+  </li>
+</ul>
+
+<h3 id="average-reciprocal-hit-rate-arhr">Average Reciprocal Hit Rate (ARHR)</h3>
+
+<ul>
+  <li>The Average Reciprocal Hit Rate (ARHR) is a generalization of MRR for scenarios involving multiple clicked items, and it is often used interchangeably with MRR in the literature.</li>
+  <li>The Reciprocal Hit Rate (RHR) is computed for each user by summing the reciprocals of the positions of the clicked items within the recommendation list. For instance, if the third item in the list is clicked, its reciprocal would be \(\frac{1}{3}\). The RHR for a user is the sum of these reciprocals for all clicked items.</li>
+  <li>ARHR is obtained by averaging the RHR values across all users, providing an overall measure of the system’s performance. It reflects the average effectiveness of the recommender system in presenting relevant items at higher positions within the recommendation list.</li>
+  <li>By incorporating the position of clicked items and averaging across users, ARHR offers insights into the proportion of relevant items within the recommended list, assigning greater weight to those appearing at higher positions.</li>
+  <li>Similar to MRR, a higher ARHR indicates that the recommender system is more effective in prominently presenting relevant items, leading to enhanced user engagement and satisfaction.</li>
+  <li>
+    <p>Additionally, ARHR is based on the top \(k\) positions in the ranked list. The metric emphasizes the importance of relevant items appearing within these top \(k\) results, reflecting the system’s ability to present the most relevant results quickly. The formula for ARHR is:</p>
+
+\[ARHR = \frac{1}{|U|} \sum_{u \in U} \sum_{i=1}^{k} \frac{1}{rank_i(u)}\]
+
+    <ul>
+      <li>where:
+        <ul>
+          <li>\(U\) is the set of users or queries,</li>
+          <li>\(rank_i(u)\) is the rank of the \(i\)-th relevant item for user \(u\),</li>
+          <li>\(k\) is the cutoff rank, limiting the evaluation to the top \(k\) results.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>This approach places more weight on relevant items appearing earlier in the list, thus favoring systems that surface relevant content quickly within the top \(k\) recommendations.</li>
+</ul>
+
+<h3 id="mean-average-precision-at-k-mapk-and-mean-average-recall-at-k-mark">Mean Average Precision at \(k\) (mAP@\(k\)) and Mean Average Recall at \(k\) (mAR@\(k\))</h3>
+
+<h4 id="average-precision-at-k-apk-and-average-recall-at-k-ark">Average Precision at \(k\) (AP@\(k\)) and Average Recall at \(k\) (AR@\(k\))</h4>
+
+<ul>
+  <li>Let’s first understand Average Precision at \(k\) (AP@\(k\)) and Average Recall at \(k\) (AR@\(k\)), before we explore Mean Average Precision at \(k\) (mAP@\(k\)) and Mean Average Recall at \(k\) (mAR@\(k\)).</li>
+  <li>The Average Precision at \(k\) (AP@\(k\)) is calculated as the sum of precision at each rank \(k\) where the item at the \(k^{th}\) rank is relevant (denoted as <code class="language-plaintext highlighter-rouge">rel(k)</code>), divided by the total number of relevant items (\(r\)) within the top \(k\) recommendations.</li>
+</ul>
+
+\[\text{AP@k} = \frac{\text{Precision@1} + \text{Precision@2} + \dots + \text{Precision@k}}{\text{Number of relevant items in the top k results}}\]
+
+<ul>
+  <li>This equation can be further expanded as follows:</li>
+</ul>
+
+\[\begin{aligned}
+\text{AP@k} = \frac{1}{r} \sum_{k=1}^K \text{Precision@k} \cdot \text{rel}(k)
+\end{aligned}\]
+
+<ul>
+  <li>Here, the relevance function \(\text{rel}(k)\) is defined as:</li>
+</ul>
+
+\[\text{rel}(k) = 
+\begin{cases} 
+1 &amp; \text{if the item at the } k^{th} \text{ rank is relevant} \\
+0 &amp; \text{otherwise}
+\end{cases}\]
+
+<ul>
+  <li>
+    <p>For specific cases, such as different device types, the value of \(k\) is adjusted accordingly. Only the precision terms corresponding to relevant items within the given window size are included in the sum, and these precision values are averaged and normalized by the number of relevant items.</p>
+  </li>
+  <li>
+    <p>Similarly, the Average Recall at \(k\) (AR@\(k\)) is used to calculate the average recall for a specified window:</p>
+  </li>
+</ul>
+
+\[\text{AR@k} = \frac{\text{Recall@1} + \text{Recall@2} + \dots + \text{Recall@k}}{\text{Number of relevant items in the top k results}}\]
+
+<ul>
+  <li>This equation can also be expanded as:</li>
+</ul>
+
+\[\begin{aligned}
+\text{AR@k} = \frac{1}{r} \sum_{k=1}^K \text{Recall@k} \cdot \text{rel}(k)
+\end{aligned}\]
+
+<ul>
+  <li>Again, the relevance function \(\text{rel}(k)\) is defined as:</li>
+</ul>
+
+\[\text{rel}(k) = 
+\begin{cases} 
+1 &amp; \text{if the item at the } k^{th} \text{ rank is relevant} \\
+0 &amp; \text{otherwise}
+\end{cases}\]
+
+<ul>
+  <li>The article titled “<a href="https://towardsdatascience.com/mean-average-precision-at-k-map-k-clearly-explained-538d8e032d2">Mean Average Precision at K (MAP@K) clearly explained</a>” provides an excellent summary of the calculation process for both AP@\(k\) and AR@\(k\).</li>
+</ul>
+
+<h4 id="mapk-and-mark">mAP@\(k\) and mAR@\(k\)</h4>
+
+<ul>
+  <li>In the context of Mean Average Precision (mAP), as discussed in the section above on <a href="#average-precision-at-k-apk-and-average-recall-at-k-ark">Average Precision at \(k\) (AP@\(k\)) and Average Recall at \(k\) (AR@\(k\))</a>, the term “average” refers to the calculation of average precision across various cutoff points \(k\) (e.g., for different window sizes as previously mentioned), while the term “mean” indicates the average precision calculated across all users who received recommendations from the system.
+    <ul>
+      <li><strong>Average across different cutoff points ranging from \(0\) to \(k\) (AP@\(k\))</strong>: mAP considers multiple cutoff points within the recommendation list, calculating the average precision at each window size, and then determining the overall average across these cutoff points. This approach offers a comprehensive evaluation of the recommender system’s performance at various positions within the recommendation list.</li>
+      <li><strong>Mean across all users/ranked lists (mAP@\(k\))</strong>: For each user who received recommendations, precision at each window size is computed, and these precision values are then averaged (across the ranked lists corresponding to each user) to obtain the mean precision for that user. The mean precision is calculated for all users who were presented with recommendations by the system. Finally, the mean of these user-specific mean precision values is computed, resulting in the Mean Average Precision.</li>
+      <li>By considering both the average precision across cutoff points and the mean precision across users, mAP provides an aggregated measure of the recommender system’s performance, capturing its ability to recommend relevant items at various positions within the list and offering a comprehensive evaluation across the entire user population.</li>
+      <li>mAP is widely used in information retrieval and recommender system evaluation, particularly in contexts where the ranking position of recommended items is critical, such as search engine result ranking or personalized recommendation lists.</li>
+    </ul>
+
+\[\text{mAP@k} = \frac{\text{Sum of average precision@k for all users}}{\text{Total number of users}}\]
+  </li>
+  <li>Similarly, the Mean Average Recall (mAR) metric follows the same conceptual structure:
+    <ul>
+      <li><strong>Average across different cutoff points ranging from \(0\) to \(k\) (AR@\(k\))</strong>: mAR evaluates the system’s ability to capture relevant items at various cutoff points within the recommendation list, calculating the recall at each window size and determining the overall average across these cutoff points. This approach enables a thorough evaluation of the system’s performance at different positions within the list.</li>
+      <li><strong>Mean across all users (mAR@\(k\))</strong>: For each user who received recommendations, recall at each window size is calculated, and these recall values are then averaged to obtain the mean recall for that user. The mean recall is determined for all users, and the final Mean Average Recall is derived by averaging these values across the entire user base.</li>
+      <li>By integrating both the average recall across cutoff points and the mean recall across users, mAR provides a holistic measure of the system’s performance, capturing its ability to recommend a diverse range of relevant items at various positions within the list and offering a comprehensive evaluation across all users.</li>
+      <li>mAR is frequently utilized in information retrieval and recommender system evaluation, especially in scenarios where it is important to ensure the recommendation of relevant items throughout the list. It complements metrics like mAP and provides valuable insights into the overall recall performance of the system.</li>
+    </ul>
+
+\[\text{mAR@k} = \frac{\text{Sum of average recall@k for all users}}{\text{Total number of users}}\]
+  </li>
+</ul>
+
+<h4 id="limitations-3">Limitations</h4>
+
+<ul>
+  <li>It is important to note that mAP and mAR are specifically designed for binary relevance judgments—where each item is either relevant or irrelevant. For cases involving continuous relevance scores, <a href="#normalized-discounted-cumulative-gain-ndcg">Normalized Discounted Cumulative Gain (nDCG)</a> is a more suitable alternative.</li>
+</ul>
+
+<h4 id="example-2">Example</h4>
+
+<ul>
+  <li>The figure below (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>) presents an example of AP calculations for each of the four output lists generated by the model and further averages the AP scores to yield mAP, reflecting the overall ranking quality of the list.</li>
+</ul>
+
+<p><img src="../assets/metrics/mAP.jpg" alt="" /></p>
+
+<h3 id="normalized-discounted-cumulative-gain-ndcg">Normalized Discounted Cumulative Gain (nDCG)</h3>
+
+<ul>
+  <li>Normalized Discounted Cumulative Gain (nDCG) is a list-wise ranking metric commonly employed to assess the quality of a recommender system’s ranked list of recommendations.</li>
+  <li>nDCG requires a list that includes the ranking information for each relevant item, such as those derived from a search query.
+    <ul>
+      <li>To understand nDCG, it is essential first to understand Discounted Cumulative Gain (DCG) and Cumulative Gain (CG).</li>
+      <li><strong>Discounted Cumulative Gain (DCG):</strong> DCG is a ranking evaluation metric that assesses the effectiveness of a recommendation system in producing a ranked list of recommended items for a user. In essence, DCG measures the quality of the ranking of a set of items, considering both the relevance of the recommended items and their positions within the list. The underlying concept is that items ranked higher should be more relevant, thereby contributing more significantly to the overall quality of the ranking.</li>
+      <li><strong>Cumulative Gain (CG):</strong> CG is a simpler metric that sums the relevance scores of the top \(k\) items in the ranking.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="ndcg-an-in-depth-analysis">nDCG: An In-Depth Analysis</h4>
+
+<ul>
+  <li>It is often necessary to discern which items are more relevant than others, even if all items are deemed relevant.</li>
+  <li>The rationale is to prioritize the most relevant items at the top of the list. Companies may occasionally employ human labelers to rate the relevance of results, such as those returned from a search query.</li>
+  <li>nDCG is widely utilized in information retrieval and recommender systems. Unlike binary metrics that simply categorize items as either relevant or not relevant, nDCG considers relevance on a continuous scale.</li>
+  <li>A deeper understanding of nDCG can be achieved by breaking it down into its fundamental components.</li>
+</ul>
+
+<h4 id="cumulative-gain-cg">Cumulative Gain (CG)</h4>
+
+\[\text{CG} =\sum_{i=1}^N \text{relevance score}_i\]
+
+<ul>
+  <li>Relevance labels are crucial for evaluating the quality of recommendations in recommender systems. These labels enable the computation of various metrics to assess the effectiveness of the recommendation process. One such metric is Cumulative Gain (CG), which quantifies the total relevance within the recommended list.</li>
+  <li>The primary question that the CG metric addresses is: “How much relevance is present in the recommended list?”</li>
+  <li>To obtain a quantitative answer, the relevance scores assigned to the recommended items by the labeler are summed. These relevance scores can be based on user feedback, ratings, or other forms of relevance measurement. It is important to establish a cutoff window size, denoted by \(N\), to ensure that only a finite number of elements in the recommended list are considered.</li>
+  <li>By setting the window size \(N\), the calculation is restricted to a specific number of items in the recommendation list. This prevents the inclusion of an infinite number of elements, making the evaluation process both feasible and practical.</li>
+  <li>The cumulative gain metric measures the overall relevance accumulated in the recommended list. A higher cumulative gain indicates a greater amount of relevance captured by the recommendations, whereas a lower cumulative gain suggests a lack of relevant items in the list.</li>
+</ul>
+
+<h4 id="discounted-cumulative-gain-dcg">Discounted Cumulative Gain (DCG)</h4>
+
+<ul>
+  <li>While CG provides a measure of the total relevance of a recommended list, it does not account for the critical aspect of the position or ranking of search results. CG treats all items equally, regardless of their order, which is problematic since the goal is to prioritize the most relevant items at the top of the list. Discounted Cumulative Gain (DCG) addresses this issue.</li>
+  <li>DCG improves upon CG by incorporating the position of search results into the calculation. It does so by applying a discount to the relevance scores based on their position within the recommendation list.</li>
+</ul>
+
+<blockquote>
+  <p>The principle is to position-discount the retrieved items and assign higher weights to relevant items that appear at the top of the list, reflecting the intuition that users are more likely to interact with items presented earlier.</p>
+</blockquote>
+
+<ul>
+  <li>The formula for DCG at position \(p\) is:</li>
+</ul>
+
+\[\text{DCG}_p = \sum_{i=1}^{p} \frac{\text{relevance}_i}{\log_2(i + 1)}\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(p\): The position in the ranked list where you want to calculate DCG (often the cutoff point for evaluation, e.g., the top 10 results).</li>
+      <li>\(\text{relevance}_i\): The relevance score of the item at position \(i\). This score is typically assigned based on the item’s relevance to the user (e.g., binary relevance like 0 or 1, or graded relevance such as 0, 1, 2, etc.).</li>
+      <li>\(i\): The position of the item in the ranked list (starting from 1).</li>
+      <li>\(\log_2(i + 1)\): The discounting factor that reduces the impact of relevance scores as the item’s position \(i\) increases. The logarithmic scale reflects the observation that users are far more likely to interact with higher-ranked items, but the importance diminishes slowly as you move down the list.</li>
+    </ul>
+  </li>
+  <li>As a breakdown of the above formula, the numerator \(\text{relevance}_i\) ensures that the most relevant items contribute more to the DCG, while the denominator \(\log_2(i + 1)\) discounts the relevance of items based on their position in the list. This means that items at higher positions (closer to the top of the list) are weighted more heavily than those that appear further down.</li>
+  <li>Note that DCG is computed based on the ranking produced by a model (i.e., the predicted ranking). The relevance scores are the actual relevance of the items in the order they were predicted by the model. So, for the predicted ranking, you take the relevance of the items in the order they appear, discounting them based on their position in the ranking.</li>
+  <li>Typically, the discounting factor used in DCG follows a logarithmic function. This implies that as the position of an item decreases, the relevance score is discounted at a decreasing rate. Consequently, the relevance score of an item at a higher position carries more weight than that of an item at a lower position, reflecting the diminishing importance of items as one moves down the list.</li>
+</ul>
+
+<h4 id="normalized-discounted-cumulative-gain-ndcg-1">Normalized Discounted Cumulative Gain (nDCG)</h4>
+
+<ul>
+  <li>The calculation of DCG can be influenced by the specific values assigned to relevance labels. Even with well-defined guidelines, different labelers may interpret and assign relevance scores differently, resulting in variations in DCG values. Since DCG aggregates the relevance scores of items, adjusted for their positions through discounting, it can theoretically span any range. To address this issue and enable meaningful relative comparisons, normalization is applied to standardize DCG scores by the highest achievable value. This normalization is achieved through the concept of Ideal Discounted Cumulative Gain (IDCG).</li>
+  <li>IDCG represents the DCG score that would be obtained with an ideal ordering of the recommended items. It serves as a benchmark against which actual DCG values can be compared and normalized. By defining the DCG of the ideal ordering as IDCG, a reference point for the highest achievable relevance accumulation in the recommended list is established.</li>
+  <li>The Normalized Discounted Cumulative Gain (nDCG) is derived by dividing the DCG score by the IDCG value:</li>
+</ul>
+
+\[\text{nDCG} = \frac{\text{DCG}}{\text{IDCG}}\]
+
+<ul>
+  <li>Note that IDCG represents the best possible ranking, where the items with the highest relevance scores appear at the top. It thus uses the ideal or ground-truth relevance scores, sorted in decreasing order. This is in stark contrast compared to DCG, where relevance scores are based on the predicted ranking.</li>
+  <li>This division ensures that nDCG values are standardized and comparable across different recommendation scenarios. nDCG provides a normalized measure of the quality of recommendations, where a value of 1 represents the ideal ordering and indicates the highest level of relevance.
+    <ul>
+      <li>nDCG, therefore, is a normalized version of DCG that accounts for the ideal ranking, which is the ranking that maximizes the DCG. The goal is to compare the actual ranking to the ideal ranking to determine the degree of deviation.</li>
+    </ul>
+  </li>
+  <li>It is important to note that when relevance scores are all positive, nDCG falls within the range of [0, 1]. Note that in a perfect ranking system, DCG is equal to IDCG (and thus nDCG = 1). Put simply, a value of 1 indicates that the recommendation list follows the ideal ordering, maximizing relevance accumulation. Conversely, lower nDCG values suggest a less optimal ordering of recommendations, with a decreasing level of relevance.</li>
+  <li>By employing nDCG, recommender systems can consistently evaluate their performance across diverse datasets and labeler variations. nDCG facilitates the comparison of different recommendation algorithms, parameter settings, or system enhancements by providing a normalized metric that accounts for variations in relevance scores, thereby promoting fair evaluation practices.</li>
+</ul>
+
+<h4 id="limitations-4">Limitations</h4>
+
+<ul>
+  <li>nDCG may not be the best fit in scenarios where relevance is strictly binary (either relevant or not). In such cases, its capability to handle graded/continuous relevance is unnecessary, and simpler metrics like mAP may be more appropriate. Another limitation is that deriving accurate ground truth relevance scores might not be always feasible. However, while modeling a business problem as an ML task, if the evaluation dataset contains similarity scores (say, based on embedding similarity), we can effectively use nDCG to measure the model’s performance during offline evaluation.</li>
+</ul>
+
+<h4 id="example-3">Example</h4>
+
+<ul>
+  <li>To better understand nDCG, consider the example in the following figure (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>) which shows a ranked list of output images and their corresponding ground truth relevance scores is produced by a search system.</li>
+</ul>
+
+<p><img src="../assets/metrics/pred_ranking.jpg" alt="" /></p>
+
+<h5 id="ndcg-calculation-process">nDCG Calculation Process</h5>
+
+<ul>
+  <li>We can compute nDCG in three steps:
+    <ol>
+      <li>Compute DCG</li>
+      <li>Compute IDCG</li>
+      <li>Divide DCG by IDCG to yield nDCG</li>
+    </ol>
+  </li>
+</ul>
+
+<h6 id="compute-dcg">Compute DCG</h6>
+
+<ul>
+  <li>The DCG for a given ranking produced by the model is calculated as:</li>
+</ul>
+
+\[\text{DCG}_p = \sum_{i=1}^{p} \frac{\text{rel}_i}{\log_2(i+1)}\]
+
+<ul>
+  <li>Using the relevance scores from the ranked list per the figure above:</li>
+</ul>
+
+\[\text{DCG}_p = \frac{0}{\log_2(2)} + \frac{5}{\log_2(3)} + \frac{1}{\log_2(4)} + \frac{4}{\log_2(5)} + \frac{2}{\log_2(6)} = 6.151\]
+
+<ul>
+  <li>Note that the subscript \(p\) in \(\text{DCG}_p\) refers to the position in the ranked list up to which the DCG is calculated. In other words, \(p\) represents the number of items considered in the ranking. For example, if \(p = 5\), this means that the DCG is being calculated based on the first 5 items in the ranking list.</li>
+  <li>In practice, DCG can be calculated at various cut-off points in the ranked list, such as \(p = 5\) or \(p = 10\), depending on the evaluation needs. This allows you to measure how well the system performs within a specific number of top results, which is useful when users are only expected to view a limited number of results (e.g., top 5 or top 10 items).</li>
+  <li>Thus, \(\text{DCG}_p\) means the DCG computed for the top \(p\) ranked results. Similarly, \(\text{IDCG}_p\) and \(\text{nDCG}_p\) also refer to their respective calculations at the cut-off point \(p\).</li>
+</ul>
+
+<h6 id="compute-idcg">Compute IDCG</h6>
+
+<ul>
+  <li>IDCG assumes the best possible ranking where the most relevant items are placed at the top. Using the ideal ranked list in the figure below (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>), we calculate IDCG as:</li>
+</ul>
+
+\[\text{IDCG}_p = \sum_{i=1}^{\nu} \frac{\text{rel}_i}{\log_2(i+1)}\]
+
+<p><img src="../assets/metrics/ideal_ranking.jpg" alt="" /></p>
+
+<ul>
+  <li>Substituting the relevance scores from the ideal ranking:</li>
+</ul>
+
+\[\text{IDCG}_p = \frac{5}{\log_2(2)} + \frac{4}{\log_2(3)} + \frac{2}{\log_2(4)} + \frac{1}{\log_2(5)} + \frac{0}{\log_2(6)} = 8.9543\]
+
+<h6 id="compute-ndcg">Compute nDCG</h6>
+
+<ul>
+  <li>Finally, we normalize the DCG by dividing it by the IDCG:</li>
+</ul>
+
+\[\text{nDCG}_p = \frac{\text{DCG}_p}{\text{IDCG}_p} = \frac{6.151}{8.9543} = 0.6869\]
+
+<h3 id="choosing-between-precision-and-recall--k-mrr-arhr-map-or-ndcg">Choosing between Precision and Recall @ \(k\), MRR, ARHR, mAP, or nDCG</h3>
+
+<ul>
+  <li>
+    <p>When choosing between Precision and Recall @ \(k\), MRR, ARHR, nDCG, or mAP as ranking metrics, several key considerations must be evaluated based on the nature of the data and the specific objectives of the recommendation system:</p>
+  </li>
+  <li><strong>Precision and Recall @ \(k\):</strong>
+    <ul>
+      <li><strong>Focus:</strong> Precision @ \(k\) measures the proportion of relevant items among the top \(k\) results, while Recall @ \(k\) measures the proportion of relevant items retrieved among the top \(k\) results relative to the total number of relevant items. These metrics are particularly useful when you are interested in the performance of the system within a specific cutoff point \(k\).</li>
+      <li><strong>Suitability:</strong> These metrics are straightforward and useful in scenarios where the user typically reviews only a limited number of recommendations (e.g., the first page of results). They are particularly applicable in systems where relevance is binary, and the objective is to evaluate how well the top recommendations capture relevant items.</li>
+      <li><strong>Limitation:</strong> Precision and Recall @ \(k\) do not account for the relative ordering of items within the top \(k\) results. They simply consider whether the relevant items are present, but do not reward the system for ranking more relevant items higher within that subset. Put simply, the precision and recall @ \(k\) metrics measures how precise the output lists are, but they are not an indicator of ranking quality. For example, if we rank more relevant items higher in the list, precision @ \(k\) doesn’t change. As demonstrated in the example in the figure below (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>), increasing the ranking of relevant items higher in the list does not affect precision @ \(k\) since it does not account for the ranking quality of the results within the retrieved elements (\(k\), in this case).</li>
+    </ul>
+
+    <p><img src="../assets/metrics/PR_at_k.jpg" alt="" /></p>
+  </li>
+  <li><strong>Fraction of Concordant Pairs (FCP):</strong>
+    <ul>
+      <li><strong>Focus:</strong> FCP measures the pairwise ranking accuracy of a recommendation system by evaluating how well the system’s ranking aligns with the user’s preferences for item pairs. It captures the fraction of item pairs where the relative ordering of items in the system’s ranking matches the user’s preferences.</li>
+      <li><strong>Suitability:</strong> FCP is ideal for systems where the correctness of relative rankings between item pairs is critical, such as in personalized recommendation systems, e-commerce platforms, or content ranking applications. It provides a fine-grained evaluation of the system’s ranking quality by considering pairwise relationships.</li>
+      <li><strong>Limitation:</strong> FCP can be computationally expensive for large datasets because the number of item pairs grows quadratically with the size of the dataset. Additionally, it requires explicit or implicit user preference data, which may not always be available.</li>
+    </ul>
+  </li>
+  <li><strong>Mean Reciprocal Rank (MRR):</strong>
+    <ul>
+      <li><strong>Focus:</strong> MRR is based on the rank of the first relevant item in the list, making it particularly useful when the system is expected to retrieve a single relevant item or when the user’s primary interest is finding the first relevant result quickly. MRR is especially valuable in situations where explicit relevance labels are absent, and the system must rely on implicit signals, like user clicks or interactions, to gauge the relevance of recommended items. In such cases, MRR helps prioritize systems that can surface the most relevant results quickly, based on these indirect indicators of user satisfaction.</li>
+      <li><strong>Suitability:</strong> MRR is well-suited for systems like search engines or question-answering platforms where the goal is to return the first relevant item as quickly as possible. MRR measures how quickly the relevant result appears in the ranked list, and human clicks can serve as a proxy for relevance judgments if those clicks are reliable indicators of relevance.</li>
+      <li><strong>Limitation:</strong> In an event recommendation system where multiple relevant events may be of interest to the user, MRR is not an ideal choice. Since it focuses only on the first relevant item, it fails to account for other relevant events that might also be important to the user. Furthermore, MRR is less effective in contexts where relevance is graded/continuous or non-binary, as it is based on binary feedback (i.e., it requires a binary relevance score for each item) and thus does not account for varying degrees of relevance.</li>
+      <li>Since MRR only takes into account the first relevant item and disregards any subsequent relevant items within the ranked list, it fails to assess the overall precision and ranking quality of the list. For instance, as illustrated in the figure below (<a href="https://bytebytego.com/courses/machine-learning-system-design-interview">source</a>), the outputs of two different models are compared. Model 1 produces three relevant items, while model 2 yields only one relevant item. Nevertheless, the reciprocal rank for both models is 0.5.</li>
+    </ul>
+
+    <p><img src="../assets/metrics/MRR-limitation.jpg" alt="" /></p>
+  </li>
+  <li><strong>Average Reciprocal Hit Rate (ARHR):</strong>
+    <ul>
+      <li><strong>Focus:</strong> ARHR is an extension of MRR that accounts for all relevant items within the top \(k\) positions. Unlike MRR, which only considers the first relevant item, ARHR calculates the reciprocal of the rank for each relevant item found within the top \(k\) positions and averages them. This makes it more comprehensive in capturing the performance of systems where multiple relevant items are important.</li>
+      <li><strong>Suitability:</strong> ARHR is suitable for recommendation systems where it is important not only to retrieve the first relevant item quickly but also to ensure that all relevant items are ranked as high as possible within the top \(k\) positions. It is particularly useful in systems where the user might be interested in multiple items from the recommendation list.</li>
+      <li><strong>Limitation:</strong> Like MRR, ARHR is sensitive to the position of relevant items, but it still may not fully capture the quality of the overall ranking beyond the top \(k\) positions. If the goal is to measure ranking quality, mAP would be better in this case. Additionally, in cases where relevance is graded/continuous rather than binary, other metrics like nDCG should be preferred to assess the quality of the ranking.</li>
+    </ul>
+  </li>
+  <li><strong>Mean Average Precision (mAP):</strong>
+    <ul>
+      <li><strong>Focus:</strong> mAP is a metric that calculates the average precision across multiple queries, taking into account the ranking of all relevant items. It is designed for binary relevance, where each item is either relevant or not.</li>
+      <li><strong>Suitability:</strong> mAP is particularly well-suited for systems where relevance is binary, such as event recommendation systems, where an event is either relevant (e.g., a user registered) or irrelevant (e.g., a user did not register). mAP evaluates how well all relevant items are ranked, rewarding systems that consistently rank relevant items higher.</li>
+      <li><strong>Limitation:</strong> Unlike Precision or Recall at \(k\), mAP does measure ranking quality (since the AP score is high if more relevant items are located at the top of the list), however, mAP is less effective in contexts where relevance is graded/continuous or non-binary, as it is based on binary feedback (i.e., binary relevance score) and thus does not account for varying degrees of relevance.</li>
+    </ul>
+  </li>
+  <li><strong>Normalized Discounted Cumulative Gain (nDCG):</strong>
+    <ul>
+      <li><strong>Focus:</strong> nDCG is designed to measure the quality of the ranking by considering the position of relevant items in the list, with higher rewards given to relevant items that appear earlier. It is particularly effective in situations where the relevance of items is graded/continuous, meaning that some items are more relevant than others.</li>
+      <li><strong>Suitability:</strong> nDCG is a strong choice when the relevance score between a user and an item is non-binary (e.g., some events are highly relevant while others are only somewhat relevant). It provides a nuanced evaluation by accounting for the relative relevance of items and their positions in the ranking.</li>
+      <li><strong>Limitation:</strong> nDCG may not be the best fit in scenarios where relevance is strictly binary (either relevant or not). In such cases, its capability to handle graded/continuous relevance is unnecessary, and simpler metrics like mAP may be more appropriate. Another limitation is that deriving accurate ground truth relevance scores might not be always feasible. However, while modeling a business problem as an ML task, if the evaluation dataset contains similarity scores (say, based on embedding similarity), we can effectively use nDCG to measure the model’s performance during offline evaluation.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="summary">Summary</h4>
+
+<ul>
+  <li><strong>Precision and Recall @ \(k\)</strong> are ideal when the focus is on the performance of the system within a specific cutoff, particularly in binary relevance scenarios, but they do not consider the relative ranking within the top \(k\) items.</li>
+  <li><strong>FCP</strong> is an effective metric for evaluating the pairwise ranking accuracy of a system, making it particularly valuable in domains where the relative order of items matters. However, its computational cost and reliance on user preference data may limit its applicability for large-scale or sparse datasets.</li>
+  <li><strong>MRR</strong> is suitable for systems where only one relevant item is expected to be retrieved, but it is not appropriate for recommendation systems where multiple relevant items are expected.</li>
+  <li><strong>ARHR</strong> is a more comprehensive alternative to MRR when multiple relevant items are of interest. It accounts for the rank of all relevant items within the top \(k\), making it a strong choice for recommendation systems where the user might be interested in several items from the list.</li>
+  <li><strong>mAP</strong> is the best choice when relevance is binary and the goal is to maximize the ranking of all relevant items, making it well-suited for recommendation systems where relevance is clear-cut.</li>
+  <li><strong>nDCG</strong> is the preferred metric when relevance is graded/continuous and the order of items is important, but it may be unnecessary in binary relevance scenarios. Additionally, nDCG is ideal for capturing the quality of the overall ranking beyond the top \(k\) positions, providing a nuanced evaluation across the entire list.</li>
+</ul>
+
+<h3 id="regression-based-metrics">Regression-based Metrics</h3>
+
+<ul>
+  <li>Regression-based accuracy metrics are used to evaluate how effectively the model predicts user preferences. They quantify the difference between predicted and actual ratings for a given set of recommendations, providing insight into the model’s predictive accuracy.</li>
+</ul>
+
+<h4 id="root-mean-squared-error-rmse">Root Mean Squared Error (RMSE)</h4>
+<ul>
+  <li>RMSE measures the square root of the average of the squared differences between predicted and actual ratings. It is particularly useful for continuous ratings, such as those on a scale from 1 to 5.</li>
+</ul>
+
+\[\text{RMSE} = \sqrt{\frac{1}{n} \sum_i (x_i - y_i)^2}\]
+
+<h4 id="mean-absolute-error-mae">Mean Absolute Error (MAE)</h4>
+<ul>
+  <li>MAE measures the average magnitude of errors in a set of predictions, without considering their direction. It is calculated by averaging the absolute differences between predicted and actual values and is also widely used for continuous ratings.</li>
+</ul>
+
+\[\text{MAE} = \frac{\sum_{i=1}^n \left| y_i - x_i \right|}{n}\]
+
+<h3 id="correlation-metrics">Correlation Metrics</h3>
+
+<ul>
+  <li>Correlation metrics are employed to evaluate the performance and effectiveness of recommendation algorithms. These metrics assess the relationship between the predicted rankings or ratings provided by the recommender system and the actual user preferences or feedback, helping to gauge the accuracy and consistency of the generated recommendations.</li>
+</ul>
+
+<h4 id="kendall-rank-correlation-coefficient">Kendall Rank Correlation Coefficient</h4>
+
+\[\tau = \frac{\text{Number of pairs ordered correctly} - \text{Number of pairs ordered incorrectly}}{\text{Total number of pairs}}\]
+
+<ul>
+  <li>Kendall rank correlation is well-suited for recommender systems dealing with ranked or ordinal data, such as user ratings or preferences. It quantifies the similarity between predicted and true rankings of items. A higher Kendall rank correlation indicates the system’s success in capturing the relative order of user preferences.</li>
+</ul>
+
+<h4 id="pearson-correlation-coefficient">Pearson Correlation Coefficient</h4>
+<ul>
+  <li>Although Pearson correlation is primarily used for continuous variables, it can also be applied in recommender systems to evaluate the linear relationship between predicted and actual ratings. However, it is important to note that Pearson correlation may not capture non-linear relationships, which are common in recommender systems.</li>
+</ul>
+
+<h4 id="spearman-correlation-coefficient">Spearman Correlation Coefficient</h4>
+<ul>
+  <li>Similar to Kendall rank correlation, Spearman correlation is useful for evaluating recommender systems with ranked or ordinal data. It assesses the monotonic relationship between predicted and true rankings, with a higher Spearman correlation indicating a stronger monotonic relationship between the recommended and actual rankings.</li>
+</ul>
+
+<!-- ### F1 Score
+
+- The F1 score is a metric that balances precision and recall in binary classification problems. Precision measures the proportion of correctly predicted positive instances out of all predicted positive instances, while recall measures the proportion of correctly predicted positive instances out of all actual positive instances. The F1 score combines these metrics into a single value to capture their balance.
+
+$$ F_1 = \frac{2}{\frac{1}{\text{Precision}} + \frac{1}{\text{Recall}}} $$
+
+- However, in the context of recommender systems, the F1 score may not be the most appropriate metric for evaluating performance. Recommender systems focus on providing relevant recommendations rather than making binary predictions, which alters the trade-off between precision and recall.
+- In recommender systems, reducing the number of recommended items (N) generally increases precision while decreasing recall. This occurs because the system becomes more confident in the top-ranked items, which are more likely to be relevant, thus increasing the density of relevant items among the top recommendations. However, fewer items being recommended overall may lead to some relevant items being missed, thus lowering recall.
+- Conversely, increasing N and including more items in the recommendation list typically decreases precision while increasing recall. Including more relevant items becomes more likely, but so does the inclusion of irrelevant items, thus lowering precision. However, with a larger recommendation list, more relevant items are likely to be included, thereby increasing recall.
+- While the F1 score is a valid metric for binary classification problems, it may not be as suitable for evaluating recommender systems. Other metrics, such as precision, recall, average precision, or mean average precision, are often better suited to assessing the performance of recommender systems, considering the specific goals and trade-offs involved in recommendation tasks. -->
+
+<h2 id="evaluating-re-ranking">Evaluating Re-ranking</h2>
+
+<ul>
+  <li>Diversity, novelty/freshness, and serendipity are valuable metrics for evaluating re-ranking in recommender systems. These metrics go beyond traditional accuracy-focused measures (like precision, recall for candidate retrieval or nDCG for ranking) to provide a more holistic evaluation of how well a recommender system meets user needs and enhances user experience. Here’s how each of these metrics can be applied in the context of re-ranking:</li>
+</ul>
+
+<h4 id="diversity">Diversity</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition:</strong> Diversity measures the degree to which recommended items cover different aspects of the user’s preferences, ensuring that the recommendations are varied rather than repetitive. This can be evaluated by examining the dissimilarity among recommended items.</p>
+  </li>
+  <li>
+    <p><strong>How to Measure:</strong> One common way to calculate diversity is by computing the average pairwise dissimilarity between the recommended items. This can be done using various similarity measures, such as cosine similarity. For example, if you have three categories of items that the user likes and the user has interacted with only one item in this session, the session is not diverse.</p>
+  </li>
+  <li>
+    <p><strong>Cosine Similarity Formula:</strong> To quantify diversity, we can use a cosine similarity measure between item pairs. This can be defined as:</p>
+
+\[\text{CosineSimilarity}(i, j) = \frac{\text{count(users who bought } i \text{ and } j \text{)}}{\sqrt{\text{count(users who bought } i \text{)}} \times \sqrt{\text{count(users who bought } j \text{)}}}\]
+
+    <p>By calculating this similarity across all item pairs and then taking its complement, we can derive the diversity of the recommendations. A lower cosine similarity indicates higher diversity.</p>
+  </li>
+</ul>
+
+<h4 id="noveltyfreshness">Novelty/Freshness</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition:</strong> Novelty measures the degree to which recommended items are dissimilar to those the user has already seen or interacted with. It aims to introduce new, unfamiliar items to the user, enhancing the exploration of content.</p>
+  </li>
+  <li>
+    <p><strong>How to Measure:</strong> Novelty can be measured by considering how frequently an item has been recommended to or interacted with by users. The idea is to recommend items that are less common and thus more novel to the user.</p>
+  </li>
+  <li>
+    <p><strong>Novelty Formula:</strong> The novelty of a recommended item can be calculated using the following formula:</p>
+
+\[\operatorname{Novelty}(i) = 1 - \frac{\text{count(users recommended } i)}{\text{count(users who have not interacted with } i \text{)}}\]
+
+    <p>Here, a higher novelty score indicates that an item is less frequently recommended or interacted with, making it more novel to the user.</p>
+  </li>
+</ul>
+
+<h4 id="serendipity">Serendipity</h4>
+
+<ul>
+  <li>
+    <p><strong>Definition:</strong> Serendipity is the ability of the recommender system to suggest items that a user might not have thought of but would find interesting or useful. It captures the element of surprise by recommending items that are unexpected yet relevant.</p>
+  </li>
+  <li>
+    <p><strong>Importance:</strong> Serendipity is a crucial aspect of recommendation quality because it helps users discover new and intriguing items they might not have encountered otherwise, thereby increasing user engagement and satisfaction.</p>
+  </li>
+  <li>
+    <p><strong>How to Measure:</strong> Serendipity can be measured by looking at how unexpected and relevant the recommended items are, considering both the user’s historical preferences and the surprise factor.</p>
+  </li>
+  <li>
+    <p><strong>Serendipity Formula:</strong> A generic way to calculate serendipity across all users can be expressed as:</p>
+
+\[\text{Serendipity} = \frac{1}{\operatorname{count}(U)} \sum_{u \in U} \sum_{i \in I} \frac{\text{Serendipity}(i)}{\operatorname{count}(I)}\]
+
+    <p>This formula averages the serendipity scores of all recommended items across all users. Each item’s serendipity score could be determined based on its relevance and unexpectedness to the individual user.</p>
+  </li>
+</ul>
+
+<h4 id="integration-into-re-ranking">Integration into Re-Ranking</h4>
+
+<ul>
+  <li>Re-ranking algorithms in recommender systems can integrate these metrics to optimize the final list of recommendations. By balancing relevance with diversity, novelty, and serendipity, systems can provide a richer and more engaging experience. For example, a multi-objective optimization approach can weigh these different aspects based on user profiles and preferences to generate a list that is not only relevant but also varied, fresh, and surprisingly delightful.</li>
+</ul>
+
+<h2 id="user-engagementbusiness-metrics">User Engagement/Business Metrics</h2>
+
+<ul>
+  <li>User engagement metrics are used to measure the performance of the entire recommender system (across all its stages) by measuring how much users engage with the recommended items. Below we will look at a few common engagement metrics.</li>
+</ul>
+
+<h3 id="click-through-rate-ctr">Click-through rate (CTR)</h3>
+
+<ul>
+  <li>CTR is a commonly used metric to evaluate ranking in recommenders. CTR is the ratio of clicks to impressions (i.e., number of times a particular item is shown). It provides an indication of how effective the recommendations are in terms of driving user engagement.</li>
+</ul>
+
+\[\text { CTR}= \frac{\text{Number of clicks}}{\text{Number of impressions}}\]
+
+<ul>
+  <li>However, a downside with CTR is that it does not take into account the relevance or quality of the recommended items, and it can be biased towards popular or frequently recommended items.</li>
+</ul>
+
+<h3 id="average-number-of-clicks-per-user">Average number of clicks per user</h3>
+<ul>
+  <li>As the name suggests, this calculates the average number of clicks per user and it builds on top of CTR. It allows more relevance as the denominator is changed with the total number of users instead of total number of clicks.</li>
+</ul>
+
+\[\text { Average number of clicks per user}= \frac{\text{Number of clicks}}{\text{Number of users}}\]
+
+<h3 id="conversion-rate-cvr">Conversion Rate (CVR)</h3>
+<ul>
+  <li>CVR measures the ratio of conversions to clicks. It is calculated by dividing the number of conversions by the number of clicks.</li>
+</ul>
+
+\[\text { CVR}= \frac{\text{Number of conversions}}{\text{Number of clicks}}\]
+
+<h3 id="session-length">Session Length</h3>
+<ul>
+  <li>This measures the length of a user session. It is calculated by subtracting the start time from the end time of a session.</li>
+</ul>
+
+\[\text { Session Length}= \text{Session end time} - \text{Session start time}\]
+
+<h3 id="dwell-time">Dwell Time</h3>
+<ul>
+  <li>Dwell time is the measures the amount of time a user spends on a particular item. It is calculated by subtracting the time when the user stops engaging with an item from the time when the user starts engaging with it.</li>
+</ul>
+
+\[\text { Dwell Time}= \text{Interaction end time} - {Interaction start time}\]
+
+<h3 id="bounce-rate">Bounce Rate</h3>
+<ul>
+  <li>Here, we measure the percentage of users who leave a page after viewing only one item. It is calculated by dividing the number of single-page sessions by the total number of sessions.</li>
+</ul>
+
+\[\text { Bounce Rate}= \frac{\text{Single page sessions}}{\text{Total sessions}}\]
+
+<h3 id="hit-rate">Hit Rate</h3>
+
+<ul>
+  <li>Hit rate is analogous to click through rate but is more generic. It is concerned with the fact that out of the recommended lists, how many users watched a movie in that visible window. The window size here is custom to each product, for example for Netflix, it would be the screen size.</li>
+</ul>
+
+\[\text { Hit Rate}= \frac{\text{Number of users that clicked within the window}}{\text{Total number of users presented with the recommendations}}\]
+
+<h2 id="calibration">Calibration</h2>
+
+<ul>
+  <li>Calibration of scores is also essential in recommender systems to ensure that the predicted scores or ratings are reliable and an accurate representation of the user’s preferences. With calibration, we adjust the predicted scores to match the actual scores as there may be a gap due to many factors: data, changing business rules, etc.</li>
+  <li>A few techniques that can be used for this are:
+    <ul>
+      <li><strong>Post-processing methods:</strong> These techniques adjust the predicted scores by scaling or shifting them to match the actual scores. One example of a post-processing method is Platt scaling, which uses logistic regression to transform the predicted scores into calibrated probabilities.</li>
+      <li><strong>Implicit feedback methods:</strong> These techniques use implicit feedback signals, such as user clicks or time spent on an item, to adjust the predicted scores. Implicit feedback methods are particularly useful when explicit ratings are sparse or unavailable.</li>
+      <li><strong>Regularization methods:</strong> These techniques add regularization terms to the model objective function to encourage calibration. For example, the <a href="https://cran.rstudio.com/web/packages/BayesSUR/index.html">BayesUR</a> algorithm adds a Gaussian prior to the user/item biases to ensure that they are centered around zero.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="loss-functions-in-recommender-systems">Loss Functions in Recommender Systems</h2>
+
+<ul>
+  <li>Loss functions are essential in training recommender models as they guide the optimization of model parameters. These functions are minimized during training to improve the model’s performance on a given task. While loss functions help in tuning the model’s internal parameters, evaluation metrics are used to measure the model’s performance on held-out validation or test sets.</li>
+  <li>When training a recommender system, loss functions can be utilized to minimize bias, enforce fairness, enhance diversity, and ensure that the recommendations align with specific goals or constraints. The choice of loss function can significantly influence the behavior and effectiveness of a recommender system. Below are some examples of loss functions commonly used in recommender systems:</li>
+</ul>
+
+<h3 id="cross-entropy-loss">Cross-Entropy Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> Cross-entropy loss is widely used in classification tasks and can be adapted to recommender systems. It measures the difference between the predicted probability distribution over items and the actual distribution (usually represented as a one-hot encoded vector).</li>
+  <li>
+    <p><strong>Equation:</strong></p>
+
+\[\text{Cross-Entropy Loss} = -\sum_{i=1}^{N} y_i \log(p_i)\]
+
+    <ul>
+      <li>where \(y_i\) is the true label (1 if item \(i\) is relevant, 0 otherwise), and \(p_i\) is the predicted probability of item \(i\) being relevant. The loss is minimized when the predicted probabilities align closely with the actual relevance.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="mean-squared-error-mse-loss">Mean Squared Error (MSE) Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> MSE loss is commonly used in regression tasks and is applicable in recommender systems for predicting continuous scores (e.g., ratings). It measures the squared difference between the actual and predicted values.</li>
+  <li>
+    <p><strong>Equation:</strong></p>
+
+\[\text{MSE Loss} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2\]
+
+    <ul>
+      <li>where \(y_i\) is the actual score (e.g., user rating), and \(\hat{y}_i\) is the predicted score. The goal is to minimize the squared error across all items.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="pairwise-ranking-loss-bpr-loss">Pairwise Ranking Loss (BPR Loss)</h3>
+<ul>
+  <li><strong>Definition:</strong> Bayesian Personalized Ranking (BPR) loss is commonly used in collaborative filtering tasks where the goal is to rank items such that relevant items are ranked higher than irrelevant ones. It operates on pairs of items, promoting a higher ranking for relevant over irrelevant items.</li>
+  <li>
+    <p><strong>Equation:</strong></p>
+
+\[\text{BPR Loss} = -\sum_{(u, i, j) \in D} \log(\sigma(\hat{y}_{u,i} - \hat{y}_{u,j}))\]
+
+    <ul>
+      <li>where \(\sigma\) is the sigmoid function, \(\hat{y}_{u,i}\) is the predicted score for user \(u\) and item \(i\), and \(\hat{y}_{u,j}\) is the predicted score for user \(u\) and item \(j\). \(D\) is the set of observed user-item pairs. This loss function is minimized when the predicted score for relevant items (\(i\)) is higher than that for irrelevant items (\(j\)).</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="hinge-loss">Hinge Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> Hinge loss is used in scenarios where the model is expected to make a clear distinction between relevant and non-relevant items. It penalizes the model when the score difference does not meet a predefined margin.</li>
+  <li>
+    <p><strong>Equation:</strong></p>
+
+\[\text{Hinge Loss} = \sum_{(u, i, j)} \max(0, 1 - (\hat{y}_{u,i} - \hat{y}_{u,j}))\]
+  </li>
+  <li>Similar to margin loss, hinge loss enforces a margin between the scores of relevant and irrelevant items to ensure strong confidence in the recommendations.</li>
+</ul>
+
+<h3 id="fairness-loss">Fairness Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> Fairness loss functions are designed to enforce fairness constraints in the recommendation process, ensuring that outcomes are equitable across different user groups (e.g., by gender, race, or age). The goal is to minimize disparities in recommendations that could lead to biased outcomes.</li>
+  <li>
+    <p><strong>Equation:</strong> A typical fairness loss function might involve the difference in predicted scores across groups:</p>
+
+\[\text{Fairness Loss} = \sum_{g_1, g_2} \left( \text{Mean}(y_{g_1}) - \text{Mean}(y_{g_2}) \right)^2\]
+
+    <ul>
+      <li>where \(y_{g_1}\) and \(y_{g_2}\) are the predicted scores for two different groups (e.g., males and females). The objective is to minimize the squared differences between the mean predictions for different groups, promoting fairness.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="diversity-loss">Diversity Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> Diversity loss functions encourage the recommender system to offer a variety of items, rather than focusing too narrowly on similar items. This helps in providing users with a broader range of recommendations, enhancing user experience by exposing them to diverse content.</li>
+  <li>
+    <p><strong>Equation:</strong> A common approach to define diversity loss is to maximize the pairwise dissimilarity between recommended items:</p>
+
+\[\text{Diversity Loss} = - \sum_{i \neq j} \text{dissimilarity}(i, j) \times p(i) \times p(j)\]
+
+    <ul>
+      <li>where \(\text{dissimilarity}(i, j)\) is a measure (e.g., cosine distance) of how different items \(i\) and \(j\) are, and \(p(i)\) and \(p(j)\) are the probabilities of recommending items \(i\) and \(j\). The negative sign indicates that we want to maximize dissimilarity, encouraging diverse recommendations.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="margin-loss">Margin Loss</h3>
+<ul>
+  <li><strong>Definition:</strong> Margin loss functions are used to increase the confidence of the model in its recommendations by ensuring that the predicted score for the recommended item is significantly higher than for non-recommended items. This helps in making the recommendations more robust and reliable.</li>
+  <li>
+    <p><strong>Equation:</strong> Margin loss is often expressed using a hinge loss or similar approach:</p>
+
+\[\text{Margin Loss} = \sum_{\text{positive pair}, \text{negative pair}} \max(0, \text{margin} - (s_{\text{positive}} - s_{\text{negative}}))\]
+
+    <ul>
+      <li>where \(s_{\text{positive}}\) and \(s_{\text{negative}}\) are the predicted scores for a relevant (positive) and irrelevant (negative) item, respectively. The margin is a predefined threshold, and the loss is incurred if the difference between scores is less than this margin, ensuring that the model maintains a certain confidence level.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://www.cambridge.org/core/books/statistical-methods-for-recommender-systems/0051A5BA0721C2C6385B2891D219ECD4">Statistical Methods for Recommender Systems by Deepak K. Agarwal and Bee-Chung Chen</a></li>
+  <li><a href="https://towardsdatascience.com/a-tutorial-on-fairness-in-machine-learning-3ff8ba1040cb">Tutorial on Fairness in Machine Learning by Ziyuan Zhong</a></li>
+  <li><a href="https://medium.com/@m_n_malaeb/recall-and-precision-at-k-for-recommender-systems-618483226c54">Recall and Precision for Recommender Systems</a></li>
+  <li><a href="https://eugeneyan.com/writing/serendipity-and-accuracy-in-recommender-systems/">Serendipity: Accuracy’s Unpopular Best Friend in Recommenders by Eugene Yan</a></li>
+  <li><a href="https://newsletter.theaiedge.io/p/deep-dive-all-the-ranking-metrics">AIEdge Deep Dive into all the Ranking Metrics</a></li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/recsys/metrics/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:21 GMT -->
+</html>

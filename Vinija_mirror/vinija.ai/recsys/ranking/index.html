@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/recsys/ranking/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:05 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Recommendation Systems • Ranking/Scoring</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Recommendation Systems • Ranking/Scoring</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#scoring-vs-ranking" id="markdown-toc-scoring-vs-ranking">Scoring vs. Ranking</a></li>
+  <li><a href="#why-not-let-the-candidate-generator-score" id="markdown-toc-why-not-let-the-candidate-generator-score">Why Not Let the Candidate Generator Score?</a></li>
+  <li><a href="#objective-function-for-scoring" id="markdown-toc-objective-function-for-scoring">Objective Function for Scoring</a></li>
+  <li><a href="#scoring" id="markdown-toc-scoring">Scoring</a></li>
+  <li><a href="#candidate-ranking" id="markdown-toc-candidate-ranking">Candidate Ranking</a>    <ul>
+      <li><a href="#learning-to-rank-ltr" id="markdown-toc-learning-to-rank-ltr">Learning to Rank (LTR)</a></li>
+      <li><a href="#point-wise-methods" id="markdown-toc-point-wise-methods">Point-wise Methods</a>        <ul>
+          <li><a href="#pros" id="markdown-toc-pros">Pros</a></li>
+          <li><a href="#cons" id="markdown-toc-cons">Cons</a></li>
+          <li><a href="#logistic-regression" id="markdown-toc-logistic-regression">Logistic Regression</a>            <ul>
+              <li><a href="#pros-1" id="markdown-toc-pros-1">Pros</a></li>
+              <li><a href="#cons-1" id="markdown-toc-cons-1">Cons</a></li>
+            </ul>
+          </li>
+          <li><a href="#gradient-boosted-decision-trees-gbdts" id="markdown-toc-gradient-boosted-decision-trees-gbdts">Gradient Boosted Decision Trees (GBDTs)</a>            <ul>
+              <li><a href="#pros-2" id="markdown-toc-pros-2">Pros</a></li>
+              <li><a href="#cons-2" id="markdown-toc-cons-2">Cons</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#pair-wise-methods" id="markdown-toc-pair-wise-methods">Pair-wise Methods</a>        <ul>
+          <li><a href="#pros-3" id="markdown-toc-pros-3">Pros</a></li>
+          <li><a href="#cons-3" id="markdown-toc-cons-3">Cons</a></li>
+          <li><a href="#lambdarank" id="markdown-toc-lambdarank">LambdaRank</a>            <ul>
+              <li><a href="#pros-4" id="markdown-toc-pros-4">Pros</a></li>
+              <li><a href="#cons-4" id="markdown-toc-cons-4">Cons</a></li>
+            </ul>
+          </li>
+          <li><a href="#ranknet" id="markdown-toc-ranknet">RankNet</a>            <ul>
+              <li><a href="#pros-5" id="markdown-toc-pros-5">Pros</a></li>
+              <li><a href="#cons-5" id="markdown-toc-cons-5">Cons</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#list-wise-methods" id="markdown-toc-list-wise-methods">List-wise Methods</a>        <ul>
+          <li><a href="#pros-6" id="markdown-toc-pros-6">Pros</a></li>
+          <li><a href="#cons-6" id="markdown-toc-cons-6">Cons</a></li>
+          <li><a href="#listnet" id="markdown-toc-listnet">ListNet</a>            <ul>
+              <li><a href="#pros-7" id="markdown-toc-pros-7">Pros</a></li>
+              <li><a href="#cons-7" id="markdown-toc-cons-7">Cons</a></li>
+            </ul>
+          </li>
+          <li><a href="#lambdamart" id="markdown-toc-lambdamart">LambdaMART</a>            <ul>
+              <li><a href="#pros-8" id="markdown-toc-pros-8">Pros</a></li>
+              <li><a href="#cons-8" id="markdown-toc-cons-8">Cons</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#ltr-algorithms-a-summary" id="markdown-toc-ltr-algorithms-a-summary">LTR Algorithms: A Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#evaluation-metric-normalized-discounted-cumulative-gain-ndcg" id="markdown-toc-evaluation-metric-normalized-discounted-cumulative-gain-ndcg">Evaluation Metric: Normalized Discounted Cumulative Gain (NDCG)</a></li>
+  <li><a href="#positionselection-bias-in-scoring" id="markdown-toc-positionselection-bias-in-scoring">Position/Selection Bias in Scoring</a></li>
+  <li><a href="#putting-it-all-together" id="markdown-toc-putting-it-all-together">Putting it all together</a>    <ul>
+      <li><a href="#production-model" id="markdown-toc-production-model">Production model</a></li>
+      <li><a href="#challenges-in-scaling-up-models-on-noisy-datasets" id="markdown-toc-challenges-in-scaling-up-models-on-noisy-datasets">Challenges in Scaling Up Models on Noisy Datasets</a></li>
+    </ul>
+  </li>
+  <li><a href="#youtube-ranking" id="markdown-toc-youtube-ranking">YouTube Ranking</a></li>
+  <li><a href="#faqs" id="markdown-toc-faqs">FAQs</a>    <ul>
+      <li><a href="#for-deep-neural-networks-used-in-recommender-systems-such-as-deep-and-cross-is-an-embedding-layer-used-for-categorical-features" id="markdown-toc-for-deep-neural-networks-used-in-recommender-systems-such-as-deep-and-cross-is-an-embedding-layer-used-for-categorical-features">For deep neural networks used in recommender systems (such as Deep and Cross), is an embedding layer used for categorical features?</a>        <ul>
+          <li><a href="#what-is-the-input-to-the-embedding-layer-give-an-example" id="markdown-toc-what-is-the-input-to-the-embedding-layer-give-an-example">What is the input to the embedding layer? Give an example.</a></li>
+        </ul>
+      </li>
+      <li><a href="#are-gradient-boosting-decision-trees-commonly-deployed-in-recommender-systems-which-stage-of-the-recommender-pipeline-are-they-commonly-used-what-are-the-pros-and-cons" id="markdown-toc-are-gradient-boosting-decision-trees-commonly-deployed-in-recommender-systems-which-stage-of-the-recommender-pipeline-are-they-commonly-used-what-are-the-pros-and-cons">Are Gradient Boosting Decision Trees commonly deployed in Recommender Systems? Which stage of the recommender pipeline are they commonly used? What are the pros and cons?</a>        <ul>
+          <li><a href="#where-are-gbdts-commonly-used-in-the-recommender-pipeline" id="markdown-toc-where-are-gbdts-commonly-used-in-the-recommender-pipeline">Where Are GBDTs Commonly Used in the Recommender Pipeline?</a></li>
+          <li><a href="#pros-of-using-gbdts-in-recommender-systems" id="markdown-toc-pros-of-using-gbdts-in-recommender-systems">Pros of Using GBDTs in Recommender Systems</a></li>
+          <li><a href="#cons-of-using-gbdts-in-recommender-systems" id="markdown-toc-cons-of-using-gbdts-in-recommender-systems">Cons of Using GBDTs in Recommender Systems</a></li>
+        </ul>
+      </li>
+      <li><a href="#how-do-you-synthesize-long-term-user-history-in-recommender-systems" id="markdown-toc-how-do-you-synthesize-long-term-user-history-in-recommender-systems">How do you synthesize long term user history in recommender systems?</a>        <ul>
+          <li><a href="#user-representation-and-feature-engineering" id="markdown-toc-user-representation-and-feature-engineering">User Representation and Feature Engineering</a></li>
+          <li><a href="#sequential-modeling-for-long-term-preferences" id="markdown-toc-sequential-modeling-for-long-term-preferences">Sequential Modeling for Long-Term Preferences</a></li>
+          <li><a href="#hybrid-models" id="markdown-toc-hybrid-models">Hybrid Models</a></li>
+          <li><a href="#temporal-decay-and-forgetting-mechanisms" id="markdown-toc-temporal-decay-and-forgetting-mechanisms">Temporal Decay and Forgetting Mechanisms</a></li>
+          <li><a href="#personalized-temporal-dynamics" id="markdown-toc-personalized-temporal-dynamics">Personalized Temporal Dynamics</a></li>
+          <li><a href="#contextual-and-event-based-updates" id="markdown-toc-contextual-and-event-based-updates">Contextual and Event-Based Updates</a></li>
+          <li><a href="#multi-task-learning" id="markdown-toc-multi-task-learning">Multi-Task Learning</a></li>
+          <li><a href="#denoising-and-filtering" id="markdown-toc-denoising-and-filtering">Denoising and Filtering</a></li>
+          <li><a href="#reinforcement-learning" id="markdown-toc-reinforcement-learning">Reinforcement Learning</a></li>
+          <li><a href="#evaluation-and-adaptation" id="markdown-toc-evaluation-and-adaptation">Evaluation and Adaptation</a></li>
+        </ul>
+      </li>
+      <li><a href="#how-do-handle-data-imbalance-in-model-training-for-recommender-systems" id="markdown-toc-how-do-handle-data-imbalance-in-model-training-for-recommender-systems">How do handle data imbalance in model training for recommender systems?</a>        <ul>
+          <li><a href="#sampling-techniques" id="markdown-toc-sampling-techniques">Sampling Techniques</a></li>
+          <li><a href="#weighted-loss-functions" id="markdown-toc-weighted-loss-functions">Weighted Loss Functions</a></li>
+          <li><a href="#bias-aware-algorithms" id="markdown-toc-bias-aware-algorithms">Bias-aware Algorithms</a></li>
+          <li><a href="#regularization-techniques" id="markdown-toc-regularization-techniques">Regularization Techniques</a></li>
+          <li><a href="#hybrid-models-1" id="markdown-toc-hybrid-models-1">Hybrid Models</a></li>
+          <li><a href="#cross-validation-with-stratified-splitting" id="markdown-toc-cross-validation-with-stratified-splitting">Cross-validation with Stratified Splitting</a></li>
+          <li><a href="#cold-start-handling" id="markdown-toc-cold-start-handling">Cold-start Handling</a></li>
+          <li><a href="#active-learning" id="markdown-toc-active-learning">Active Learning</a></li>
+          <li><a href="#fairness-constraints" id="markdown-toc-fairness-constraints">Fairness Constraints</a></li>
+          <li><a href="#model-architecture-adjustments" id="markdown-toc-model-architecture-adjustments">Model Architecture Adjustments</a></li>
+        </ul>
+      </li>
+      <li><a href="#what-are-contextual-bandits-how-are-they-used-in-the-context-of-recommender-systems" id="markdown-toc-what-are-contextual-bandits-how-are-they-used-in-the-context-of-recommender-systems">What are Contextual bandits? How are they used in the context of recommender systems?</a>        <ul>
+          <li><a href="#multi-armed-bandit-problem" id="markdown-toc-multi-armed-bandit-problem">Multi-Armed Bandit Problem</a></li>
+          <li><a href="#contextual-bandits" id="markdown-toc-contextual-bandits">Contextual Bandits</a></li>
+          <li><a href="#how-contextual-bandits-work" id="markdown-toc-how-contextual-bandits-work">How Contextual Bandits Work</a></li>
+          <li><a href="#contextual-bandits-vs-full-reinforcement-learning" id="markdown-toc-contextual-bandits-vs-full-reinforcement-learning">Contextual Bandits vs. Full Reinforcement Learning</a></li>
+          <li><a href="#use-of-contextual-bandits-in-recommender-systems" id="markdown-toc-use-of-contextual-bandits-in-recommender-systems">Use of Contextual Bandits in Recommender Systems</a>            <ul>
+              <li><a href="#context-as-user-data" id="markdown-toc-context-as-user-data">Context as User Data</a></li>
+              <li><a href="#actions-as-recommendations" id="markdown-toc-actions-as-recommendations">Actions as Recommendations</a></li>
+              <li><a href="#rewards-as-user-feedback" id="markdown-toc-rewards-as-user-feedback">Rewards as User Feedback</a></li>
+              <li><a href="#balancing-exploration-and-exploitation" id="markdown-toc-balancing-exploration-and-exploitation">Balancing Exploration and Exploitation</a></li>
+              <li><a href="#online-learning" id="markdown-toc-online-learning">Online Learning</a></li>
+            </ul>
+          </li>
+          <li><a href="#practical-applications-in-recommender-systems" id="markdown-toc-practical-applications-in-recommender-systems">Practical Applications in Recommender Systems</a></li>
+          <li><a href="#advantages-of-contextual-bandits-in-recommender-systems" id="markdown-toc-advantages-of-contextual-bandits-in-recommender-systems">Advantages of Contextual Bandits in Recommender Systems</a></li>
+          <li><a href="#challenges" id="markdown-toc-challenges">Challenges</a></li>
+        </ul>
+      </li>
+      <li><a href="#in-the-context-of-recommender-systems-matrix-factorization-can-lack-scalability-due-to-large-dimensions-of-the-user-item-matrix-especially-at-billion-scale-how-does-neural-collaborative-filtering-handle-this" id="markdown-toc-in-the-context-of-recommender-systems-matrix-factorization-can-lack-scalability-due-to-large-dimensions-of-the-user-item-matrix-especially-at-billion-scale-how-does-neural-collaborative-filtering-handle-this">In the context of recommender systems, matrix factorization can lack scalability due to large dimensions of the user-item matrix, especially at billion-scale. How does neural collaborative filtering handle this?</a>        <ul>
+          <li><a href="#limitations-of-matrix-factorization-at-large-scale" id="markdown-toc-limitations-of-matrix-factorization-at-large-scale">Limitations of Matrix Factorization at Large Scale</a></li>
+          <li><a href="#neural-collaborative-filtering-ncf-overview" id="markdown-toc-neural-collaborative-filtering-ncf-overview">Neural Collaborative Filtering (NCF) Overview</a></li>
+          <li><a href="#how-ncf-improves-scalability" id="markdown-toc-how-ncf-improves-scalability">How NCF Improves Scalability</a>            <ul>
+              <li><a href="#embedding-layers-to-handle-large-dimensions" id="markdown-toc-embedding-layers-to-handle-large-dimensions">Embedding Layers to Handle Large Dimensions</a></li>
+              <li><a href="#parameter-sharing-with-embeddings" id="markdown-toc-parameter-sharing-with-embeddings">Parameter Sharing with Embeddings</a></li>
+              <li><a href="#non-linear-interaction-modeling" id="markdown-toc-non-linear-interaction-modeling">Non-linear Interaction Modeling</a></li>
+              <li><a href="#generalized-matrix-factorization-gmf" id="markdown-toc-generalized-matrix-factorization-gmf">Generalized Matrix Factorization (GMF)</a></li>
+              <li><a href="#efficient-learning-via-mini-batch-stochastic-gradient-descent-sgd" id="markdown-toc-efficient-learning-via-mini-batch-stochastic-gradient-descent-sgd">Efficient Learning via Mini-batch Stochastic Gradient Descent (SGD)</a></li>
+              <li><a href="#parallelism-and-hardware-acceleration" id="markdown-toc-parallelism-and-hardware-acceleration">Parallelism and Hardware Acceleration</a></li>
+              <li><a href="#flexible-architecture" id="markdown-toc-flexible-architecture">Flexible Architecture</a></li>
+            </ul>
+          </li>
+          <li><a href="#comparison-with-matrix-factorization" id="markdown-toc-comparison-with-matrix-factorization">Comparison with Matrix Factorization</a></li>
+          <li><a href="#ncf-in-practice" id="markdown-toc-ncf-in-practice">NCF in Practice</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<ul>
+  <li>Once candidate generation is complete, the recommendation system uses another model to score and rank the generated candidates in order to select a set of items to present to the user. To achieve this, the system may utilize multiple candidate generators that draw from different sources, such as related items from a matrix factorization model, user-specific features for personalization, geographic information for considering “local” versus “distant” items, popular or trending items, and social graph data that considers items liked or recommended by friends. These various sources are combined into a single pool of candidates, which is then scored and ranked by a single model.</li>
+  <li>For instance, the system can train a model that predicts the likelihood of a user watching a video on YouTube based on query features (e.g. user watch history, language, country, time) and video features (e.g. title, tags, video embedding). Let’s look at these different source/inputs used for candidate generation:
+    <ul>
+      <li><strong>Related items from a matrix factorization model:</strong> This approach uses a matrix factorization technique to extract latent factors that can represent user preferences and item attributes. The matrix is factorized into two matrices, one representing users and the other representing items, and their dot product generates a score for each user-item pair. This approach can generate recommendations based on users’ past interactions and can identify items that are similar to the ones that the user has previously interacted with.</li>
+      <li><strong>User features that account for personalization:</strong> User features such as age, gender, and past search queries can be used to generate personalized recommendations. By analyzing the user’s past interactions and search behavior, a recommendation system can identify items that are likely to be relevant to the user.</li>
+      <li><strong>“Local” vs “distant” items; that is, taking geographic information into account:</strong> This approach takes into account the user’s geographic location to identify items that are geographically close to the user or are relevant to the user’s location. For example, a recommendation system for a restaurant app can use the user’s location to identify nearby restaurants.</li>
+      <li><strong>Popular or trending items:</strong> This approach recommends items that are currently popular or trending based on factors such as sales, views, or social media activity. This approach can be useful for introducing users to new and popular items.</li>
+      <li><strong>A social graph; that is, items liked or recommended by friends:</strong> This approach uses the social connections of the user to identify items that are recommended or liked by the user’s friends or social network. This approach can be particularly useful for social media and e-commerce applications, where users may be influenced by the recommendations of their friends and peers.</li>
+    </ul>
+  </li>
+  <li>The system takes these multitude of candidates, places them in a common pool of candidates that are scored by a single model and ranked according to that score.
+    <ul>
+      <li>“For e.g., the system can train a model to predict the probability of a user watching a video on YouTube given the following:
+        <ul>
+          <li>query features (for example, user watch history, language, country, time)</li>
+          <li>video features (for example, title, tags, video embedding)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>The system can then rank the videos in the pool of candidates according to the prediction of the model.” <a href="https://developers.google.com/machine-learning/recommendation/dnn/scoring">(source)</a></li>
+  <li>Scoring is typically more focused on personalized recommendations and may use more sophisticated machine learning models to capture complex user preferences and item relationships. For example, a scoring model may use a deep neural network to learn complex patterns in user behavior and item features, or it may incorporate contextual information such as time of day or location.</li>
+</ul>
+
+<h2 id="scoring-vs-ranking">Scoring vs. Ranking</h2>
+<ul>
+  <li>In recommender systems, scoring and ranking are two key concepts that are used to determine the relevance of items to recommend to a user.</li>
+  <li>Scoring refers to the process of assigning a score or a rating to each item in the candidate pool based on its similarity to the user’s preferences or past behavior. The scoring function can be based on different factors such as content similarity, collaborative filtering, or a combination of both. The scoring function is used to determine the relevance of each item to the user, and items with higher scores are considered to be more relevant.</li>
+  <li>Ranking, on the other hand, is the process of ordering the items based on their scores. The items with the highest scores are ranked at the top of the recommendation list, while the items with the lowest scores are ranked at the bottom. The ranking process ensures that the most relevant items are presented to the user first.</li>
+  <li>To illustrate this, let’s consider an example. Suppose a user is looking for movie recommendations based on their past viewing history. The scoring function may assign a score to each movie in the candidate pool based on factors such as genre, cast, director, and plot. The movies with higher scores would be considered more relevant to the user. The ranking process would then order the movies based on their scores, with the highest-scored movies appearing at the top of the recommendation list.</li>
+  <li>In summary, scoring determines the relevance of each item in the candidate pool, while ranking orders the items based on their scores to present the most relevant items to the user.</li>
+</ul>
+
+<h2 id="why-not-let-the-candidate-generator-score">Why Not Let the Candidate Generator Score?</h2>
+<ul>
+  <li>“Since candidate generators compute a score (such as the similarity measure in the embedding space), you might be tempted to use them to do ranking as well. However, you should avoid this practice for the following reasons:” <a href="https://developers.google.com/machine-learning/recommendation/dnn/scoring">(source)</a></li>
+  <li>Using candidate generators for ranking is not a good practice because a recommendation system may have multiple candidate generators that use different sources. The scores generated by these different generators may not be comparable, making it challenging to rank the candidates. Moreover, with a smaller pool of candidates, the system can use more features and a more complex model, which can better capture the context and provide more accurate recommendations. Therefore, it is more appropriate to use a separate model for scoring and ranking the candidates.</li>
+</ul>
+
+<h2 id="objective-function-for-scoring">Objective Function for Scoring</h2>
+<ul>
+  <li>Remember, an objective function is a mathematical function used to evaluate how well a machine learning model is performing on a task. It measures the difference between the predicted outputs of the model and the true outputs. The goal of the machine learning algorithm is to minimize or maximize the objective function, depending on whether it is a cost function or a reward function, respectively. The objective function is chosen based on the problem being solved and the specific goals of the model.</li>
+  <li>Selecting an objective function for scoring in a recommendation system is a crucial step that requires careful consideration. In machine learning, the objective function is like a genie that learns whatever the user wishes, but the user should be mindful of what they ask for. Similarly, the choice of scoring function in a recommendation system can significantly impact the ranking of items and the overall quality of the recommendations.</li>
+  <li>The scoring function should be designed to capture the user’s preferences and produce accurate predictions of the likelihood that a user will interact with a particular item. The objective function can be based on various factors such as user preferences, historical data, or contextual information.</li>
+  <li>It is essential to evaluate the performance of different objective functions and select the one that produces the best results in terms of accuracy and relevance. Additionally, the objective function should be flexible enough to handle different types of input data and account for changes in user preferences over time.</li>
+  <li>The choice of scoring function in recommendation systems can significantly impact the quality of recommendations.</li>
+  <li>For instance, if the scoring function is focused on maximizing click rates, the system may recommend click-bait videos that do not provide a good user experience and can quickly lose users’ interest.</li>
+  <li>Similarly, optimizing for watch time alone may lead to recommendations of very long videos, also leading to a poor user experience.</li>
+  <li>Alternatively, the system can aim to increase diversity and maximize session watch time by recommending shorter videos that are more likely to keep the user engaged.</li>
+  <li>Maximizing click rate might lead to recommending clickbait content that can harm the user experience. Maximizing watch time might lead to recommending long content that might bore the user. A better approach is to balance watch time and diversity, recommending shorter videos that are more likely to keep the user engaged.</li>
+</ul>
+
+<h2 id="scoring">Scoring</h2>
+<ul>
+  <li>Let’s look at different methods and techniques used for scoring.</li>
+  <li>Cosine Similarity: A common similarity measure used in content-based filtering to calculate the similarity between the features of items and user preferences.</li>
+  <li>Weighted Average Score: Weighted average is a method of calculating a single score for a set of items, where each item is assigned a weight based on its importance and so, this means that items that are more relevant to the user should have a higher weight in the calculation of the final score. To use weighted average in a recommender system, first, the relevance of each item to the user needs to be determined. This can be done through user feedback, such as ratings, reviews, or clicks. Each item is assigned a relevance score based on this feedback.
+    <ul>
+      <li>Next, weights are assigned to each item based on their importance. The importance can be determined based on different factors, such as popularity, novelty, or profitability. For example, popular items can be assigned a higher weight because they are likely to be more relevant to a larger number of users.</li>
+      <li>Finally, the weighted average score is calculated by multiplying the relevance score of each item by its weight, summing up the products, and dividing the result by the sum of weights. The resulting score represents the overall relevance of the set of items to the user.</li>
+      <li>Weighted average can be used for both scoring and ranking in a recommender system. In scoring, the weighted average score can be used to represent the relevance of a set of items to a user. In ranking, the items can be sorted based on their weighted average scores, with the highest scoring items appearing at the top of the list.</li>
+    </ul>
+  </li>
+  <li>Factorization Machines: A popular algorithm for scoring that models interactions between features and allows for non-linear relationships.</li>
+  <li>The table below does a comparative analysis between these different methods.</li>
+</ul>
+
+<p><img src="../assets/ranking/1.png" alt="" /></p>
+
+<h2 id="candidate-ranking">Candidate Ranking</h2>
+<ul>
+  <li>The candidate ranking step, formally known as the Learning to Rank (LTR) problem, involves selecting the most relevant items from the pool of candidate items to present to the user.</li>
+  <li>Ranking can be done over multiple stages (which is typical in industry use-cases that rely on recommendations for monetization and success of their product). In the simplest dual-stage scenario, the typo stages may be called coarse and fine ranking. The various ranking options available are LTR methods, <a href="../multi-armed-bandit/index.html">multi-armed bandits</a>, <a href="#wide--deep-learning-for-recommender-systems">wide-and-deep networks</a>, etc.</li>
+  <li>The first stage could involve LTR methods since they’re much easier to compute (and thus computation efficient) compared to other methods. Larger deep neural networks-based architectures are typically reserved for later stages, but that trend is slowly changing as compute efficiency is improving, thanks to innovation in ML acceleration.</li>
+  <li>As a case study, let’s look at Instagram’s <a href="https://ai.facebook.com/blog/powered-by-ai-instagrams-explore-recommender-system/">filtering approach</a> for their “Explore” grid. In the candidate generation stage, account embeddings are used to identify accounts similar to those the user has previously interacted with. From these account candidates, they sample 500 media candidates (e.g., photos, stories).
+    <ul>
+      <li>Then, these media candidates go through a three-pass ranking process which uses a combination of techniques to shrink neural network models:
+        <ol>
+          <li>First pass: A distilled model mimics the later stages with minimal features to return the top 150 ranked candidates.</li>
+          <li>Second pass: A lightweight neural network uses the full set of dense features and returns the top 50 ranked candidates.</li>
+          <li>Final pass: A deep neural network uses the full set of dense and sparse features to return the top 25 ranked candidates (for the first page of the Explore grid).</li>
+        </ol>
+      </li>
+      <li>Instagram’s “funnel” architecture for multi-stage ranking is shown in the figure below (<a href="https://ai.facebook.com/blog/powered-by-ai-instagrams-explore-recommender-system/">source</a>).</li>
+    </ul>
+
+    <p><img src="../assets/ranking/instagram-architecture.gif" alt="" /></p>
+  </li>
+</ul>
+
+<h3 id="learning-to-rank-ltr">Learning to Rank (LTR)</h3>
+
+<ul>
+  <li>LTR methods aim to predict the probability that a user will interact with an item, given their previous interactions and other contextual information. LTR methods can be classified into three categories: (i) point-wise, (ii) pair-wise, and (iii) list-wise methods.</li>
+  <li>Each LTR method offers unique advantages and disadvantages. The choice of method should be guided by the specific requirements of the ranking task, the nature of the data, and the desired ranking performance.</li>
+  <li>The tables below give an overview of each technique and which method and recommender it is viable for.</li>
+</ul>
+
+<p><img src="../assets/ranking/3.png" alt="" /></p>
+
+<p><img src="../assets/ranking/4.png" alt="" /></p>
+
+<h3 id="point-wise-methods">Point-wise Methods</h3>
+
+<ul>
+  <li>Point-wise methods evaluate items independently, ignoring the rank order of other items. These methods predict the relevance of a single document for a given query by training a classifier or regressor to score each item based on a set of features, such as those used in a linear model like logistic regression. The final ranking is obtained by sorting the list of results based on these individual document scores. Importantly, the relevance score assigned to each document is independent of the scores assigned to other documents in the same query result set.</li>
+  <li>These methods often employ binary or multiclass classification models, where the task is to predict the relevance label for each item in isolation relative to other items (e.g., relevant vs. non-relevant in binary classification or multiple relevance levels in multiclass settings). The classifier can be trained using logistic regression, decision trees, or neural networks depending on the complexity of the feature space and the problem.</li>
+  <li>Common examples of point-wise methods include Logistic Regression, Gradient Boosted Decision Trees (GBDTs), and neural networks, which are often used to predict individual item scores based on features.</li>
+</ul>
+
+<h5 id="pros">Pros</h5>
+<ul>
+  <li><strong>Simplicity</strong>: Point-wise methods are relatively straightforward to implement.</li>
+  <li><strong>Flexibility</strong>: A wide range of regression and classification algorithms can be employed, allowing the use of various features to predict relevance.</li>
+  <li><strong>Scalability</strong>: These methods are computationally less intensive compared to pair-wise and list-wise methods, making them suitable for large-scale applications.</li>
+</ul>
+
+<h5 id="cons">Cons</h5>
+<ul>
+  <li><strong>Lack of Contextual Awareness</strong>: Point-wise methods do not consider interactions between documents, potentially leading to suboptimal rankings where relative importance among documents is crucial.</li>
+  <li><strong>Limited Optimization</strong>: They may not capture complex dependencies or the competitive nature of documents vying for the same query, which can result in less accurate ranking performance.</li>
+</ul>
+
+<h4 id="logistic-regression">Logistic Regression</h4>
+
+<ul>
+  <li>Logistic Regression is one of the simplest and most widely used point-wise methods for ranking problems, especially when dealing with binary classification tasks (e.g., relevant vs. non-relevant). In the context of ranking, Logistic Regression operates by modeling the probability that a document is relevant to a given query, using a linear combination of input features (e.g., document content, metadata, or user behavior data). The output score from Logistic Regression is often interpreted as the likelihood of relevance, and items are ranked by sorting these scores.</li>
+  <li>This method assumes a linear relationship between the features and the relevance label and applies a logistic function to constrain the output to a probability between 0 and 1. Logistic Regression is particularly useful when interpretability is important, as the model coefficients directly indicate the strength of each feature in determining relevance.</li>
+</ul>
+
+<h5 id="pros-1">Pros</h5>
+<ul>
+  <li><strong>Simplicity</strong>: Logistic Regression is easy to implement and interpret, making it an attractive choice for initial models or when feature interpretability is important.</li>
+  <li><strong>Efficiency</strong>: It is computationally inexpensive, both in terms of training and inference, and scales well to large datasets.</li>
+  <li><strong>Well-understood Statistical Properties</strong>: Logistic Regression is based on a probabilistic model, which offers a well-understood framework for estimating probabilities, making it robust in scenarios where simple linear relationships exist between features and labels.</li>
+</ul>
+
+<h5 id="cons-1">Cons</h5>
+<ul>
+  <li><strong>Limited to Linear Relationships</strong>: Logistic Regression assumes a linear relationship between input features and the target label, which can lead to poor performance if the actual relationships are more complex.</li>
+  <li><strong>Susceptible to Feature Scaling Issues</strong>: Logistic Regression may not perform well if features are not properly scaled, as the model assumes uniform feature importance across different scales.</li>
+  <li><strong>Inability to Capture Document Interaction</strong>: Like other point-wise methods, Logistic Regression evaluates documents in isolation, failing to account for the relative importance of documents in a ranked list.</li>
+</ul>
+
+<h4 id="gradient-boosted-decision-trees-gbdts">Gradient Boosted Decision Trees (GBDTs)</h4>
+
+<ul>
+  <li>Gradient Boosted Decision Trees (GBDTs) is a common point-wise ranking algorithm used in recommender systems. GBDT is an ensemble method that combines multiple decision trees to make predictions and is based on gradient descent optimization. The algorithm aims to optimize a ranking metric, such as Normalized Discounted Cumulative Gain (NDCG). GBDT iteratively trains decision trees on the negative gradients of the loss function, which represent the direction of maximum loss reduction. The predictions of these decision trees are aggregated to update the overall model predictions and ranking scores. This iterative process continues until a predefined stopping criterion is met, resulting in a ranking model that assigns scores to each item.</li>
+</ul>
+
+<h5 id="pros-2">Pros</h5>
+<ul>
+  <li><strong>High Predictive Performance</strong>: GBDTs can handle complex feature interactions effectively, leading to high-quality predictions.</li>
+  <li><strong>Flexibility</strong>: It can be tuned to optimize different loss functions, making it adaptable to various ranking metrics.</li>
+  <li><strong>Robustness</strong>: Ensemble methods like GBDT are generally more robust to overfitting compared to single-tree models.</li>
+</ul>
+
+<h5 id="cons-2">Cons</h5>
+<ul>
+  <li><strong>Computational Complexity</strong>: GBDTs can be computationally intensive, requiring significant resources for training, especially with large datasets.</li>
+  <li><strong>Lack of Pair-wise Context</strong>: While effective, GBDT, as a point-wise method, does not inherently model the relative order of documents, potentially missing out on ranking nuances.</li>
+</ul>
+
+<h3 id="pair-wise-methods">Pair-wise Methods</h3>
+
+<ul>
+  <li>Pair-wise methods involve comparing items in pairs, aiming to learn a function that assigns a higher score to the preferred item in each pair. In pair-wise learning-to-rank approaches, the loss function focuses on pairs of documents. Given a pair, the objective is to learn the optimal ordering and minimize the number of inversions, which occur when the pair’s order is incorrect relative to the ground truth. Pair-wise methods align more closely with the nature of ranking tasks, as they directly model the relative order of documents.</li>
+  <li>Pair-wise methods often employ binary classification models, where the task is to classify whether one document in the pair should be ranked higher than the other. The classifier outputs the relative preference between two items, guiding the ranking order.</li>
+  <li>Algorithms such as RankNet, LambdaRank, and LambdaMART are prominent examples of pair-wise approaches.</li>
+</ul>
+
+<h4 id="pros-3">Pros</h4>
+<ul>
+  <li><strong>Alignment with Ranking Tasks</strong>: Pair-wise methods naturally align with the goal of ranking, focusing on the relative order of documents rather than absolute relevance scores.</li>
+  <li><strong>Improved Accuracy</strong>: By modeling pairwise preferences, these methods often provide more accurate rankings compared to point-wise approaches.</li>
+  <li><strong>Versatility</strong>: Pair-wise methods can be adapted to different ranking tasks and evaluation metrics, making them broadly applicable.</li>
+</ul>
+
+<h4 id="cons-3">Cons</h4>
+<ul>
+  <li><strong>Complexity</strong>: The need to evaluate and compare pairs can lead to increased computational complexity, especially for large datasets with many potential document pairs.</li>
+  <li><strong>Resource Intensity</strong>: Training pair-wise models can require significant computational resources and time, particularly when dealing with extensive query-document pairs.</li>
+</ul>
+
+<h4 id="lambdarank">LambdaRank</h4>
+
+<ul>
+  <li>LambdaRank is a widely used pair-wise ranking algorithm in information retrieval and recommender systems. It builds on gradient descent optimization to improve ranking metrics such as NDCG. LambdaRank adjusts the pairwise preference function, defined as the difference in relevance scores between two items, using a gradient-based approach. The gradient is calculated using the derivative of the ranking metric concerning the model parameters, guiding the updates in the model parameters to enhance the ranking metric.</li>
+</ul>
+
+<h5 id="pros-4">Pros</h5>
+<ul>
+  <li><strong>Metric Optimization</strong>: LambdaRank directly optimizes ranking metrics like NDCG, making it highly effective for improving ranking quality.</li>
+  <li><strong>Scalability</strong>: It is designed to handle large-scale datasets and can scale effectively to meet the demands of real-world applications.</li>
+  <li><strong>Adaptability</strong>: The method can be adapted to various pairwise preferences, allowing for flexibility in handling different types of ranking tasks.</li>
+</ul>
+
+<h5 id="cons-4">Cons</h5>
+<ul>
+  <li><strong>Implementation Complexity</strong>: The implementation of LambdaRank can be more complex compared to point-wise methods, requiring a deeper understanding of gradient-based optimization.</li>
+  <li><strong>Computational Resources</strong>: Like other pairwise methods, LambdaRank can be resource-intensive, necessitating considerable computational power for training on large datasets.</li>
+</ul>
+
+<h4 id="ranknet">RankNet</h4>
+
+<ul>
+  <li>RankNet is a neural network-based pair-wise learning-to-rank algorithm developed by Microsoft. It learns to predict the relative ordering of document pairs by comparing them and minimizing a loss function that captures the difference in predicted relevance scores for the pairs. RankNet uses a probabilistic cost function derived from the logistic function, where the probability that one document is ranked higher than another is modeled. This probabilistic model is trained using gradient descent to minimize the pair-wise ranking loss. RankNet’s architecture makes it particularly useful in capturing non-linear relationships between features, making it more versatile in complex ranking tasks.</li>
+</ul>
+
+<h5 id="pros-5">Pros</h5>
+<ul>
+  <li><strong>Non-Linear Modeling</strong>: RankNet, with its neural network-based approach, is effective at capturing complex, non-linear relationships between features, leading to improved ranking performance in cases where simple linear models are insufficient.</li>
+  <li><strong>End-to-End Differentiable</strong>: The model’s architecture allows for the use of backpropagation to adjust parameters, making it compatible with modern machine learning frameworks.</li>
+  <li><strong>Flexibility</strong>: RankNet’s neural network structure can be adjusted (e.g., with different numbers of layers or units) to better fit the specific complexities of the dataset or task at hand.</li>
+  <li><strong>Good Performance for Medium-Sized Datasets</strong>: It can efficiently handle medium-sized datasets with moderate complexity, making it suitable for applications where both computational resources and ranking accuracy are concerns.</li>
+</ul>
+
+<h5 id="cons-5">Cons</h5>
+<ul>
+  <li><strong>Computational Complexity</strong>: As a neural network-based approach, RankNet can be more computationally expensive to train compared to simpler models, especially for large-scale datasets.</li>
+  <li><strong>Slower Convergence</strong>: Due to its reliance on gradient descent and non-linear optimization, RankNet may require more training time and careful tuning of hyperparameters to achieve good performance.</li>
+  <li><strong>Less Interpretable</strong>: Neural networks, including RankNet, tend to be less interpretable than tree-based models, making it harder to understand the underlying reasons behind specific ranking decisions.</li>
+</ul>
+
+<h3 id="list-wise-methods">List-wise Methods</h3>
+
+<ul>
+  <li>List-wise methods treat the entire ranked list of items as a single unit and aim to optimize a scoring function that directly maps from the item set to a ranking score. These approaches focus on optimizing the entire list of documents rather than individual or pairs of documents.</li>
+  <li>List-wise methods offer a comprehensive approach to ranking by considering the entire list of documents. While they provide the benefit of directly optimizing ranking metrics and often result in improved ranking accuracy, they are computationally demanding and require careful implementation. Depending on the size of the dataset and the complexity of the ranking task, the trade-offs between higher accuracy and resource intensity must be considered when choosing between list-wise methods and simpler point-wise or pair-wise approaches.</li>
+  <li>Two main techniques are used in list-wise learning-to-rank: direct optimization of information retrieval (IR) measures, such as Normalized Discounted Cumulative Gain (NDCG), used by algorithms like SoftRank and AdaRank, and minimizing a loss function defined based on the unique properties of the target ranking, as seen in ListNet and ListMLE.</li>
+  <li>Examples of list-wise methods include ListNet, ListMLE, and LambdaMART (used for both pair-wise and list-wise ranking methods), which optimize ranking metrics like NDCG to improve the overall quality of the ranked list.</li>
+  <li>List-wise methods can extend beyond binary or multiclass classification into learning complex ranking functions, where models are trained to directly optimize ranking metrics across an entire list, improving the overall ranking quality in contrast to just focusing on individual pairwise comparisons.</li>
+</ul>
+
+<h4 id="pros-6">Pros</h4>
+<ul>
+  <li><strong>Comprehensive Optimization</strong>: List-wise methods account for the entire list of documents, leading to more holistic optimization of the ranking function.</li>
+  <li><strong>Direct Metric Alignment</strong>: These methods can directly optimize the metrics of interest, such as NDCG, resulting in better performance on those metrics.</li>
+  <li><strong>Enhanced Ranking Quality</strong>: By considering the entire list, list-wise methods can capture complex interdependencies between documents, potentially leading to superior ranking accuracy.</li>
+</ul>
+
+<h4 id="cons-6">Cons</h4>
+<ul>
+  <li><strong>Complexity</strong>: List-wise methods are inherently more complex and computationally demanding compared to point-wise and pair-wise methods.</li>
+  <li><strong>Resource Requirements</strong>: The optimization process for entire lists can be resource-intensive, requiring significant computational power and memory.</li>
+  <li><strong>Implementation Challenges</strong>: The implementation and fine-tuning of list-wise methods can be difficult, necessitating expertise in optimization and ranking algorithms.</li>
+</ul>
+
+<h4 id="listnet">ListNet</h4>
+
+<ul>
+  <li>ListNet is a list-wise learning-to-rank algorithm that models the permutation probability of ranking orders. It leverages the softmax function to calculate the probability distribution over permutations of documents, and the loss function is minimized based on the difference between the predicted and ground truth ranking distributions. This approach enables ListNet to directly optimize for the correct order of the entire list of items.</li>
+</ul>
+
+<h5 id="pros-7">Pros</h5>
+<ul>
+  <li><strong>Direct Metric Optimization</strong>: ListNet directly optimizes ranking metrics, such as NDCG, which are commonly used in information retrieval and ranking tasks.</li>
+  <li><strong>Holistic View</strong>: The algorithm evaluates the entire list, ensuring that the relationships between all items are taken into account, leading to potentially higher ranking accuracy.</li>
+  <li><strong>Flexibility with Different Objectives</strong>: ListNet can be adapted to optimize for different ranking objectives or metrics by modifying the loss function.</li>
+</ul>
+
+<h5 id="cons-7">Cons</h5>
+<ul>
+  <li><strong>Computational Complexity</strong>: ListNet can be computationally expensive, particularly when dealing with large datasets or lists containing many documents, due to the need to calculate permutations.</li>
+  <li><strong>Resource Intensive</strong>: Training the model requires significant computational resources and memory, making it less suitable for applications with limited computational budgets.</li>
+  <li><strong>Sensitive to Input Features</strong>: The performance of ListNet can heavily depend on the quality of the input features, meaning that careful feature engineering is necessary to ensure optimal ranking outcomes.</li>
+</ul>
+
+<h4 id="lambdamart">LambdaMART</h4>
+
+<ul>
+  <li>LambdaMART is a highly scalable list-wise ranking algorithm that builds on the principles of LambdaRank (a pair-wise method) and combines it with Gradient Boosted Trees (GBTs). LambdaMART optimizes ranking metrics such as NDCG by adjusting the pair-wise preference loss, but it does so in a list-wise fashion by focusing on the entire set of items within a query. LambdaMART is particularly effective for large-scale ranking tasks.</li>
+</ul>
+
+<h5 id="pros-8">Pros</h5>
+<ul>
+  <li><strong>High Predictive Performance</strong>: LambdaMART often achieves superior ranking performance by leveraging the power of GBTs, which handle complex feature interactions and dependencies well.</li>
+  <li><strong>Scalability</strong>: LambdaMART is designed to scale efficiently to large datasets, making it suitable for real-world applications that require ranking over massive document collections.</li>
+  <li><strong>Optimizes for Metrics Like NDCG</strong>: By focusing on directly optimizing ranking metrics like NDCG, LambdaMART improves the relevance of the top-ranked items, which is crucial for tasks like search engine ranking and recommendation systems.</li>
+  <li><strong>Adaptable for Both Pair-wise and List-wise</strong>: LambdaMART can be used in both pair-wise and list-wise contexts, providing flexibility in its application to different ranking problems.</li>
+</ul>
+
+<h5 id="cons-8">Cons</h5>
+<ul>
+  <li><strong>High Computational Costs</strong>: Despite its scalability, LambdaMART can still require substantial computational resources, particularly when working with very large datasets and deep trees.</li>
+  <li><strong>Complexity in Implementation</strong>: The combination of GBTs and list-wise ranking objectives introduces complexity in both model training and tuning, requiring a solid understanding of boosting techniques and ranking metrics.</li>
+  <li><strong>Sensitive to Hyperparameters</strong>: LambdaMART’s performance can be heavily influenced by hyperparameter tuning, such as tree depth, learning rate, and the number of trees, making the optimization process time-consuming.</li>
+</ul>
+
+<h3 id="ltr-algorithms-a-summary">LTR Algorithms: A Summary</h3>
+
+<ul>
+  <li>LTR algorithms are machine learning techniques used in information retrieval and recommender systems to rank items or documents based on user preferences or relevance to a given query. Here are a few commonly used LTR algorithms:
+    <ol>
+      <li><strong>Point-wise Methods:</strong> Point-wise methods treat ranking as a regression or classification problem by assigning a score or label to each item independently. Some popular point-wise methods include:
+        <ul>
+          <li><strong>Linear Regression:</strong> Fits a linear model to predict item scores based on features.</li>
+          <li><strong>Support Vector Machines (SVM):</strong> Maps features to a higher-dimensional space to find a hyperplane that separates relevant and irrelevant items.</li>
+          <li><strong>Logistic Regression:</strong> Applies logistic function to model the probability of an item being relevant.</li>
+        </ul>
+      </li>
+      <li><strong>Pair-wise Methods:</strong> Pair-wise methods consider pairs of items and learn to compare their relative ranks. The algorithm is trained to rank one item higher than another when it is more relevant or preferred by users. Examples of pairwise methods include:
+        <ul>
+          <li><strong>RankNet:</strong> Utilizes a neural network to learn the ranking function by comparing pairs of items.</li>
+          <li><strong>RankBoost:</strong> Adapts boosting algorithms to learn a ranking function that minimizes pairwise mis-ranking errors.</li>
+          <li><strong>RankSVM:</strong> Extends SVM to learn a ranking function by optimizing pairwise ranking constraints.</li>
+        </ul>
+      </li>
+      <li><strong>List-wise Methods:</strong> List-wise methods aim to directly optimize the ranking of a list or a set of items. These methods consider the entire list as a single entity and learn a ranking function to directly optimize the list-wise ranking metric. Notable list-wise methods include:
+        <ul>
+          <li><strong>ListNet:</strong> Utilizes a neural network to directly learn the ranking probability distribution over lists of items.</li>
+          <li><strong>LambdaRank:</strong> Uses gradient boosting to optimize a list-wise ranking objective, incorporating information about pairwise preferences.</li>
+          <li><strong>ListMLE:</strong> Maximum Likelihood Estimation approach that models the probability of the entire ranked list.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="evaluation-metric-normalized-discounted-cumulative-gain-ndcg">Evaluation Metric: Normalized Discounted Cumulative Gain (NDCG)</h2>
+
+<ul>
+  <li>NDCG (Normalized Discounted Cumulative Gain) is a list-wise ranking metric used to evaluate the quality of a recommender system’s ranked list of recommendations.</li>
+  <li>In addition, other metrics such as Mean Reciprocal Rank (MRR), Average Reciprocal Hit Rate (ARHR), Mean Average Precision at \(k\) (mAP@\(k\)), and Mean Average Recall at \(k\) (mAR@\(k\)) are also used.</li>
+  <li>For a detailed discourse on recommender systems’ metrics, please refer to our <a href="../metrics/index.html">Evaluation Metrics and Loss Functions</a> primer.</li>
+</ul>
+
+<h2 id="positionselection-bias-in-scoring">Position/Selection Bias in Scoring</h2>
+
+<ul>
+  <li>Items that appear lower on the screen are less likely to be clicked than items appearing higher on the screen. However, when scoring videos, the system usually doesn’t know where on the screen a link to that video will ultimately appear.</li>
+  <li>Querying the model with all possible positions is too expensive. Even if querying multiple positions were feasible, the system still might not find a consistent ranking across multiple ranking scores as can be seen in the image below <a href="https://developers.google.com/machine-learning/recommendation/dnn/scoring">(source)</a>.</li>
+</ul>
+
+<p><img src="../assets/recsys/pos_bias.svg" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<ul>
+  <li>For a more detailed analysis on positional bias, please refer our bias <a href="../bias/index.html">primer</a>.</li>
+</ul>
+
+<h2 id="putting-it-all-together">Putting it all together</h2>
+
+<h3 id="production-model">Production model</h3>
+
+<ul>
+  <li>As an example, a production model (for say, CTR prediction for an ad on a page) with a 4 layer multi-layer perceptron (MLP) with dimensions of 512, 128, 64, and 16 with ReLU activation function and BatchNorm applied to all layers is as shown below.</li>
+</ul>
+
+<p><img src="../assets/ranking/production.jpg" alt="" /></p>
+
+<ul>
+  <li>This model is fed with the concatenation of textual, numerical, and categorical features.
+    <ul>
+      <li>The textual features are converted to dense representation by:
+        <ol>
+          <li>Tokenizing the input.</li>
+          <li>Generating hash value for each token.</li>
+          <li>Using the hash value to lookup corresponding embedding from the embedding table, and</li>
+          <li>Performing mean-pool operation on the retrieved embedding vectors to generate a single dense representation for the text (e.g., the title of the product page).</li>
+        </ol>
+      </li>
+      <li>The categorical features (e.g., page category) are converted to a one-hot encoding and the corresponding embedding is retrieved from a randomly initialized embedding table.</li>
+    </ul>
+  </li>
+  <li>All the aforementioned features are concatenated and added as input to the MLP model with the click/non-click binary label and trained with binary cross entropy loss function.</li>
+</ul>
+
+<!-- ### Teacher model
+
+- By definition, a teacher model should be larger to learn enough "signal" to train a smaller student model. 
+- As an example, a language model-based self-attention model architecture for the teacher model is as shown below. 
+
+![](/recsys/assets/ranking/teacher.jpg)
+
+- The model takes the concatenated page and ad title pair as input and is able to attend to both inputs to learn useful interactions (for a downstream task, say CTR prediction). 
+- To account for the behavioral features, we can use an embeddings and MLP layer to encode these features and use late fusion to fuse the text embeddings obtained from the language model with the behavioral features. The CLS embedding obtained from the transformer is optionally projected down to a lower dimension for larger models as described in [Challenges in Scaling Up Models on Noisy Datasets](#challenges-in-scaling-up-models-on-noisy-datasets). 
+- The model can be  fine-tuned using clicks as labels and the cross-entropy loss function.  -->
+
+<h3 id="challenges-in-scaling-up-models-on-noisy-datasets">Challenges in Scaling Up Models on Noisy Datasets</h3>
+
+<ul>
+  <li>Simply scaling up the model size without any other changes to the fine-tuning methodology can result in a drop in performance. Different techniques should be explored to mitigate this drop in performance and improve the training of larger models for noisy datasets (e.g., CTR data).</li>
+  <li>In practice, <a href="../../primers/ai/model-compression.html">reverse distillation</a> (where we transfer knowledge from the smaller models to larger models) is an important technique to improve the performance and training stability of larger models, especially with inherently noisy datasets like CTR. In addition to this, projecting the semantic embeddings down to a lower dimension to allow better interaction with behavioral features and warm-starting the models with pre-trained data can also help improve the performance of larger models.</li>
+</ul>
+
+<h2 id="youtube-ranking">YouTube Ranking</h2>
+
+<ul>
+  <li>The YouTube ranking architecture <a href="https://www.youtube.com/watch?v=ShfeMloPaG0">(source)</a> is depicted in the architecture below.</li>
+</ul>
+
+<p><img src="../assets/ranking/5.png" alt="" /></p>
+
+<ul>
+  <li>The ranking stage operates on hundreds of videos and outputs about a dozen.</li>
+  <li>The input to the architecture is a pair of user and video embeddings.</li>
+  <li>During training, it leverages a weighted logistic regression model which will give you a score between 0 or 1 and that will be the ranking.</li>
+  <li>The user and video features that go into the model are previous impressions, time since last watch, user and video language.</li>
+  <li>It passes through feed forward network with ReLU activation as well.</li>
+  <li>Note, this architecture takes in 1 video and 1 user at one time and iterates this over all candidates but you could have multiple servers running this in parallel.</li>
+</ul>
+
+<h2 id="faqs">FAQs</h2>
+
+<h3 id="for-deep-neural-networks-used-in-recommender-systems-such-as-deep-and-cross-is-an-embedding-layer-used-for-categorical-features">For deep neural networks used in recommender systems (such as Deep and Cross), is an embedding layer used for categorical features?</h3>
+
+<ul>
+  <li>In deep networks used for recommender systems, such as Deep and Cross Network (DCN), embedding layers are commonly used to handle categorical features.</li>
+  <li>Embedding layers are a crucial component in deep networks used for recommender systems, especially for handling categorical features in an efficient and effective manner.</li>
+  <li>Here’s why and how:
+    <ol>
+      <li>
+        <p><strong>High Cardinality of Categorical Features</strong>: Categorical features, such as product IDs, user IDs, or item categories, often have a large number of possible values (high cardinality). It would be inefficient to represent these categories using one-hot encoding because the input vector would be extremely sparse and large. Instead, embedding layers provide a more compact and dense representation by mapping each category to a low-dimensional, continuous vector.</p>
+      </li>
+      <li>
+        <p><strong>Embedding Layer Functionality</strong>: The embedding layer works by learning a fixed-size, dense representation (embedding) for each categorical value. This is achieved by initializing an embedding matrix where each row corresponds to a specific category, and the columns represent the dimensions of the embedding space. During training, the model learns to optimize these embeddings, allowing similar categories to have similar embeddings, which improves the performance of the recommendation system.</p>
+      </li>
+      <li><strong>Integration with Deep Networks</strong>: In models like <strong>Deep and Cross Network (DCN)</strong>:
+        <ul>
+          <li>The embedding layer is typically used as the first layer for categorical features.</li>
+          <li>These embeddings are then fed into the deep (neural network) and cross (interaction terms) parts of the model, where the deep part captures non-linear feature interactions and the cross part models feature crosses in a more efficient way than traditional methods like polynomial expansion.</li>
+        </ul>
+      </li>
+      <li><strong>Benefits</strong>:
+        <ul>
+          <li><strong>Dimensionality Reduction</strong>: Embeddings convert sparse, high-dimensional categorical features into dense vectors of much smaller dimensions.</li>
+          <li><strong>Efficient Learning</strong>: By using embeddings, models can learn latent representations of items and users, which helps capture underlying patterns and improves recommendation accuracy.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="what-is-the-input-to-the-embedding-layer-give-an-example">What is the input to the embedding layer? Give an example.</h4>
+
+<ul>
+  <li>The input to an embedding layer is typically a list or sequence of categorical indices that represent the different categorical values. These indices correspond to specific categories in the original data, and they are mapped to vectors (embeddings) in the embedding matrix.</li>
+  <li>By using embedding layers, models can represent categorical features (such as “movie ID”) in a continuous space, which allows for efficient processing and learning of relationships between different categories. Thus, the input to the embedding layer is a list of categorical indices, which correspond to unique categories in the original feature, while the output is a dense, low-dimensional vector for each category, learned by the model during training.</li>
+  <li>As an example, suppose you have a categorical feature called “movie ID” in a movie recommendation system. Let’s break down how this would work step by step:</li>
+</ul>
+
+<ol>
+  <li><strong>Original Data (Categorical Feature)</strong>:<br />
+Let’s assume the dataset has movie IDs as follows:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>["Toy Story", "Avatar", "Inception", "Toy Story", "Inception"]
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Assigning Indices to Categories</strong>:<br />
+Each unique movie is assigned a unique index:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"Toy Story": 0, "Avatar": 1, "Inception": 2}
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Input to the Embedding Layer (Index Representation)</strong>:<br />
+Now, the list of movie IDs can be represented as indices:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[0, 1, 2, 0, 2]
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Embedding Layer Input</strong>:<br />
+These indices are provided as input to the embedding layer. In this case, the input is:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[0, 1, 2, 0, 2]
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Embedding Layer Output</strong>:<br />
+The embedding layer has an embedding matrix where each row represents the learned embedding (dense vector) for a particular category. For instance, if the embedding dimension is set to 3, the embedding matrix might look something like this (random values for illustration):
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Embedding Matrix:
+[ [0.1, 0.2, 0.3],  # embedding for "Toy Story" (index 0)
+  [0.5, 0.6, 0.7],  # embedding for "Avatar" (index 1)
+  [0.9, 1.0, 1.1] ] # embedding for "Inception" (index 2)
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Output of Embedding Layer</strong>:<br />
+The embedding layer will then map the input indices to their corresponding dense vectors:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Input Indices: [0, 1, 2, 0, 2]
+   
+Output Embeddings:
+[ [0.1, 0.2, 0.3],  # for "Toy Story" (index 0)
+  [0.5, 0.6, 0.7],  # for "Avatar" (index 1)
+  [0.9, 1.0, 1.1],  # for "Inception" (index 2)
+  [0.1, 0.2, 0.3],  # for "Toy Story" (index 0)
+  [0.9, 1.0, 1.1] ] # for "Inception" (index 2)
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="are-gradient-boosting-decision-trees-commonly-deployed-in-recommender-systems-which-stage-of-the-recommender-pipeline-are-they-commonly-used-what-are-the-pros-and-cons">Are Gradient Boosting Decision Trees commonly deployed in Recommender Systems? Which stage of the recommender pipeline are they commonly used? What are the pros and cons?</h3>
+
+<ul>
+  <li>Gradient Boosting Decision Trees (GBDTs) are widely used in recommender systems for their flexibility, predictive power, and ability to work with structured data. GBDTs are especially common in hybrid or ranking-based recommendation frameworks, excelling when structured data or tabular information is critical. Specifically, GBDTs handle sparse data, manage complex feature interactions, and offer interpretability, making them effective for ranking tasks.</li>
+  <li>However, they have limitations, including inefficiency in online learning, scalability concerns, and difficulties with unstructured data.</li>
+  <li>In practice, GBDTs are often used in conjunction with other models, creating a hybrid system where GBDTs handle structured data while other methods manage cold-start issues or unstructured data. The choice to use GBDTs in recommender systems depends on the specific problem, dataset, and the balance between computational resources and model flexibility.</li>
+  <li>
+    <p>To summarize, GBDTs are commonly used because of the following reasons:</p>
+
+    <ol>
+      <li>
+        <p><strong>Structured and Contextual Data</strong>: GBDTs work well with structured data features such as user demographics, item characteristics, interaction histories, and contextual features (time, location). These are often crucial for making high-quality recommendations.</p>
+      </li>
+      <li>
+        <p><strong>Effective Feature Engineering</strong>: GBDTs are strong at handling heterogeneous data and different types of features (categorical, continuous, missing). They don’t require extensive feature scaling and can capture complex non-linear relationships.</p>
+      </li>
+      <li>
+        <p><strong>Interpretability</strong>: GBDTs provide interpretable models, particularly useful when you want to understand feature importance in recommendation models (e.g., why a certain item is recommended to a user).</p>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="where-are-gbdts-commonly-used-in-the-recommender-pipeline">Where Are GBDTs Commonly Used in the Recommender Pipeline?</h4>
+
+<ul>
+  <li>
+    <p>GBDTs are primarily used in the <strong>ranking and candidate selection stage</strong> of recommender systems pipelines, often as a part of a <strong>two-stage approach</strong>:</p>
+
+    <ol>
+      <li><strong>Candidate Generation</strong>:
+        <ul>
+          <li>The initial step in recommender systems is to filter a large pool of items down to a smaller set of candidate items. Here, GBDTs might be combined with simpler methods such as collaborative filtering or matrix factorization to narrow down relevant items quickly.</li>
+        </ul>
+      </li>
+      <li><strong>Ranking</strong>:
+        <ul>
+          <li>After generating a set of candidate items, the next stage is to rank these items based on how relevant they are to the user. This is where GBDTs excel.</li>
+          <li>GBDTs are often employed in this ranking phase, taking features like user-item interaction data (clicks, views, purchases), contextual data (time, location), and user/item attributes, and then outputting a relevance score.</li>
+          <li>For instance, <strong>Gradient Boosted Tree-based ranking models (such as XGBoost, LightGBM, or CatBoost)</strong> are used by companies like YouTube and Alibaba in their recommender pipelines to fine-tune ranking scores for items.</li>
+        </ul>
+      </li>
+      <li><strong>Post-processing (Ensemble Models)</strong>:
+        <ul>
+          <li>GBDTs can also be part of ensemble models, where their output is combined with outputs from other models (e.g., deep learning, collaborative filtering models). This hybrid approach improves overall recommendation accuracy.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="pros-of-using-gbdts-in-recommender-systems">Pros of Using GBDTs in Recommender Systems</h4>
+
+<ol>
+  <li><strong>Effective with Sparse Data</strong>:
+    <ul>
+      <li>One of the major advantages of GBDTs is their ability to handle <strong>sparse data</strong>. Sparse is common in recommendation systems because not all users interact with all items, leading to a matrix where most entries are empty or zero (user-item interaction matrix). Sparse data is often composed of categorical features that are one-hot encoded or indicator variables for specific interactions, such as a user clicking on or purchasing an item.</li>
+      <li><strong>Why Are GBDTs Effective with Sparse Data?</strong>
+        <ol>
+          <li><strong>Handling of Categorical Features</strong>: GBDTs can handle sparse data by splitting decision trees based on subsets of categorical features (e.g., item category, user age group, device type) without needing to densify the data. Unlike models that require continuous data or complex transformations, GBDTs can process one-hot encoded categorical features directly, which is useful for large and sparse interaction matrices.</li>
+          <li><strong>Robust to Missing Values</strong>: GBDTs can handle missing data natively. In sparse matrices, many features may be missing or set to zero. GBDT algorithms like XGBoost, LightGBM, and CatBoost include mechanisms to split nodes based on missing values or treat missing values as a distinct feature. This makes them robust and efficient when dealing with datasets where not every feature is fully populated, which is common in recommender systems.</li>
+          <li><strong>Automatic Feature Selection</strong>: GBDTs are naturally good at ignoring irrelevant or less informative features. In sparse data settings, many features (e.g., certain user interactions) might not contribute significantly to the predictive power of the model. GBDTs can automatically focus on the features that provide meaningful splits in the data, effectively managing sparsity without overfitting to noise.</li>
+          <li><strong>Non-linear Interactions</strong>: GBDTs excel in capturing complex, non-linear relationships between sparse features. For example, a user’s interaction with an item might depend on specific, rare combinations of attributes (like purchasing behavior in a specific geographic location for a particular product type). GBDTs can learn these non-linear patterns without needing extensive feature engineering.</li>
+        </ol>
+      </li>
+      <li><strong>How GBDTs Handle Sparse Data</strong>:
+        <ol>
+          <li><strong>One-hot Encoding</strong>: GBDTs do not require dense representations of data. Features like user-item interactions can be represented with sparse one-hot encodings, where only a few features are “active” (non-zero) for a given observation. GBDTs can split on any of these one-hot features, allowing them to work directly with the sparse matrix.</li>
+          <li><strong>Efficient Splitting</strong>: During the tree-building process, GBDTs evaluate all possible splits at each node, even when the data is sparse. The decision tree will learn to split on meaningful sparse features, helping the model capture useful patterns from high-dimensional, sparse datasets.</li>
+          <li><strong>Categorical Encoding</strong>: Algorithms like CatBoost are specifically designed to handle categorical variables more efficiently than traditional one-hot encoding, further improving GBDTs’ performance on sparse data by reducing dimensionality and preserving information.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Non-linearity and Feature Engineering</strong>:
+    <ul>
+      <li>GBDTs are capable of capturing complex, non-linear relationships between features, which are common in recommendation systems (e.g., interaction between user preferences and item features).</li>
+      <li>They also require less feature engineering compared to linear models, as GBDTs can automatically select and combine features that improve model performance.</li>
+    </ul>
+  </li>
+  <li><strong>Interpretability</strong>:
+    <ul>
+      <li>While deep learning models like neural collaborative filtering are often treated as “black boxes,” GBDTs provide clear insight into feature importance, making it easier for practitioners to understand why the model is recommending a particular item.</li>
+    </ul>
+  </li>
+  <li><strong>High Performance with Little Tuning</strong>:
+    <ul>
+      <li>In comparison to deep learning models, GBDTs often require less hyperparameter tuning to achieve strong performance, which makes them appealing in scenarios where computational resources are limited or time-to-market is critical.</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="cons-of-using-gbdts-in-recommender-systems">Cons of Using GBDTs in Recommender Systems</h4>
+
+<ol>
+  <li><strong>Inefficient for Continual/Online Learning</strong>:
+    <ul>
+      <li>GBDTs are inefficient for continual or online learning, which is a significant drawback in dynamic environments like recommender systems. In many real-world recommendation applications, user preferences and item availability change frequently. Continual or online learning refers to a model’s ability to adapt to new data in real time, without retraining from scratch. GBDTs, however, are typically batch learners that operate on static datasets and need to be retrained fully to incorporate new information, leading to a computationally expensive and slow process.</li>
+      <li>In contrast, models like deep neural networks, online matrix factorization, or reinforcement learning methods can adapt incrementally as new data becomes available, making them more suitable for dynamic recommendation environments.</li>
+      <li><strong>Why Are GBDTs Inefficient for Continual/Online Learning?</strong>
+        <ol>
+          <li><strong>Batch Learning Nature</strong>: GBDTs are built in stages by sequentially adding trees, where each new tree corrects the errors made by the previous ones. This is fundamentally a batch learning process because the model is trained on the full dataset, and any new data requires retraining from scratch or restarting the boosting process. This retraining is computationally expensive and time-consuming in systems where new interactions (e.g., user clicks or purchases) are constantly streaming in.</li>
+          <li><strong>Lack of Incremental Updates</strong>: Unlike algorithms such as matrix factorization or certain neural network architectures, GBDTs do not have native support for <strong>incremental learning</strong> (i.e., updating the model without retraining). For every new batch of data, the entire model must be updated to incorporate new patterns, which is not feasible in environments where immediate updates are required.</li>
+          <li><strong>High Computational Overhead</strong>: Training GBDTs involves iterative rounds of tree building, where each tree is constructed based on the residuals of the previous iteration. This requires accessing the entire dataset, making it costly to retrain in real-time or with frequently arriving new data. For example, if a recommender system sees new interactions every minute, retraining a GBDT on each new batch of data would significantly slow down the system’s ability to make timely recommendations.</li>
+        </ol>
+      </li>
+      <li><strong>How This Inefficiency Manifests</strong>:
+        <ol>
+          <li><strong>Latency in Real-Time Systems</strong>: In online or real-time recommender systems, the goal is to quickly adapt to a user’s most recent interactions (e.g., purchases, clicks) to improve the accuracy of recommendations. GBDTs cannot efficiently process this continual stream of new data without retraining the model, leading to latency issues in deploying real-time updates.</li>
+          <li><strong>Resource-Intensive Retraining</strong>: In scenarios where retraining is done to accommodate new data, the process can become computationally expensive. Large-scale recommender systems with millions of users and items can’t afford to constantly retrain GBDTs without slowing down the recommendation process. In contrast, methods like stochastic gradient descent (SGD) in matrix factorization or online learning variants of neural networks can update model parameters with each new data point, providing more agile learning capabilities.
+            <ul>
+              <li><strong>Workarounds and Alternatives:</strong>
+                <ul>
+                  <li><strong>Mini-batch Retraining</strong>: Instead of retraining the model on every new interaction, GBDTs can be retrained periodically (e.g., once every hour or day) in a batch-processing manner. This reduces computational load but sacrifices immediate responsiveness.</li>
+                  <li><strong>Hybrid Models</strong>: To tackle the inefficiency of GBDTs in online learning, many recommender systems employ a hybrid approach, where GBDTs are used in combination with models that can perform real-time updates (e.g., online collaborative filtering models or reinforcement learning-based models). GBDTs can handle complex feature interactions offline, while the other models adjust dynamically to recent interactions.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Scalability and Latency</strong>:
+    <ul>
+      <li>As the dataset grows, especially in large-scale recommender systems with millions of users and items, GBDTs can become computationally expensive both in terms of training time and inference speed. While modern implementations like XGBoost, LightGBM, and CatBoost have optimized performance, GBDTs can still face scalability issues when compared to more lightweight models like matrix factorization or nearest-neighbor approaches.</li>
+    </ul>
+  </li>
+  <li><strong>Limited to Structured Data</strong>:
+    <ul>
+      <li>GBDTs work well with structured/tabular data but might struggle with unstructured data like text, images, or audio. Recommender systems often need to work with various types of data (e.g., user reviews, item descriptions, or multimedia content), and deep learning models like CNNs (for images) or RNNs (for sequential data) are more suitable for this kind of input.</li>
+    </ul>
+  </li>
+  <li><strong>Cold Start Problem</strong>:
+    <ul>
+      <li>Although GBDTs can handle sparse data, they don’t inherently solve the cold start problem (i.e., when there is little or no interaction data for new users or new items). Collaborative filtering techniques and hybrid approaches that integrate content-based filtering are generally better at addressing cold start issues.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="how-do-you-synthesize-long-term-user-history-in-recommender-systems">How do you synthesize long term user history in recommender systems?</h3>
+
+<ul>
+  <li>Synthesizing long-term user history in recommender systems involves creating models that can effectively understand, represent, and leverage users’ past behavior to predict their future preferences or needs. Since long-term user history is vast and complex, the challenge is to extract relevant patterns, while avoiding problems like overfitting, data sparsity, or outdated preferences.</li>
+  <li>By combining these approaches, recommender systems can effectively synthesize long-term user history to provide personalized, dynamic, and contextually aware recommendations that adapt to a user’s evolving preferences.</li>
+  <li>Here’s an overview of the key steps and methods used in synthesizing long-term user history for recommendation purposes.</li>
+</ul>
+
+<h4 id="user-representation-and-feature-engineering">User Representation and Feature Engineering</h4>
+
+<ul>
+  <li><strong>Static User Profiles</strong>: In this approach, a user’s long-term preferences are represented as a fixed feature vector. Common strategies include:
+    <ul>
+      <li><strong>Aggregate history</strong>: Sum or average all past interactions with items (e.g., rating, purchases, clicks).</li>
+      <li><strong>Demographic features</strong>: Include static features like age, gender, and location to enrich the user profile.</li>
+      <li><strong>Explicit features</strong>: Some platforms allow users to express preferences explicitly (e.g., by liking genres or topics), which can be combined with implicit behavioral data.</li>
+    </ul>
+  </li>
+  <li><strong>Behavioral Embeddings</strong>: Embedding techniques are commonly used to capture users’ long-term behaviors in dense vectors.
+    <ul>
+      <li><strong>Word2Vec-like models</strong>: Treat user-item interactions like a sequence of words (e.g., movies watched) to generate a user embedding that summarizes long-term preferences.</li>
+      <li><strong>Matrix factorization</strong>: Models like Singular Value Decomposition (SVD) or Alternating Least Squares (ALS) decompose the user-item interaction matrix, capturing latent factors that represent long-term behavior.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="sequential-modeling-for-long-term-preferences">Sequential Modeling for Long-Term Preferences</h4>
+
+<ul>
+  <li>
+    <p>Recommender systems can use sequential models to capture the temporal ordering and dynamics of a user’s interactions over time:</p>
+
+    <ul>
+      <li><strong>RNNs/LSTMs</strong>: Recurrent Neural Networks (RNNs) and Long Short-Term Memory (LSTM) networks can handle sequences of user interactions, allowing the model to learn time-dependent patterns. They are especially useful for capturing how preferences evolve over time.</li>
+      <li><strong>Transformers</strong>: Transformer models, like BERT4Rec, have emerged as powerful sequence models in recommender systems. They capture both long-term dependencies and dynamic shifts in preferences by using self-attention mechanisms. This can help in synthesizing user history, by weighing more recent or more important interactions higher.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="hybrid-models">Hybrid Models</h4>
+
+<ul>
+  <li>
+    <p>Hybrid models combine long-term user history with short-term signals (e.g., recent browsing or purchase behavior) to enhance personalization:</p>
+
+    <ul>
+      <li><strong>Latent factor models + time decay</strong>: Latent factor models (e.g., matrix factorization) can be combined with time-decay functions, where more recent interactions are given higher weights, but the user’s overall long-term history is still considered.</li>
+      <li><strong>Collaborative filtering + content-based</strong>: Hybrid models integrate collaborative filtering (CF) approaches with content-based techniques. CF benefits from long-term preferences learned from similar users, while content-based models focus on individual user-item features.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="temporal-decay-and-forgetting-mechanisms">Temporal Decay and Forgetting Mechanisms</h4>
+
+<ul>
+  <li>
+    <p>Not all past interactions are equally valuable for recommendation. Strategies to handle this include:</p>
+
+    <ul>
+      <li><strong>Time decay functions</strong>: Assign decreasing importance to older interactions. For example, recent interactions (e.g., a movie watched last week) might be more predictive than something watched two years ago.</li>
+      <li><strong>Forgetting factors</strong>: Explicitly model a “forgetting curve” for user preferences, adjusting the relevance of old interactions or preferences that might no longer apply (e.g., users outgrowing certain tastes).</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="personalized-temporal-dynamics">Personalized Temporal Dynamics</h4>
+
+<ul>
+  <li><strong>Adaptive models</strong>: Different users might exhibit different rates of preference change. Some users may stick with long-term preferences, while others frequently switch. Adaptive models, such as personalized time decay, adjust how much weight to place on long-term versus short-term history for each individual user.</li>
+  <li><strong>Multi-scale attention mechanisms</strong>: Models like SASRec (Sequential Attentive Recommender) employ multi-scale attention to focus on both long-term patterns and short-term trends, giving the model flexibility to adjust its focus dynamically.</li>
+</ul>
+
+<h4 id="contextual-and-event-based-updates">Contextual and Event-Based Updates</h4>
+
+<ul>
+  <li><strong>Context-aware modeling</strong>: Long-term user history can be augmented with context (e.g., location, time of day, device type). For instance, users may exhibit different preferences in different contexts, and contextual signals can be synthesized alongside long-term preferences for more accurate recommendations.</li>
+  <li><strong>Event-driven updates</strong>: If a user undergoes a major life event (e.g., moving to a new city, graduating, getting married), their long-term preferences may change rapidly. Recommender systems can detect such events and adjust accordingly.</li>
+</ul>
+
+<h4 id="multi-task-learning">Multi-Task Learning</h4>
+
+<ul>
+  <li>By leveraging multi-task learning, a model can be trained to predict multiple aspects of user behavior simultaneously (e.g., purchases, clicks, dwell time). This helps the model learn from multiple facets of user history and synthesize richer long-term representations.</li>
+</ul>
+
+<h4 id="denoising-and-filtering">Denoising and Filtering</h4>
+
+<ul>
+  <li>
+    <p>Long-term history may include noisy or irrelevant interactions (e.g., one-time purchases, accidental clicks). Techniques to denoise user history include:</p>
+
+    <ul>
+      <li><strong>Threshold-based filtering</strong>: Discarding interactions below a certain threshold of engagement (e.g., items with low ratings or short viewing times).</li>
+      <li><strong>Collaborative filtering denoising</strong>: Using neighborhood-based collaborative filtering to validate whether a user’s interaction with an item aligns with their overall profile, or if it’s an anomaly.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="reinforcement-learning">Reinforcement Learning</h4>
+
+<ul>
+  <li>
+    <p>Reinforcement learning (RL) can be used to synthesize user history by considering the long-term reward of recommendations. The RL agent can learn optimal recommendation strategies based on long-term user engagement rather than just immediate clicks or purchases.</p>
+
+    <ul>
+      <li><strong>Policy-gradient methods</strong>: These are commonly used to optimize long-term objectives, such as increasing user retention or lifetime value, by continuously adjusting recommendations based on long-term user interactions.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="evaluation-and-adaptation">Evaluation and Adaptation</h4>
+
+<ul>
+  <li>Synthesizing long-term user history requires continual evaluation and adaptation. The system needs to:
+    <ul>
+      <li><strong>Track performance metrics</strong> (e.g., precision, recall, user engagement, satisfaction) to ensure that long-term history improves recommendations.</li>
+      <li><strong>Adapt to user changes</strong>: Regularly update the user model as preferences shift over time. Monitoring shifts in behavior and refreshing user profiles periodically ensures that old data does not dominate the recommendations.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="how-do-handle-data-imbalance-in-model-training-for-recommender-systems">How do handle data imbalance in model training for recommender systems?</h3>
+
+<ul>
+  <li>Handling data imbalance in model training, especially for recommendation systems, is a common challenge. In recommendation systems, imbalance often arises because popular items (like movies, products, etc.) are frequently interacted with, while less popular ones have very few interactions. This can lead to the model favoring popular items over less popular but potentially more relevant ones for specific users.</li>
+  <li>Here are several techniques to manage data imbalance in recommendation system training:</li>
+</ul>
+
+<h4 id="sampling-techniques">Sampling Techniques</h4>
+
+<ul>
+  <li>
+    <p><strong>Undersampling Popular Items</strong>: You can reduce the number of interactions for popular items so that the model doesn’t overfit to these interactions. This can be useful when you want to give less popular items a chance to appear more often in the training data.</p>
+  </li>
+  <li>
+    <p><strong>Oversampling Rare Items</strong>: For items with fewer interactions, you can duplicate or create synthetic interactions to boost their presence in the dataset, balancing out the training data. However, this might lead to overfitting to those duplicated items.</p>
+  </li>
+  <li>
+    <p><strong>Negative Sampling</strong>: Many recommendation algorithms (like Matrix Factorization or neural collaborative filtering) rely on implicit feedback (clicks, views, etc.) and assume non-interactions are negative feedback. Negative sampling can help balance the positive (observed) and negative (unobserved) interactions by selecting a subset of negative interactions to use in training, rather than using all non-interactions.</p>
+  </li>
+</ul>
+
+<h4 id="weighted-loss-functions">Weighted Loss Functions</h4>
+
+<ul>
+  <li>
+    <p><strong>Class-weighted Loss</strong>: You can modify the loss function to assign higher weights to underrepresented items or users. For example, if you’re using cross-entropy loss or a ranking loss function, you can increase the weight for less popular items so that the model penalizes errors related to those items more severely.</p>
+  </li>
+  <li>
+    <p><strong>Focal Loss</strong>: This is a loss function that down-weights easy-to-classify examples (e.g., popular items) and focuses on harder examples (e.g., underrepresented items). Focal loss is often used in classification problems but can be adapted for recommendation systems as well.</p>
+  </li>
+</ul>
+
+<h4 id="bias-aware-algorithms">Bias-aware Algorithms</h4>
+
+<ul>
+  <li>
+    <p><strong>Weighted Alternating Least Squares (WALS)</strong>: In matrix factorization methods, you can apply weights to different interactions, such that more weight is given to less frequent items and users. WALS, for example, extends ALS (Alternating Least Squares) to account for different levels of importance in data points.</p>
+  </li>
+  <li>
+    <p><strong>Cost-sensitive Learning</strong>: Some algorithms can be adapted to give higher costs to mistakes related to underrepresented items. This is similar to using weighted loss functions but may also influence other aspects of the algorithm, such as gradient updates.</p>
+  </li>
+</ul>
+
+<h4 id="regularization-techniques">Regularization Techniques</h4>
+
+<ul>
+  <li>
+    <p><strong>Item-based Regularization</strong>: Regularize the model more heavily on popular items, thus preventing them from dominating the predictions. This encourages the model to diversify its recommendations.</p>
+  </li>
+  <li>
+    <p><strong>Debiasing Techniques</strong>: Recent research has introduced various debiasing techniques, such as causal inference or exposure-based models, to account for the bias towards popular items. These models can learn to recommend items while factoring in the inherent biases present in user interaction data.</p>
+  </li>
+</ul>
+
+<h4 id="hybrid-models-1">Hybrid Models</h4>
+
+<ul>
+  <li>
+    <p><strong>Content-based + Collaborative Filtering</strong>: You can combine content-based recommendations (which use item metadata) with collaborative filtering. This hybrid approach allows the system to recommend lesser-known items based on their similarity to popular ones or user preferences, even when interactions are sparse.</p>
+  </li>
+  <li>
+    <p><strong>Diversity Regularization</strong>: Add diversity constraints to your recommendation system, ensuring that it recommends a broader range of items, not just the most popular ones. For example, matrix factorization methods can be extended with diversity regularization terms to encourage varied recommendations.</p>
+  </li>
+</ul>
+
+<h4 id="cross-validation-with-stratified-splitting">Cross-validation with Stratified Splitting</h4>
+
+<ul>
+  <li>Ensure that you perform stratified splitting when preparing your training and validation datasets. This ensures that the rare items or users are properly represented across the splits, helping to evaluate the model’s performance on underrepresented data points effectively.</li>
+</ul>
+
+<h4 id="cold-start-handling">Cold-start Handling</h4>
+
+<ul>
+  <li>
+    <p><strong>Augmenting Cold-start Recommendations</strong>: When dealing with items or users that have little interaction data (cold-start problem), you can augment the data with metadata (for items) or demographic data (for users) to help the model make better recommendations despite the imbalance.</p>
+  </li>
+  <li>
+    <p><strong>Transfer Learning</strong>: Use pre-trained models or knowledge from related tasks or domains (e.g., text classification, image recognition) to help recommend items with limited interaction data by leveraging transferable features from other data sources.</p>
+  </li>
+</ul>
+
+<h4 id="active-learning">Active Learning</h4>
+
+<ul>
+  <li>Active learning strategies can help mitigate imbalance by specifically querying for user feedback on less popular items or users that are underrepresented in the dataset. This can help create more balanced data over time.</li>
+</ul>
+
+<h4 id="fairness-constraints">Fairness Constraints</h4>
+
+<ul>
+  <li>Fairness-aware recommendation systems explicitly consider fairness constraints to prevent the system from favoring items from a specific group (e.g., popular items). These models aim to ensure that all items or users, regardless of their frequency in the dataset, are treated fairly.</li>
+</ul>
+
+<h4 id="model-architecture-adjustments">Model Architecture Adjustments</h4>
+
+<ul>
+  <li>
+    <p><strong>Attention Mechanisms</strong>: You can incorporate attention mechanisms in neural recommendation architectures (such as in deep learning-based recommenders like Neural Collaborative Filtering or Transformers). Attention can help the model focus on underrepresented items or users in a more dynamic and adaptive way.</p>
+  </li>
+  <li>
+    <p><strong>Graph-based Models</strong>: Graph-based approaches (e.g., Graph Neural Networks) can propagate information from popular to less popular nodes (items or users) through their connections, potentially improving recommendations for underrepresented items.</p>
+  </li>
+  <li>
+    <p>By using a combination of these methods, you can effectively mitigate the impact of data imbalance in recommendation systems and improve the performance, fairness, and diversity of your recommendations.</p>
+  </li>
+</ul>
+
+<h3 id="what-are-contextual-bandits-how-are-they-used-in-the-context-of-recommender-systems">What are Contextual bandits? How are they used in the context of recommender systems?</h3>
+
+<ul>
+  <li>Contextual bandits are a type of decision-making algorithm that balances exploration and exploitation, a core challenge in reinforcement learning. They extend the multi-armed bandit problem by incorporating additional context to guide decision-making, making them a powerful framework for environments like recommender systems.</li>
+  <li>In these systems, the goal is to make the best possible recommendation for a user based on both their individual context and the system’s overall learning. By balancing the trade-off between exploring new content and exploiting known preferences, contextual bandits can continuously improve the personalization of recommendations in real time, making them ideal for dynamic, user-interaction-heavy environments.</li>
+</ul>
+
+<h4 id="multi-armed-bandit-problem">Multi-Armed Bandit Problem</h4>
+<ul>
+  <li>Imagine you have several slot machines (or “arms”) and each one gives a different reward when pulled. The goal is to maximize the total reward by pulling the most rewarding arms. However, you don’t know beforehand which arm is the best.</li>
+  <li><strong>Exploration vs. Exploitation:</strong> You need to balance:</li>
+  <li><strong>Exploration:</strong> Trying out different arms to learn which one gives the best reward.</li>
+  <li><strong>Exploitation:</strong> Pulling the arm that seems to give the best reward based on what you’ve learned so far.</li>
+</ul>
+
+<h4 id="contextual-bandits">Contextual Bandits</h4>
+<ul>
+  <li><strong>Contextual bandits</strong> extend the multi-armed bandit problem by introducing context into the decision process. Rather than just choosing an arm based on past reward alone, contextual bandits take into account the current situation or “context” before making a decision.</li>
+  <li><strong>Context:</strong> The “context” refers to additional information that can help in decision-making. For example, in a news website, the context might include user information such as location, browsing history, or device type.</li>
+  <li><strong>Action:</strong> Based on the context, the algorithm decides which action to take (which arm to pull, or which recommendation to make).</li>
+  <li><strong>Reward:</strong> After the action, the algorithm observes the reward (e.g., whether the user clicked the recommended item or not) and uses this feedback to improve future decisions.</li>
+</ul>
+
+<h4 id="how-contextual-bandits-work">How Contextual Bandits Work</h4>
+
+<ol>
+  <li><strong>Context Observation:</strong> The system observes some contextual features of the current situation. For example, in a recommender system, this could be user preferences, time of day, or browsing history.</li>
+  <li><strong>Action Selection:</strong> Based on the observed context, the algorithm chooses an action from a set of possible actions. In the case of a recommender system, this could be selecting a piece of content to recommend to the user.</li>
+  <li><strong>Receive Reward:</strong> The system receives a reward based on the user’s response to the selected action (e.g., whether the user clicked on the recommended item or made a purchase).</li>
+  <li><strong>Update Strategy:</strong> The algorithm updates its strategy using the reward received, aiming to improve future recommendations by learning from past experience.</li>
+</ol>
+
+<h4 id="contextual-bandits-vs-full-reinforcement-learning">Contextual Bandits vs. Full Reinforcement Learning</h4>
+
+<ul>
+  <li>Contextual bandits are a simplification of full reinforcement learning. In full reinforcement learning, the agent needs to learn from sequences of actions and long-term rewards (i.e., the environment’s state changes over time). In contrast, contextual bandits only deal with one-time, immediate rewards and do not require learning long-term strategies. This makes them computationally simpler and ideal for situations where immediate feedback is available, like in recommender systems.</li>
+</ul>
+
+<h4 id="use-of-contextual-bandits-in-recommender-systems">Use of Contextual Bandits in Recommender Systems</h4>
+
+<ul>
+  <li>Recommender systems aim to provide personalized suggestions to users, such as recommending products, articles, or movies based on the user’s preferences. Contextual bandits are an effective method for improving these recommendations by incorporating real-time user data and balancing exploration of new items with exploiting known preferences.</li>
+</ul>
+
+<h5 id="context-as-user-data">Context as User Data</h5>
+
+<ul>
+  <li>In a recommender system, the context can include various user-related features, such as:
+    <ul>
+      <li>Demographics (e.g., age, gender, location).</li>
+      <li>Browsing history or previous interactions.</li>
+      <li>Device type (mobile, desktop).</li>
+      <li>Time of day, day of the week, etc.</li>
+    </ul>
+  </li>
+  <li>The recommender system uses this context to make more relevant suggestions. For example, a user might prefer different types of recommendations when browsing on their mobile device during a morning commute compared to using their laptop in the evening.</li>
+</ul>
+
+<h5 id="actions-as-recommendations">Actions as Recommendations</h5>
+
+<ul>
+  <li>Each possible action in the contextual bandit framework corresponds to a recommendation the system can make. For instance, the action might be recommending one specific article or product from a larger set. The system will try to maximize the likelihood that the user interacts with (e.g., clicks, purchases, watches) the recommended item.</li>
+</ul>
+
+<h5 id="rewards-as-user-feedback">Rewards as User Feedback</h5>
+
+<ul>
+  <li>The reward is the feedback that the system gets after making a recommendation. This could be:
+    <ul>
+      <li>A click on a recommended article.</li>
+      <li>A purchase of a recommended product.</li>
+      <li>Time spent reading or engaging with the content.</li>
+    </ul>
+  </li>
+  <li>Positive rewards (e.g., a click or purchase) reinforce the action (i.e., making a similar recommendation in similar contexts in the future), while negative rewards (e.g., no interaction) encourage exploration of other options.</li>
+</ul>
+
+<h5 id="balancing-exploration-and-exploitation">Balancing Exploration and Exploitation</h5>
+
+<ul>
+  <li><strong>Exploration:</strong> The system occasionally tries new recommendations that the user has not previously interacted with. This helps discover new preferences that may not be apparent from past behavior.</li>
+  <li>
+    <p><strong>Exploitation:</strong> The system recommends items that it believes the user is likely to engage with based on past behavior and the current context.</p>
+  </li>
+  <li>For example, a user might have previously interacted with sports content, but occasionally showing them news articles in different genres (exploration) can help the system learn if the user has other interests as well.</li>
+</ul>
+
+<h5 id="online-learning">Online Learning</h5>
+
+<ul>
+  <li>Contextual bandits are highly suited for <strong>online learning</strong>, meaning they can adapt to user behavior in real-time. The system can continuously refine its recommendations as it gathers more feedback from the user, making it particularly effective in dynamic environments.</li>
+</ul>
+
+<h4 id="practical-applications-in-recommender-systems">Practical Applications in Recommender Systems</h4>
+
+<ol>
+  <li><strong>News Websites:</strong>
+    <ul>
+      <li>Contextual bandits are used to recommend news articles based on a user’s reading history, location, or even the time of day. The system tries to maximize engagement (e.g., clicks on articles) by learning which types of stories each user is interested in.</li>
+    </ul>
+  </li>
+  <li><strong>E-Commerce:</strong>
+    <ul>
+      <li>E-commerce platforms like Amazon use contextual bandits to recommend products. The context could include the user’s previous purchases, browsing history, or even the current season (e.g., recommending holiday-related products in December).</li>
+    </ul>
+  </li>
+  <li><strong>Streaming Services:</strong>
+    <ul>
+      <li>Platforms like Netflix and YouTube can use contextual bandits to recommend movies, TV shows, or videos. The system learns from the user’s watching habits, such as preferred genres, and continuously optimizes the recommendations in real time based on user interactions.</li>
+    </ul>
+  </li>
+  <li><strong>Advertising:</strong>
+    <ul>
+      <li>Contextual bandits can be used in online advertising to optimize which ads are shown to users. The context could include the user’s browsing history, current search query, or location. The system balances between showing ads that have historically performed well (exploitation) and trying new ads that might be relevant to the user (exploration).</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="advantages-of-contextual-bandits-in-recommender-systems">Advantages of Contextual Bandits in Recommender Systems</h4>
+
+<ol>
+  <li><strong>Efficiency:</strong> They provide a more efficient way of personalizing content by considering real-time user context and adapting dynamically to user behavior.</li>
+  <li><strong>Scalability:</strong> Contextual bandits are computationally less expensive than full reinforcement learning, making them scalable for large systems with many users and items.</li>
+  <li><strong>Improved Personalization:</strong> By incorporating the context, they can offer more accurate and personalized recommendations.</li>
+  <li><strong>Real-time Adaptation:</strong> They can continuously learn and adjust recommendations based on immediate user feedback, allowing the system to quickly adapt to changing user preferences.</li>
+</ol>
+
+<h4 id="challenges">Challenges</h4>
+
+<ol>
+  <li><strong>Cold Start Problem:</strong> For new users, the system may struggle to balance exploration and exploitation effectively due to a lack of data.</li>
+  <li><strong>Context Representation:</strong> Deciding which features to use as context and how to represent them efficiently can be challenging.</li>
+  <li><strong>Exploration Risks:</strong> Too much exploration can lead to recommending items that users find irrelevant or uninteresting, which may negatively affect user satisfaction.</li>
+</ol>
+
+<h3 id="in-the-context-of-recommender-systems-matrix-factorization-can-lack-scalability-due-to-large-dimensions-of-the-user-item-matrix-especially-at-billion-scale-how-does-neural-collaborative-filtering-handle-this">In the context of recommender systems, matrix factorization can lack scalability due to large dimensions of the user-item matrix, especially at billion-scale. How does neural collaborative filtering handle this?</h3>
+
+<ul>
+  <li>Neural Collaborative Filtering (NCF) effectively addresses the scalability limitations of traditional Matrix Factorization (MF) approaches, particularly when managing large-scale user-item interactions, by leveraging the power of deep learning.</li>
+  <li>Unlike MF, which struggles with scalability, NCF reduces the problem size using low-dimensional embeddings and avoids explicitly working with the full user-item interaction matrix.</li>
+  <li>Additionally, NCF captures non-linear relationships between users and items through deep neural networks and employs efficient training strategies like mini-batch stochastic gradient descent (SGD) and GPU acceleration. These features make NCF a more scalable and flexible solution for modern recommender systems dealing with billion-scale data.</li>
+  <li>Here’s how NCF handles the scalability issue and overcomes the limitations of matrix factorization.</li>
+</ul>
+
+<h4 id="limitations-of-matrix-factorization-at-large-scale">Limitations of Matrix Factorization at Large Scale</h4>
+
+<ul>
+  <li>MF models user-item interactions using a factorization technique that decomposes the user-item interaction matrix into lower-dimensional latent feature vectors for users and items. Despite its success, it faces challenges at large scale:</li>
+  <li><strong>Large Dimensionality</strong>: When the number of users and items grows into the millions or billions, the size of the user-item matrix (which might be sparse) becomes enormous. Factorizing this matrix efficiently becomes computationally expensive.</li>
+  <li><strong>Linear Relationships</strong>: Traditional MF assumes that the interaction between a user and an item can be represented as a simple dot product between the user and item latent vectors, which may not be able to capture more complex, non-linear relationships in the data.</li>
+</ul>
+
+<h4 id="neural-collaborative-filtering-ncf-overview">Neural Collaborative Filtering (NCF) Overview</h4>
+
+<ul>
+  <li>NCF introduces deep neural networks to model the interactions between users and items, allowing it to capture more complex patterns. It extends the idea of latent factor models like MF by using neural networks to learn an arbitrary, non-linear function to represent user-item interactions.</li>
+  <li>In NCF, the idea is to replace the dot product used in MF with a more flexible neural architecture that can better capture intricate user-item relationships.</li>
+</ul>
+
+<h4 id="how-ncf-improves-scalability">How NCF Improves Scalability</h4>
+
+<ul>
+  <li>NCF handles the scalability challenge in several ways:</li>
+</ul>
+
+<h5 id="embedding-layers-to-handle-large-dimensions">Embedding Layers to Handle Large Dimensions</h5>
+
+<ul>
+  <li>Instead of directly working with the full user-item matrix, NCF maps users and items into low-dimensional dense embedding vectors. These embeddings are learned during the training process:
+    <ul>
+      <li><strong>User Embeddings</strong>: For each user, NCF learns a low-dimensional vector representation (embedding) that captures the user’s preferences.</li>
+      <li><strong>Item Embeddings</strong>: Similarly, for each item, NCF learns a low-dimensional vector representation that captures its properties.</li>
+    </ul>
+  </li>
+  <li>By learning embeddings, NCF reduces the dimensionality problem of the user-item matrix, since the embeddings are much smaller than the original interaction matrix. These embeddings are typically 10s to 100s of dimensions, instead of working with the total number of users or items directly, which could be in the millions or billions.</li>
+</ul>
+
+<h5 id="parameter-sharing-with-embeddings">Parameter Sharing with Embeddings</h5>
+
+<ul>
+  <li>In NCF, each user and item is represented by an embedding vector, and the number of parameters scales linearly with the number of users and items rather than quadratically with the size of the user-item matrix. This parameter sharing is efficient, and the embedding matrices (one for users and one for items) are typically much smaller than the original user-item interaction matrix.</li>
+  <li>This allows the model to avoid explicitly storing or processing the full user-item matrix, making NCF more scalable than traditional MF at large scales.</li>
+</ul>
+
+<h5 id="non-linear-interaction-modeling">Non-linear Interaction Modeling</h5>
+
+<ul>
+  <li>In matrix factorization, the interaction between user and item embeddings is represented as a dot product, which is a linear operation. This limits the model’s ability to capture more complex relationships in the data.</li>
+  <li>NCF overcomes this limitation by replacing the dot product with a deep neural network (DNN) that models the interaction between user and item embeddings in a non-linear way. This neural network is composed of multiple fully connected layers that progressively learn more complex representations of user-item interactions.</li>
+  <li>The flexibility of the neural network allows NCF to learn more nuanced patterns, which can improve recommendation quality, especially in large datasets with diverse user behaviors and item properties.</li>
+</ul>
+
+<h5 id="generalized-matrix-factorization-gmf">Generalized Matrix Factorization (GMF)</h5>
+
+<ul>
+  <li>In some versions of NCF, the authors combine the strengths of matrix factorization with deep learning by introducing a Generalized Matrix Factorization (GMF) layer. This layer can still incorporate the idea of latent factor dot products, but it is enhanced by additional non-linear transformations via deeper layers of the neural network. This hybrid approach improves scalability by making use of factorized representations while still capturing complex patterns.</li>
+</ul>
+
+<h5 id="efficient-learning-via-mini-batch-stochastic-gradient-descent-sgd">Efficient Learning via Mini-batch Stochastic Gradient Descent (SGD)</h5>
+
+<ul>
+  <li>NCF models are trained using mini-batch stochastic gradient descent (SGD) or its variants (e.g., Adam optimizer), which allows the model to learn efficiently on large-scale data. Instead of computing updates on the entire dataset (which could be prohibitively large), NCF processes small random batches of user-item interactions, reducing memory and computation requirements while allowing the model to scale to billions of users and items.</li>
+</ul>
+
+<h5 id="parallelism-and-hardware-acceleration">Parallelism and Hardware Acceleration</h5>
+
+<ul>
+  <li>Deep learning frameworks (e.g., TensorFlow, PyTorch) allow NCF to take advantage of GPU acceleration and distributed computing. Neural networks can be trained in parallel, with embeddings and parameters distributed across multiple machines or GPUs, which significantly speeds up training and allows the model to handle massive datasets efficiently.</li>
+</ul>
+
+<h5 id="flexible-architecture">Flexible Architecture</h5>
+
+<ul>
+  <li>The architecture of NCF can be easily extended or modified depending on the scale and the specific problem. For example:
+    <ul>
+      <li><strong>Deeper Networks</strong>: More layers can be added to the neural network for richer representation learning if the dataset is large and complex.</li>
+      <li><strong>Wide and Deep Approach</strong>: NCF can combine simple linear models (like MF) with deep models in a hybrid manner, where simpler models handle common patterns efficiently, while deeper models capture more complex, rare interactions.</li>
+    </ul>
+  </li>
+  <li>This flexibility allows NCF to be tailored to the scalability needs of the system without losing performance.</li>
+</ul>
+
+<h4 id="comparison-with-matrix-factorization">Comparison with Matrix Factorization</h4>
+
+<div align="center">
+<table class="tg">
+ <thead>
+<tr>
+<th class="tg-hcenter-valign-first"><strong>Feature</strong></th>
+<th class="tg-hcenter-valign-first"><strong>Matrix Factorization</strong></th>
+<th class="tg-hcenter-valign-first"><strong>Neural Collaborative Filtering (NCF)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tg-tleft-valign-first">Interaction Model</td>
+<td class="tg-tleft-valign-first">Dot product of user and item latent factors</td>
+<td class="tg-tleft-valign-second">Non-linear interaction via neural networks</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Scalability</td>
+<td class="tg-tleft-valign-first">Struggles with billion-scale due to large matrices and memory requirements</td>
+<td class="tg-tleft-valign-second">Scales better through embedding layers and mini-batch training</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Representation Learning</td>
+<td class="tg-tleft-valign-first">Linear relationships between users and items</td>
+<td class="tg-tleft-valign-second">Can capture complex, non-linear user-item relationships</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Training</td>
+<td class="tg-tleft-valign-first">Alternating Least Squares (ALS) or SGD</td>
+<td class="tg-tleft-valign-second">Mini-batch SGD, accelerated via GPUs and distributed systems</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Flexibility</td>
+<td class="tg-tleft-valign-first">Limited to linear factorization</td>
+<td class="tg-tleft-valign-second">Flexible architecture, can integrate various neural layers</td>
+</tr>
+<tr>
+<td class="tg-tleft-valign-first">Handling Sparsity</td>
+<td class="tg-tleft-valign-first">Struggles with extreme sparsity in the user-item matrix</td>
+<td class="tg-tleft-valign-second">More robust as embeddings are learned directly from data</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="ncf-in-practice">NCF in Practice</h4>
+
+<ul>
+  <li>Several large-scale systems and platforms, such as <strong>YouTube, Amazon, Netflix</strong>, and others, have adopted neural collaborative filtering or variants of deep learning-based collaborative filtering for their recommendation engines. These systems have vast datasets with billions of users and items, making traditional matrix factorization infeasible at this scale, while NCF allows for more efficient and accurate recommendations.</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://developers.google.com/machine-learning/recommendation">Google’s Recommendation Systems Developer Course</a></li>
+  <li><a href="https://www.coursera.org/projects/musics-recommender-system-using-pyspark">Coursera: Music Recommender System Project</a></li>
+  <li><a href="https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning?=">Coursera: DeepLearning.AI’s specialization</a>.</li>
+  <li><a href="https://towardsdatascience.com/recommender-systems-from-learned-embeddings-f1d12288f278">Recommender system from learned embeddings</a></li>
+  <li><a href="https://developers.google.com/machine-learning/crash-course/embeddings/video-lecture">Google’s Recommendation Systems Developer Crash Course: Embeddings Video Lecture</a></li>
+  <li><a href="https://sophwats.github.io/2018-04-05-gentle-als.html">ALS introduction by Sophie Wats</a></li>
+  <li><a href="https://medium.com/radon-dev/als-implicit-collaborative-filtering-5ed653ba39fe">Matrix Factorization</a></li>
+  <li><a href="https://www.diva-portal.org/smash/get/diva2:1504620/FULLTEXT02.pdf">Recommendation System for E-commerce using Alternating Least Squares (ALS) on Apache Spark</a></li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/recsys/ranking/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:10 GMT -->
+</html>

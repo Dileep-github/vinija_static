@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/CourseraDL/sequence-models/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:17 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Coursera-DL • Sequence Models</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Coursera-DL • Sequence Models</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#recurrent-neural-networks" id="markdown-toc-recurrent-neural-networks">Recurrent Neural Networks</a>    <ul>
+      <li><a href="#why-sequence-models" id="markdown-toc-why-sequence-models">Why sequence models</a></li>
+    </ul>
+  </li>
+  <li><a href="#sequence-models-named-entity-recognition-use-case" id="markdown-toc-sequence-models-named-entity-recognition-use-case">Sequence Models: Named-Entity Recognition Use-case</a></li>
+  <li><a href="#recurrent-neural-network-model" id="markdown-toc-recurrent-neural-network-model">Recurrent Neural Network Model</a></li>
+  <li><a href="#backpropagation-in-recurrent-neural-networks-rnns" id="markdown-toc-backpropagation-in-recurrent-neural-networks-rnns">Backpropagation in Recurrent Neural Networks (RNNs)</a></li>
+  <li><a href="#exploring-different-rnn-architectures" id="markdown-toc-exploring-different-rnn-architectures">Exploring Different RNN Architectures</a></li>
+  <li><a href="#building-a-language-model-using-rnns" id="markdown-toc-building-a-language-model-using-rnns">Building a Language Model using RNNs</a>    <ul>
+      <li><a href="#generating-sequences-from-trained-sequence-models" id="markdown-toc-generating-sequences-from-trained-sequence-models">Generating Sequences from Trained Sequence Models:</a></li>
+      <li><a href="#detailed-notes-on-rnns-vanishing-gradients-and-long-range-dependencies" id="markdown-toc-detailed-notes-on-rnns-vanishing-gradients-and-long-range-dependencies">Detailed Notes on RNNs, Vanishing Gradients, and Long-Range Dependencies:</a></li>
+    </ul>
+  </li>
+  <li><a href="#gated-recurrent-unit-gru" id="markdown-toc-gated-recurrent-unit-gru">Gated Recurrent Unit (GRU)</a></li>
+  <li><a href="#long-short-term-memory-lstm" id="markdown-toc-long-short-term-memory-lstm">Long Short-Term Memory (LSTM)</a></li>
+  <li><a href="#bidirectional-rnns-brnns" id="markdown-toc-bidirectional-rnns-brnns">Bidirectional RNNs (BRNNs)</a></li>
+  <li><a href="#deep-rnns" id="markdown-toc-deep-rnns">Deep RNNs</a></li>
+  <li><a href="#introduction-to-word-embeddings-in-nlp" id="markdown-toc-introduction-to-word-embeddings-in-nlp">Introduction to Word Embeddings in NLP</a></li>
+  <li><a href="#word-embeddings-more-detail" id="markdown-toc-word-embeddings-more-detail">Word embeddings more detail</a>    <ul>
+      <li><a href="#word-embeddings-for-analogy-reasoning" id="markdown-toc-word-embeddings-for-analogy-reasoning">Word Embeddings for Analogy Reasoning</a></li>
+      <li><a href="#word-embeddings-and-the-embedding-matrix" id="markdown-toc-word-embeddings-and-the-embedding-matrix">Word Embeddings and the Embedding Matrix</a></li>
+    </ul>
+  </li>
+  <li><a href="#word-embeddings-and-algorithms" id="markdown-toc-word-embeddings-and-algorithms">Word Embeddings and Algorithms</a></li>
+  <li><a href="#word2vec" id="markdown-toc-word2vec">Word2Vec</a></li>
+  <li><a href="#negative-sampling" id="markdown-toc-negative-sampling">Negative Sampling</a></li>
+  <li><a href="#glove" id="markdown-toc-glove">GloVe</a></li>
+  <li><a href="#sentiment-classification-using-word-embeddings" id="markdown-toc-sentiment-classification-using-word-embeddings">Sentiment Classification using Word Embeddings</a></li>
+  <li><a href="#sequence-to-sequence-models-and-their-applications" id="markdown-toc-sequence-to-sequence-models-and-their-applications">Sequence-to-Sequence Models and Their Applications</a></li>
+  <li><a href="#picking-the-most-likely-sentence" id="markdown-toc-picking-the-most-likely-sentence">Picking the most likely sentence</a>    <ul>
+      <li><a href="#beam-search" id="markdown-toc-beam-search">Beam Search</a></li>
+      <li><a href="#improving-upon-beam-search" id="markdown-toc-improving-upon-beam-search">Improving upon Beam Search</a></li>
+      <li><a href="#error-analysis-with-beam-search" id="markdown-toc-error-analysis-with-beam-search">Error Analysis with Beam Search</a></li>
+    </ul>
+  </li>
+  <li><a href="#bleu-score-for-evaluating-machine-translation" id="markdown-toc-bleu-score-for-evaluating-machine-translation">BLEU Score for Evaluating Machine Translation:</a></li>
+  <li><a href="#attention-intuition" id="markdown-toc-attention-intuition">Attention intuition</a></li>
+  <li><a href="#attention-model" id="markdown-toc-attention-model">Attention model</a></li>
+  <li><a href="#speech-recognition-systems-sequence-to-sequence-models" id="markdown-toc-speech-recognition-systems-sequence-to-sequence-models">Speech Recognition Systems (Sequence-to-Sequence Models)</a></li>
+  <li><a href="#trigger-word-detection-systems" id="markdown-toc-trigger-word-detection-systems">Trigger Word Detection Systems</a></li>
+</ul>
+
+<h2 id="recurrent-neural-networks">Recurrent Neural Networks</h2>
+
+<ul>
+  <li>Recurrent neural networks have been proven to perform extremely well on temporal data. They have several variants including LSTMs, GRUs and Bi-directional LSTMs.</li>
+</ul>
+
+<h3 id="why-sequence-models">Why sequence models</h3>
+<ul>
+  <li>Sequence Models like RNN and LSTMs have greatly transformed learning on sequences in the past few years.</li>
+  <li>Examples of sequence data in applications:
+    <ul>
+      <li>Speech recognition (<strong>sequence to sequence</strong>):
+        <ul>
+          <li>X: wave sequence</li>
+          <li>Y: text sequence</li>
+        </ul>
+      </li>
+      <li>Music generation (<strong>one to sequence</strong>):
+        <ul>
+          <li>X: nothing or an integer</li>
+          <li>Y: wave sequence</li>
+        </ul>
+      </li>
+      <li>Sentiment classification (<strong>sequence to one</strong>):
+        <ul>
+          <li>X: text sequence</li>
+          <li>Y: integer rating from one to five</li>
+        </ul>
+      </li>
+      <li>DNA sequence analysis (<strong>sequence to sequence</strong>):
+        <ul>
+          <li>X: DNA sequence</li>
+          <li>Y: DNA Labels</li>
+        </ul>
+      </li>
+      <li>Machine translation (<strong>sequence to sequence</strong>):
+        <ul>
+          <li>X: text sequence (in one language)</li>
+          <li>Y: text sequence (in other language)</li>
+        </ul>
+      </li>
+      <li>Video activity recognition (<strong>sequence to one</strong>):
+        <ul>
+          <li>X: video frames</li>
+          <li>Y: label (activity)</li>
+        </ul>
+      </li>
+      <li>Name entity recognition (<strong>sequence to sequence</strong>):
+        <ul>
+          <li>X: text sequence</li>
+          <li>Y: label sequence</li>
+          <li>Can be used by seach engines to index different type of words inside a text.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>All of these problems with different input and output (sequence or not) can be addressed as supervised learning with label data X, Y as the training set.</li>
+</ul>
+
+<h2 id="sequence-models-named-entity-recognition-use-case">Sequence Models: Named-Entity Recognition Use-case</h2>
+
+<ul>
+  <li><strong>Motivation:</strong>
+    <ul>
+      <li>Create a sequence model to detect names in sentences, e.g., “Harry Potter and Hermione Granger invented a new spell”.</li>
+      <li>Characters are from the Harry Potter series by J.K. Rowling.</li>
+      <li>This is a problem called <em>Named-entity recognition</em> (NER).</li>
+      <li>Uses: Search engines employ NER to index names, places, times, etc., in news articles.</li>
+      <li>Given input x, you want an output y to identify person’s names in the sentence.</li>
+    </ul>
+  </li>
+  <li><strong>Representation:</strong>
+    <ul>
+      <li>For the mentioned sentence, there’s a 9-word sequence.</li>
+      <li>Each word position is indexed as \(X^{&lt;1&gt;}, X^{&lt;2&gt;}, ...\).</li>
+      <li>Use \(X_t\) to index positions in the middle of sequences. Here, t represents temporality.</li>
+      <li>Similarly, the output positions are indexed as \(y^{&lt;1&gt;}, y^{&lt;2&gt;}, ...\).</li>
+      <li>\(T_x\) denotes the length of the input sequence. \(T_y\) denotes the length of the output sequence. They can be different.</li>
+      <li>To reference the t-th element in the sequence of the i-th training example: \(X^{&lt;t&gt;(i)}\).</li>
+      <li>Different examples in the training set can have different lengths.</li>
+    </ul>
+  </li>
+  <li><strong>NLP and Vocabulary:</strong>
+    <ul>
+      <li>First major step into Natural Language Processing (NLP).</li>
+      <li>Need to decide on the representation of words in sequences.</li>
+      <li>Use a <em>Vocabulary</em> or <em>Dictionary</em>:
+        <ul>
+          <li>Lists words for representations, e.g., “a”, “Aaron”, “and”, “Harry”, “Potter”, “Zulu”.</li>
+          <li>Words are indexed, e.g., “Harry” is word 4075.</li>
+          <li>Example: Dictionary of 10,000 words (small for modern NLP, with typical sizes being 30,000 to 50,000 or more).</li>
+        </ul>
+      </li>
+      <li>Use <em>One-Hot Representations</em>:
+        <ul>
+          <li>A word like “Harry” is represented as a vector with all zeros except a “1” at position 4075.</li>
+          <li>Each word in the sentence gets transformed into a 10,000-dimensional vector (for a vocabulary of 10,000 words).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Handling Unknown Words:</strong>
+    <ul>
+      <li>Use a token called “Unknown Word” or UNK for words not in the dictionary. More details on this will be provided later.</li>
+    </ul>
+  </li>
+  <li><strong>Summary:</strong>
+    <ul>
+      <li>Established notation for sequence data for both x and y.</li>
+      <li>Next step: Describe Recurrent Neural Networks (RNN) to learn the mapping from X to Y.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="recurrent-neural-network-model">Recurrent Neural Network Model</h2>
+
+<p><img src="../assets/sequenceModels/1.png" alt="" /></p>
+
+<p><img src="../assets/sequenceModels/2.png" alt="" /></p>
+
+<ol>
+  <li><strong>Problems with Standard Neural Networks for Sequences:</strong>
+    <ul>
+      <li>Input and output lengths can vary across different examples.</li>
+      <li>Features learned at one position of the text aren’t shared across other positions.</li>
+    </ul>
+  </li>
+  <li><strong>Introduction to RNNs:</strong>
+    <ul>
+      <li>RNNs scan data from left to right.</li>
+      <li>Each time step takes an input and produces an output while passing on information (activation) from the previous time step.</li>
+      <li>RNNs share parameters across time steps.</li>
+      <li>The initial activation (usually denoted as \(a_0\)) is often a vector of zeros.</li>
+    </ul>
+  </li>
+  <li><strong>Unrolled vs. Looped Diagrams:</strong>
+    <ul>
+      <li>The unrolled version displays each time step of the RNN sequentially.</li>
+      <li>The looped version shows the RNN as a compact loop, which might be seen in some research papers. However, the unrolled version is clearer for understanding the flow of information.</li>
+    </ul>
+  </li>
+  <li><strong>Information Flow in RNNs:</strong>
+    <ul>
+      <li>An RNN can use information from earlier steps to make predictions in the present step.</li>
+      <li>However, it doesn’t have access to future information in the sequence, which might be necessary for making accurate predictions. This limitation is addressed later with bi-directional RNNs.</li>
+    </ul>
+  </li>
+  <li><strong>Calculations in an RNN:</strong>
+    <ul>
+      <li>Forward propagation is where the activation \(a_t\) is computed using weights \(W_{aa}\), \(W_{ax}\), the previous activation \(a_{t-1}\), and the current input \(x_t\).</li>
+      <li>The output \(y_{hat}\) is then calculated using \(a_t\), weights \(W_{ya}\), and biases.</li>
+    </ul>
+  </li>
+  <li><strong>Notational Simplification:</strong>
+    <ul>
+      <li>To simplify the equations, the video merges the weight matrices \(W_{aa}\) and \(W_{ax}\) into a single matrix \(W_a\), and stacks the activations and inputs into a single vector.</li>
+      <li>This simplified notation makes it easier to build and understand more complex models.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="backpropagation-in-recurrent-neural-networks-rnns">Backpropagation in Recurrent Neural Networks (RNNs)</h2>
+
+<ol>
+  <li><strong>Introduction:</strong>
+    <ul>
+      <li>This tutorial delves into how backpropagation functions in an RNN.</li>
+      <li>Although most programming frameworks handle backpropagation automatically, understanding its mechanics is beneficial.</li>
+    </ul>
+  </li>
+  <li><strong>Forward Propagation in RNNs:</strong>
+    <ul>
+      <li>For forward propagation, activations are computed from left to right in a sequence.</li>
+      <li>Starting with an input sequence \(x_1, x_2, \dots, x_{tx}\):
+        <ul>
+          <li>Using \(x_1\) and initial activation \(a_0\), the activation \(a_1\) is computed.</li>
+          <li>Subsequent activations are computed similarly, using the previous activation and the current input. E.g., \(a_2\) is computed using \(a_1\) and \(x_2\), and so on.</li>
+        </ul>
+      </li>
+      <li>The same parameters \(W_a\) and \(b_a\) are used to compute all activations across timesteps.</li>
+      <li>Predictions \(\)\hat{y}\(_1,\)\hat{y}\(_2, \dots\) are then computed based on these activations using parameters \(W_y\) and \(b_y\).</li>
+    </ul>
+  </li>
+  <li><strong>Loss Function:</strong>
+    <ul>
+      <li>An element-wise loss is defined for each word prediction.</li>
+      <li>If a word in the sequence represents a person’s name, \(y_t = 1\).</li>
+      <li>The standard logistic regression loss (cross entropy loss) is used for each timestep’s prediction.</li>
+      <li>The overall loss, \(L\), for the entire sequence is the sum of the losses over all timesteps.</li>
+    </ul>
+  </li>
+  <li><strong>Backpropagation:</strong>
+    <ul>
+      <li>Backpropagation computes in the opposite direction of forward propagation.</li>
+      <li>Messages or gradients are passed backward through the computation graph, from the loss back to the inputs.</li>
+      <li>The most significant recursive calculation happens from right to left, leading to the term “backpropagation through time” (BPTT).</li>
+      <li>The term “through time” is derived from the notion of moving backward in sequence, as if traveling back in time.</li>
+    </ul>
+  </li>
+  <li><strong>Conclusion:</strong>
+    <ul>
+      <li>Understanding BPTT helps in grasping how RNNs update and learn their parameters.</li>
+      <li>RNN architectures can vary based on tasks where input and output sequences may not always be of the same length.</li>
+      <li>Upcoming content will explore a broader range of RNN architectures and their applications.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="exploring-different-rnn-architectures">Exploring Different RNN Architectures</h2>
+<p><img src="../assets/sequenceModels/3.png" alt="" /></p>
+<ul>
+  <li>Recurrent Neural Networks (RNNs) have a variety of architectures to cater to different types of problems. These architectures are inspired by how input sequences (denoted as <code class="language-plaintext highlighter-rouge">Tx</code>) and output sequences (<code class="language-plaintext highlighter-rouge">Ty</code>) relate to each other. Here’s a detailed overview:</li>
+</ul>
+
+<ol>
+  <li><strong>Many-to-Many with Equal Lengths (Tx = Ty):</strong>
+    <ul>
+      <li>Description: Both input and output sequences have the same length.</li>
+      <li>Example: Name entity recognition where for each word input, the RNN outputs a classification.</li>
+      <li>Working: For every word or element input into the RNN, there’s a corresponding output.</li>
+    </ul>
+  </li>
+  <li><strong>Many-to-One:</strong>
+    <ul>
+      <li>Description: The RNN takes a sequence of data as input and produces a single output.</li>
+      <li>Example: Sentiment analysis. A movie review (a sequence of words) might be input, and the output could be a sentiment score or a binary value indicating positive/negative sentiment.</li>
+      <li>Working: The entire sequence is read, and only after processing the last element does the RNN produce an output.</li>
+    </ul>
+  </li>
+  <li><strong>One-to-One:</strong>
+    <ul>
+      <li>Description: This is the traditional neural network architecture. Neither the input nor the output are sequences.</li>
+      <li>Usage: For problems where the input-output relationship doesn’t involve sequences.</li>
+      <li>Working: A single input produces a single output, and there’s no need for the recurrent structure here.</li>
+    </ul>
+  </li>
+  <li><strong>One-to-Many:</strong>
+    <ul>
+      <li>Description: From a single input, the RNN produces a sequence.</li>
+      <li>Example: Music generation. An RNN might take a genre or a starting note as input and then produce a sequence of notes as output.</li>
+      <li>Working: The RNN takes the initial input and then starts producing a sequence, often using the previous output as an input for generating the next item in the sequence.</li>
+    </ul>
+  </li>
+  <li><strong>Many-to-Many with Different Lengths (Tx ≠ Ty):</strong>
+    <ul>
+      <li>Description: Both input and output are sequences, but they aren’t required to have the same length.</li>
+      <li>Example: Machine translation, like translating a French sentence to English. The number of words in the two sentences can vary.</li>
+      <li>Working: The RNN first acts as an “encoder”, reading and internalizing the input sequence. Then, it switches roles to become a “decoder”, producing the output sequence.</li>
+    </ul>
+  </li>
+  <li><strong>Attention-Based Architectures:</strong>
+    <ul>
+      <li>Description: A more advanced architecture not easily classified into the above categories.</li>
+      <li>Usage: Useful for problems where certain parts of the input sequence are more relevant for producing a particular part of the output sequence.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In essence, these architectures showcase the versatility of RNNs. By adjusting the structure, one can tailor the RNN to suit a myriad of problems, from generating music to translating languages. However, it’s important to note that certain nuances, especially in sequence generation, require careful handling, a topic to be delved into in subsequent discussions.</li>
+</ul>
+
+<h2 id="building-a-language-model-using-rnns">Building a Language Model using RNNs</h2>
+<p><img src="../assets/sequenceModels/4.png" alt="" /></p>
+<ol>
+  <li><strong>Introduction to Language Modeling</strong>
+    <ul>
+      <li>A fundamental task in natural language processing (NLP) is language modeling.</li>
+      <li>Its essence lies in determining the probability of a sentence occurring in a real-world context.</li>
+      <li>It aids in differentiating between similar sounding sentences, for instance, distinguishing between “apple and pair salad” and “apple and pear salad”.</li>
+    </ul>
+  </li>
+  <li><strong>Role in Speech Recognition</strong>
+    <ul>
+      <li>In speech recognition systems, even if two sentences sound the same, the system uses a language model to decide which sentence is more probable based on prior knowledge.</li>
+    </ul>
+  </li>
+  <li><strong>Definition of a Language Model</strong>
+    <ul>
+      <li>A language model predicts the probability of a particular sentence. For instance, if you read a random newspaper article, email, or webpage, or hear a conversation, the language model predicts the likelihood of encountering a specific sentence.</li>
+      <li>It plays a vital role in both speech recognition and machine translation systems.</li>
+    </ul>
+  </li>
+  <li><strong>How does an RNN Language Model work?</strong>
+    <ul>
+      <li>The basic task of a language model is to evaluate the probability of a sequence of words.</li>
+      <li>To build such a model using an RNN, you start with a training set comprising a large corpus of text.</li>
+      <li>The text is tokenized, meaning each word is converted to an index or vector representation. An ‘End Of Sentence’ (EOS) token can also be added to signify the end of sentences.</li>
+      <li>Words not in the established vocabulary can be represented using an ‘unknown’ (UNK) token.</li>
+      <li>The RNN model uses this tokenized sequence to predict the next word based on previous words. Each step of the RNN tries to predict the next word in the sequence.</li>
+    </ul>
+  </li>
+  <li><strong>Training the RNN for Language Modeling</strong>
+    <ul>
+      <li>The cost function measures the discrepancy between the predicted word and the actual word at every time step.</li>
+      <li>By training the RNN using this cost function, the model can predict the probability of the next word in a sentence.</li>
+    </ul>
+  </li>
+  <li><strong>Application of the RNN Language Model</strong>
+    <ul>
+      <li>Given any starting sequence of words, the model can predict the probability of the subsequent word.</li>
+      <li>This property can be used to compute the probability of an entire sentence by multiplying the probabilities of each word, given the previous words.</li>
+      <li>This basic structure forms the foundation of training a language model using an RNN.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="generating-sequences-from-trained-sequence-models">Generating Sequences from Trained Sequence Models:</h3>
+
+<p><img src="../assets/sequenceModels/5.png" alt="" /></p>
+
+<ol>
+  <li><strong>Understanding Sequence Models:</strong>
+    <ul>
+      <li>Principle: A sequence model learns the probability distribution of various sequences of words.</li>
+      <li>Utility: Post-training, you can generate (or sample) new sequences to informally understand what the model has learned.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Step-by-step Sequence Generation:</strong></p>
+
+    <ul>
+      <li>Initialization:
+        <ul>
+          <li>Begin with initial conditions, denoted by \(x_1 = 0\) and \(a_0 = 0\), which can be thought of as the starting state of the sequence.</li>
+        </ul>
+      </li>
+      <li>Sampling the First Word:
+        <ul>
+          <li>At the first timestamp, the network uses a softmax function to calculate probabilities for every word in the vocabulary to be the first word.</li>
+          <li>You can then randomly select the first word based on this distribution.</li>
+        </ul>
+      </li>
+      <li>Iterative Sequence Building:
+        <ul>
+          <li>The word chosen in the previous step is then used as input for the next timestamp.</li>
+          <li>The network predicts the next word based on the context provided by the previous words.</li>
+          <li>This process is repeated, with each selected word being used as context for the subsequent word prediction.</li>
+        </ul>
+      </li>
+      <li>Stopping the Generation:
+        <ul>
+          <li>The generation can be halted using various criteria such as:
+            <ul>
+              <li>Generating an end-of-sentence (EOS) token.</li>
+              <li>Reaching a pre-defined word count.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Dealing with Unknown Words:</strong></p>
+
+    <ul>
+      <li>The Issue: The model may sometimes produce an “unknown word token”, especially if the word wasn’t part of the training vocabulary.</li>
+      <li>Possible Solutions:
+        <ol>
+          <li>Resample: Whenever an unknown word is generated, simply resample until a known word is produced.</li>
+          <li>Retain: Keep the unknown word in the generated sequence, representing words that were not part of the training data.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Character vs. Word Level RNNs:</strong>
+<img src="../assets/sequenceModels/6.png" alt="" />
+    <ul>
+      <li><strong>Character Level RNNs:</strong>
+        <ul>
+          <li>Definition: The vocabulary consists of individual characters, including alphabets, digits, punctuation, and spaces.</li>
+          <li>Advantages:
+            <ul>
+              <li>Can represent any word, including those not seen during training.</li>
+              <li>No “unknown word token” issue.</li>
+            </ul>
+          </li>
+          <li>Drawbacks:
+            <ul>
+              <li>Longer sequences required to represent even short sentences.</li>
+              <li>Less effective at capturing long-range contextual dependencies.</li>
+              <li>High computational cost.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>Word Level RNNs:</strong>
+        <ul>
+          <li>Definition: The vocabulary consists of entire words.</li>
+          <li>Advantages:
+            <ul>
+              <li>More efficient and better at capturing long-range dependencies.</li>
+              <li>Shorter sequences.</li>
+            </ul>
+          </li>
+          <li>Drawbacks:
+            <ul>
+              <li>Can’t represent words not in the training vocabulary, leading to “unknown word tokens”.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Sample Outputs:</strong>
+    <ul>
+      <li>News Model: When trained on news articles, the RNN can generate sentences that, while not always grammatically correct, resemble news headlines.</li>
+      <li>Shakespearean Model: When trained on Shakespearean text, the RNN outputs phrases that are reminiscent of Shakespeare’s style.</li>
+    </ul>
+  </li>
+  <li><strong>Looking Ahead:</strong>
+    <ul>
+      <li>The basic RNN, while powerful, has challenges in training, particularly with long sequences due to the vanishing gradient problem.</li>
+      <li>Advanced models like the GRU (Gated Recurrent Unit) and LSTM (Long Short-Term Memory) provide solutions to these challenges.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="detailed-notes-on-rnns-vanishing-gradients-and-long-range-dependencies">Detailed Notes on RNNs, Vanishing Gradients, and Long-Range Dependencies:</h3>
+<ol>
+  <li><strong>Recurrent Neural Networks (RNNs) Overview:</strong>
+    <ul>
+      <li>Applications: Name entity recognition, language modeling.</li>
+      <li>Training Mechanism: Uses backpropagation to train.</li>
+    </ul>
+  </li>
+  <li><strong>Vanishing Gradient Problem in Basic RNNs:</strong>
+    <ul>
+      <li>Challenge: Basic RNNs struggle with vanishing gradients, limiting their ability to capture long-term dependencies.</li>
+      <li>Example: In the sentence “The cat, which already ate… was full”, the singularity of “cat” affects the usage of “was” much later in the sequence. Basic RNNs struggle with such long-range dependencies.</li>
+    </ul>
+  </li>
+  <li><strong>Analogy with Deep Feedforward Networks:</strong>
+    <ul>
+      <li>Vanishing Gradients in Deep Nets: Very deep networks (e.g., 100 layers) face challenges where gradients at the output layer struggle to influence the initial layers.</li>
+      <li>RNN Similarity: In an RNN, the problem is analogous. Gradients from later time steps find it difficult to influence earlier steps due to the sequence’s depth.</li>
+    </ul>
+  </li>
+  <li><strong>Implications:</strong>
+    <ul>
+      <li>Local Influence: Basic RNNs are heavily influenced by nearby inputs. An output at a particular time step is primarily influenced by recent inputs.</li>
+      <li>Long-range Dependencies: Basic RNNs find it hard to maintain information from earlier time steps to influence later steps.</li>
+    </ul>
+  </li>
+  <li><strong>Exploding Gradients:</strong>
+    <ul>
+      <li>Problem: In addition to vanishing gradients, RNNs can face exploding gradients where gradients increase exponentially.</li>
+      <li>Impact: Exploding gradients can be catastrophic. Parameters can blow up, leading to numerical overflows (“NaNs” or not-a-numbers in computations).</li>
+      <li>Solution: Gradient Clipping:
+        <ul>
+          <li>If the gradient vector exceeds a certain threshold, it is rescaled.</li>
+          <li>Gradient Clipping ensures that the gradient remains below a predefined maximum value.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Summary:</strong>
+    <ul>
+      <li>Depth Analogy: An RNN processing data over 1,000 time steps can be analogized to a 1,000-layer neural network.</li>
+      <li>Gradient Issues: Both vanishing and exploding gradients can be problems in deep networks and RNNs.</li>
+      <li>Immediate Solution: Exploding gradients can be managed with gradient clipping.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="gated-recurrent-unit-gru">Gated Recurrent Unit (GRU)</h2>
+
+<ul>
+  <li>The GRU is a type of recurrent neural network (RNN) architecture. Standard RNNs can have difficulty in learning and retaining long-range dependencies because of issues like the vanishing gradient problem. The GRU is designed to combat this issue, allowing for the efficient modeling of long-term dependencies.</li>
+  <li><strong>Basic Structure:</strong>
+    <ul>
+      <li>The GRU has two main components:
+        <ol>
+          <li>Reset Gate (r): This gate decides how much of the past information to discard.</li>
+          <li>Update Gate (u): It determines how much of the current state should be updated with the new candidate state.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Mathematical Expressions:</strong>
+    <ul>
+      <li>Given a sequence of inputs \(x_1, x_2, ... x_t\), the GRU updates its states using the following transformations:
+        <ol>
+          <li><strong>Reset gate:</strong>
+ \(r_t = \sigma(W_r \cdot [h_{t-1}, x_t] + b_r)\)
+            <ul>
+              <li>where \(\sigma\) is the sigmoid function, \(W_r\) is the weight matrix for the reset gate, and \(b_r\) is the corresponding bias.</li>
+            </ul>
+          </li>
+          <li><strong>Update gate:</strong>
+ \(u_t = \sigma(W_u \cdot [h_{t-1}, x_t] + b_u)\)
+            <ul>
+              <li>where \(W_u\) is the weight matrix for the update gate, and \(b_u\) is the corresponding bias.</li>
+            </ul>
+          </li>
+          <li><strong>Candidate hidden state:</strong>
+ \(\tilde{h}_t = \tanh(W \cdot [r_t \odot h_{t-1}, x_t] + b)\)
+            <ul>
+              <li>where \(W\) is the weight matrix, \(b\) is the bias, and \(\odot\) denotes element-wise multiplication. This state is a filtered version of the past state.</li>
+            </ul>
+          </li>
+          <li><strong>Final hidden state:</strong>
+ \(h_t = (1 - u_t) \odot h_{t-1} + u_t \odot \tilde{h}_t\)
+            <ul>
+              <li>This is a linear interpolation between the previous state and the candidate state, guided by the update gate.</li>
+            </ul>
+          </li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>GRU’s Functioning:</strong>
+    <ul>
+      <li>The reset gate (r) determines how much of the past information to forget. A value closer to 0 means “forget more,” while a value closer to 1 means “remember more.”</li>
+      <li>The update gate (u) helps the model decide the amount of the new information to store. If the value of u is close to 0, the old content in the memory cell is retained, and if it’s closer to 1, the new content \(\tilde{h}_t\) is considered.</li>
+      <li>The candidate state \(\tilde{h}_t\) is like a provisional state. It’s a combination of the previous state and the current input. The reset gate decides how much of the past state to consider while making this new candidate.</li>
+      <li>The final hidden state \(h_t\) is a mix of the previous state and the candidate state. The degree to which each contributes is decided by the update gate.</li>
+    </ul>
+  </li>
+  <li><strong>Benefits of GRU:</strong>
+    <ol>
+      <li>Mitigating Vanishing Gradient Problem: Thanks to the gating mechanisms, GRUs can retain long-term dependencies, making them less susceptible to the vanishing gradient problem.</li>
+      <li>Flexibility in Memory: With the help of reset and update gates, GRUs can selectively remember or forget information, making them adept at handling sequences.</li>
+      <li>Simplified LSTM: GRU can be seen as a simplified version of the LSTM (Long Short-Term Memory) as it uses two gates compared to LSTM’s three. This often leads to faster training times, although at the cost of expressiveness.</li>
+    </ol>
+  </li>
+  <li>GRUs provide an elegant solution to some of the RNN’s limitations, making them a popular choice for various sequential tasks in machine learning, from natural language processing to time-series forecasting.</li>
+</ul>
+
+<h2 id="long-short-term-memory-lstm">Long Short-Term Memory (LSTM)</h2>
+<ul>
+  <li>LSTMs, or Long Short-Term Memory networks, are a type of RNN that can remember information for long periods. They’re particularly suited for tasks that require understanding data over prolonged sequences. While GRUs were a simplification of LSTMs, LSTMs have historically been more popular due to their richer structure.</li>
+  <li><strong>Structure &amp; Mechanism:</strong>
+    <ul>
+      <li>LSTMs have three gates:
+        <ol>
+          <li>Forget Gate (γ_f): Determines how much of the past information the cell should throw away or keep.</li>
+          <li>Input/Update Gate (γ_u): Updates the cell state with new information.</li>
+          <li>Output Gate (γ_o): Determines the amount of the current cell state to output to the activation.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Mathematical Expressions:</strong>
+    <ul>
+      <li>Given an input sequence \(x_t\), the LSTM updates its state as follows:
+        <ol>
+          <li><strong>Forget Gate:</strong>
+ \(\gamma_f = \sigma(W_f \cdot [a_{t-1}, x_t] + b_f)\)</li>
+          <li><strong>Input/Update Gate:</strong>
+ \(\gamma_u = \sigma(W_u \cdot [a_{t-1}, x_t] + b_u)\)</li>
+          <li><strong>Candidate State (similar to the GRU’s):</strong>
+ \(\tilde{c}_t = \tanh(W_c \cdot [a_{t-1}, x_t] + b_c)\)</li>
+          <li><strong>Update Cell State:</strong>
+ \(c_t = \gamma_u \odot \tilde{c}_t + \gamma_f \odot c_{t-1}\)
+            <ul>
+              <li>Here, instead of using a combination like in the GRU, the LSTM uses two gates: the forget gate decides what to forget from the previous state, and the update gate determines what new information to add.</li>
+            </ul>
+          </li>
+          <li><strong>Output Gate:</strong>
+ \(\gamma_o = \sigma(W_o \cdot [a_{t-1}, x_t] + b_o)\)</li>
+          <li><strong>Final Activation:</strong>
+ \(a_t = \gamma_o \odot \tanh(c_t)\)</li>
+        </ol>
+      </li>
+      <li>where:
+        <ul>
+          <li>\(\odot\) is element-wise multiplication.</li>
+          <li>\(\sigma\) is the sigmoid function.</li>
+          <li>\(\tanh\) is the hyperbolic tangent function.</li>
+          <li>\(W\) represents weight matrices for different gates.</li>
+          <li>\(b\) represents bias vectors for different gates.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Variations and Extensions</strong></li>
+  <li><strong>Peephole Connection:</strong> In standard LSTMs, gate values are dependent on the previous activation  \(a_{t-1}\) and the current input  \(x_t\). In peephole connections, the gate values also take into account the previous cell state  \(c_{t-1}\), allowing the cell state to influence the gates directly. This can sometimes improve performance, depending on the specific task.</li>
+  <li><strong>When to use LSTMs vs. GRUs?</strong>
+    <ul>
+      <li>There isn’t a definitive answer, as the effectiveness varies based on the problem and dataset:
+        <ul>
+          <li><strong>LSTM:</strong>
+            <ul>
+              <li>More parameters and thus computationally more intensive.</li>
+              <li>Historically proven with a plethora of successful applications.</li>
+              <li>Has more flexibility due to three gates, which might capture intricate patterns better.</li>
+            </ul>
+          </li>
+          <li><strong>GRU:</strong>
+            <ul>
+              <li>Simpler with fewer parameters, which might lead to faster training.</li>
+              <li>Might be easier to scale to bigger problems because of its simplicity.</li>
+              <li>Gaining momentum in recent times and is often considered a good first choice.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>In general, if you’re unsure which to choose, starting with an LSTM is a good bet because of its historical performance. However, if computational efficiency or training speed is a concern, trying a GRU is also a reasonable approach.</li>
+  <li>LSTMs, with their intricate structure and multiple gates, provide a powerful mechanism to capture long-range dependencies in sequences. Whether it’s language modeling, time-series forecasting, or many other sequential tasks, LSTMs (and their simpler counterparts, GRUs) have significantly advanced the state of the art in sequence modeling.</li>
+</ul>
+
+<h2 id="bidirectional-rnns-brnns">Bidirectional RNNs (BRNNs)</h2>
+
+<ol>
+  <li><strong>Motivation:</strong>
+    <ul>
+      <li>In tasks like named entity recognition, sometimes to predict a certain word’s label, you need context from both past and future tokens. For instance, to decide if “Teddy” refers to a teddy bear or Teddy Roosevelt, context after the word might be helpful.</li>
+    </ul>
+  </li>
+  <li><strong>How BRNNs Work:</strong>
+    <ul>
+      <li>While traditional RNNs move in a forward direction through a sequence, BRNNs have two sets of hidden layers: one that moves forward and another that moves backward.</li>
+      <li>Imagine a sequence \(X_1, X_2, X_3, ... X_t\).
+        <ul>
+          <li>The forward RNN captures information from \(X_1\) to \(X_t\).</li>
+          <li>The backward RNN captures information from \(X_t\) to \(X_1\).</li>
+        </ul>
+      </li>
+      <li>For each position \(t\), both the forward and backward hidden states are passed to generate the output \(Y_t\).</li>
+    </ul>
+  </li>
+  <li><strong>Advantages:</strong>
+    <ul>
+      <li>Allows the network to have information from both past and future states, which is often valuable in tasks where context plays a significant role.</li>
+      <li>Particularly beneficial for many Natural Language Processing (NLP) tasks. A combination of BRNN with LSTM blocks is a popular choice.</li>
+    </ul>
+  </li>
+  <li><strong>Drawbacks:</strong>
+    <ul>
+      <li>The entire sequence is required before predictions can be made. This is not suitable for real-time predictions, such as real-time speech recognition.</li>
+    </ul>
+  </li>
+  <li><strong>Applications:</strong>
+    <ul>
+      <li>Named Entity Recognition, other NLP tasks where full sequence context is beneficial.</li>
+      <li>However, modifications may be needed for applications that require real-time outputs, like speech recognition.</li>
+    </ul>
+  </li>
+  <li><strong>Variants:</strong>
+    <ul>
+      <li>The blocks in BRNN can be standard RNNs, GRUs, or LSTMs. The choice depends on the specific problem and data.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="deep-rnns">Deep RNNs</h2>
+
+<ol>
+  <li><strong>Introduction:</strong>
+    <ul>
+      <li>Deep RNNs stack multiple layers of RNNs together, aiming to capture more complex patterns within sequences.</li>
+    </ul>
+  </li>
+  <li><strong>Relation to Regular Neural Networks:</strong>
+    <ul>
+      <li>Just as in a regular deep neural network, where we have multiple layers (like input, hidden layers, and output), in deep RNNs, multiple layers of recurrent units are stacked on top of each other.</li>
+    </ul>
+  </li>
+  <li><strong>Notation:</strong>
+    <ul>
+      <li>\(a[l]&lt;t&gt;\) is used to represent the activations.</li>
+      <li>\(l\) indicates the layer.</li>
+      <li>\(t\) indicates the time step.</li>
+    </ul>
+  </li>
+  <li><strong>Computation in Deep RNNs:</strong>
+    <ul>
+      <li>For instance, for \(a[2]&lt;3&gt;\), it will consider the activations from the previous time step in the same layer, \(a[2]&lt;2&gt;\), and the activations from the previous layer at the same time step, \(a[1]&lt;3&gt;\).</li>
+    </ul>
+  </li>
+  <li><strong>Depth in RNNs vs Regular Neural Networks:</strong>
+    <ul>
+      <li>Unlike regular deep networks which might have hundreds of layers, deep RNNs usually don’t go that deep. Even three layers can be considered “deep” for RNNs.</li>
+      <li>This is due to the complexity in the temporal dimension which can make these networks vast.</li>
+    </ul>
+  </li>
+  <li><strong>Variations:</strong>
+    <ul>
+      <li>RNN layers can be stacked vertically (in terms of depth) and connected horizontally (across time steps).</li>
+      <li>After the RNN layers, there can be deep fully connected layers for the prediction at each time step without temporal connections.</li>
+    </ul>
+  </li>
+  <li><strong>Block Choices:</strong>
+    <ul>
+      <li>The blocks in deep RNNs can be standard RNNs, GRUs, or LSTMs.</li>
+      <li>There are also bidirectional versions of deep RNNs.</li>
+    </ul>
+  </li>
+  <li><strong>Computational Implications:</strong>
+    <ul>
+      <li>Deep RNNs are computationally intensive.</li>
+      <li>Due to the inherent complexity of managing sequences in time, you don’t generally see as many layers in deep RNNs as in traditional deep networks.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li><strong>Summary:</strong>
+    <ul>
+      <li>With basic RNNs, GRUs, LSTMs, bidirectional RNNs, and deep RNNs, there’s a wide range of models available for sequence modeling, each with its own advantages and use-cases.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="introduction-to-word-embeddings-in-nlp">Introduction to Word Embeddings in NLP</h2>
+
+<ol>
+  <li><strong>Context &amp; Motivation:</strong>
+    <ul>
+      <li>Previously, the primary focus was on RNNs, GRUs, and LSTMs.</li>
+      <li>This week’s focus is on Natural Language Processing (NLP), which has seen a transformation due to deep learning techniques.</li>
+      <li>One crucial technique is word embeddings, allowing algorithms to capture word relationships and similarities.</li>
+    </ul>
+  </li>
+  <li>**Traditional Word Representation: **
+    <ul>
+      <li>Words have historically been represented using one-hot vectors.</li>
+      <li>A dictionary is constructed, and each word is given a unique vector with a 1 at its corresponding position and 0s everywhere else.</li>
+      <li>Problem: This representation does not capture the relationship or similarity between words.</li>
+    </ul>
+  </li>
+  <li><strong>Desire for Featurized Representation:</strong>
+    <ul>
+      <li>A proposed solution is to represent words using features rather than isolated vectors.</li>
+      <li>Examples of possible features: gender, royalty, age, type (e.g., food or not), etc.</li>
+      <li>The goal is to learn such representations such that similar words have similar feature vectors.</li>
+    </ul>
+  </li>
+  <li><strong>High-Dimensional Embeddings:</strong>
+    <ul>
+      <li>Instead of just a few features, words can be embedded in a high-dimensional space, e.g., 300 dimensions.</li>
+      <li>These embeddings allow for richer representation and better generalization across words.</li>
+      <li>Words like “apple” and “orange” would have similar embeddings due to their shared features (both being fruits, for instance).</li>
+    </ul>
+  </li>
+  <li><strong>Visualizing Embeddings:</strong>
+    <ul>
+      <li>While embeddings can have hundreds of dimensions, they are sometimes visualized in 2D or 3D using techniques like t-SNE.</li>
+      <li>Visualization often shows that similar words cluster together.</li>
+    </ul>
+  </li>
+  <li><strong>What is an Embedding?</strong>
+    <ul>
+      <li>Embedding refers to mapping each word to a point in a high-dimensional space.</li>
+      <li>The term “embedding” signifies the positioning of a word in this space based on its learned features.</li>
+    </ul>
+  </li>
+  <li><strong>Significance of Word Embeddings:</strong>
+    <ul>
+      <li>Word embeddings revolutionized NLP by allowing algorithms to understand word relationships and similarities.</li>
+      <li>This representation provides a robust foundation for many NLP tasks.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="word-embeddings-more-detail">Word embeddings more detail</h2>
+
+<ol>
+  <li>
+    <p><strong>Context and Generalization:</strong> The video uses the example of named entity recognition to highlight how word embeddings can help generalize from one scenario to another. If the algorithm has seen the sentence “Sally Johnson is an orange farmer” during training, it can generalize to the sentence “Robert Lin is an apple farmer” because it knows that “orange” and “apple” are similar, thanks to word embeddings. The real power of word embeddings is demonstrated by the ability of the algorithm to recognize that “Robert Lin is a durian cultivator” also refers to a person, even if the words “durian” and “cultivator” are rarely seen during training.</p>
+  </li>
+  <li>
+    <p><strong>Learning Word Embeddings:</strong> Word embeddings can be learned by examining large amounts of unlabeled text data, often from the internet. This helps in understanding relationships between words, such as “orange” and “durian” being fruits or “farmer” and “cultivator” being related to cultivation.</p>
+  </li>
+  <li>
+    <p><strong>Transfer Learning:</strong> The video emphasizes the concept of transfer learning, which involves taking knowledge learned from one task and applying it to another. In the context of word embeddings, this means using embeddings learned from a large text corpus and applying them to a different NLP task with a smaller dataset.</p>
+  </li>
+  <li>
+    <p><strong>Fine-tuning Embeddings:</strong> Once the embeddings are applied to a new task, they can optionally be fine-tuned using the data from that task. This is especially beneficial if the new task has a sizeable dataset.</p>
+  </li>
+  <li>
+    <p><strong>Applications of Word Embeddings:</strong> Word embeddings are beneficial for many NLP tasks, such as named entity recognition, text summarization, co-reference resolution, and parsing. However, for tasks like language modeling and machine translation with large dedicated datasets, the advantage of word embeddings might be reduced.</p>
+  </li>
+  <li>
+    <p><strong>Comparison with Face Encoding:</strong> The video draws a parallel between word embeddings and the face encoding techniques used in image recognition. While the terms “encoding” and “embedding” are used interchangeably, the application differs. In face recognition, the network learns an encoding for any face image, whereas in word embeddings, a fixed vocabulary of words is used, and embeddings for these fixed words are learned.</p>
+    <ul>
+      <li>In summary, word embeddings are dense vector representations of words that capture semantic relationships between them. They allow NLP algorithms to generalize better across different contexts, enabling improved performance even with smaller labeled datasets.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="word-embeddings-for-analogy-reasoning">Word Embeddings for Analogy Reasoning</h3>
+<ul>
+  <li>Word embeddings are crucial in Natural Language Processing (NLP) and they have the fascinating ability to reason through analogies.</li>
+  <li>
+    <p>Analogies are not just for amusement; understanding them can provide insights into the capabilities of word embeddings.</p>
+  </li>
+  <li>
+    <p><strong>Understanding Word Embeddings Through Analogies:</strong></p>
+
+    <ul>
+      <li>Consider the analogy “man is to woman as king is to what?”. Most people would respond with “queen”, but how can an algorithm figure this out using word embeddings?</li>
+      <li>Words can be represented as vectors. For example, “man” could be represented by a vector named <code class="language-plaintext highlighter-rouge">e_man</code>, “woman” as <code class="language-plaintext highlighter-rouge">e_woman</code>, and so on.</li>
+      <li>By analyzing the difference between the vectors (like <code class="language-plaintext highlighter-rouge">e_man - e_woman</code>), we can find a pattern. In this case, the difference between “man” and “woman” vectors might primarily represent gender. Similarly, the difference between “king” and “queen” vectors would also represent gender.</li>
+      <li>The algorithm can then use this difference to predict the missing word in the analogy. It computes the difference and searches for a word whose embedding closely matches the expected vector difference.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Influential Work on Analogies and Word Embeddings:</strong></p>
+
+    <ul>
+      <li>Tomas Mikolov, Wen-tau Yih, and Geoffrey Zweig first pointed out the potential of word embeddings in analogy reasoning.</li>
+      <li>Their work has been instrumental in helping the NLP community understand the capabilities and workings of word embeddings.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Visualizing Word Embeddings:</strong></p>
+
+    <ul>
+      <li>Even though word embeddings often have hundreds of dimensions (often 300), visualization tools like t-SAE can map them into a 2D space.</li>
+      <li>However, this visualization may not always preserve the relationships or distances between words due to the non-linear transformations applied.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Measuring Similarity Between Vectors:</strong></p>
+
+    <ul>
+      <li>To determine how close two vectors are, a similarity function is used.</li>
+      <li>The most common similarity function is the “cosine similarity”, which calculates the cosine of the angle between two vectors. It helps determine how similar two vectors (or word embeddings) are.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Remarkable Findings:</strong></p>
+
+    <ul>
+      <li>Word embeddings can capture a wide range of analogies, such as:
+        <ul>
+          <li>Man to Woman :: Boy to Girl (capturing gender difference).</li>
+          <li>Ottawa to Canada :: Nairobi to Kenya (capturing capital-city relationships).</li>
+          <li>Big to Bigger :: Tall to Taller (capturing comparative degrees).</li>
+          <li>Yen to Japan :: Ruble to Russia (capturing currency-country relationships).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Conclusion:</strong></p>
+
+    <ul>
+      <li>Word embeddings have the incredible ability to capture semantic relationships in data.</li>
+      <li>While analogy reasoning itself might not be a standalone application, it provides deep insights into the strength and capabilities of word embeddings.</li>
+      <li>The next step in understanding word embeddings is exploring how they are learned from data.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="word-embeddings-and-the-embedding-matrix">Word Embeddings and the Embedding Matrix</h3>
+
+<ol>
+  <li>
+    <p><strong>Vocabulary:</strong> Let’s assume we have a vocabulary of 10,000 words (or 10,001 if you include an “unknown” word token). This vocabulary could range from common words like “A”, “Orange” to less common ones like “Zulu”.</p>
+  </li>
+  <li>
+    <p><strong>Embedding Matrix (E):</strong> The embedding matrix is a representation of our vocabulary in a dense vector space. If each word is represented as a 300-dimensional vector, and there are 10,000 words, the embedding matrix will be of size 300 x 10,000.</p>
+  </li>
+  <li>
+    <p><strong>One-hot Vectors:</strong> For any word in the vocabulary, its representation as a one-hot vector will have a dimension of 10,000 (equal to the vocabulary size). For instance, if “Orange” is the 6,257th word in the vocabulary, its one-hot vector will have a “1” at the 6,257th position and “0”s everywhere else.</p>
+  </li>
+  <li>
+    <p><strong>Extracting Word Embeddings:</strong> Multiplying the embedding matrix \(E\) with the one-hot vector of a word will extract the column corresponding to that word in \(E\). This column is essentially the word’s embedding. Mathematically, \(E \times o_{6257} = E_{6257}\). Here, \(E_{6257}\) is the 300-dimensional embedding of the word “Orange”.</p>
+  </li>
+  <li>
+    <p><strong>Efficiency Concern:</strong> In practice, carrying out this matrix multiplication isn’t efficient because the one-hot vector is large and sparse (mostly zeros). Instead of performing a matrix-vector multiplication, you’d simply “lookup” the relevant column in the matrix. This is more computationally efficient and is typically how embedding layers in neural network libraries (like Keras) function.</p>
+  </li>
+  <li>
+    <p><strong>Goal:</strong> The primary goal in learning word embeddings is to learn the embedding matrix \(E\). Initially, \(E\) is often populated with random values, and during training, these values are updated to better capture semantic meanings of words.</p>
+  </li>
+  <li>
+    <p><strong>Next Steps:</strong> Once you have established this foundation, the next step is to discuss specific algorithms or techniques to learn this embedding matrix \(E\), such as Word2Vec, GloVe, etc.</p>
+  </li>
+</ol>
+
+<ul>
+  <li>The provided explanation offers a foundational understanding of how word embeddings work in practice. By understanding the relationship between one-hot vectors, the embedding matrix, and word vectors, one can appreciate how dense representations of words are obtained from sparse one-hot vectors.</li>
+</ul>
+
+<h2 id="word-embeddings-and-algorithms">Word Embeddings and Algorithms</h2>
+
+<ul>
+  <li><strong>Introduction and Evolution of Algorithms:</strong>
+    <ul>
+      <li>Word embeddings can be learned through various algorithms.</li>
+      <li>Initially, complex algorithms were employed for this task.</li>
+      <li>However, with time, simpler yet effective algorithms were developed.</li>
+      <li>Starting with simpler algorithms might appear mystifying due to their simplicity.</li>
+      <li>Therefore, it’s essential to begin understanding from the complex and gradually transition to the simpler ones for better clarity and intuition.</li>
+    </ul>
+  </li>
+  <li><strong>Neural Language Model – The Foundation:</strong>
+    <ul>
+      <li>Imagine building a model that predicts the next word in a sentence, e.g., given “I want a glass of orange”, predict the next word.</li>
+      <li>Each word is represented by a unique index in the vocabulary.</li>
+      <li>Credit for the development of these concepts goes to notable researchers like Yoshua Bengio and others.</li>
+    </ul>
+  </li>
+  <li><strong>Step-by-step Guide to Building the Model:</strong>
+    <ul>
+      <li>For any word, say “I”, a one-hot vector is created which is essentially a long vector with one value of ‘1’ at the position representing the word and ‘0’ everywhere else.</li>
+      <li>This one-hot vector is multiplied by a matrix (E) to obtain the word’s embedding.</li>
+      <li>This process is repeated for every word in the sentence.</li>
+      <li>After obtaining embeddings, these are fed into a neural network.</li>
+      <li>The goal is to predict the next word from a vocabulary of potential words using a softmax layer.</li>
+      <li>The model adjusts based on training data. For instance, if “juice” often comes after “I want a glass of orange”, the model will learn this.</li>
+    </ul>
+  </li>
+  <li><strong>Handling Different Sentence Lengths:</strong>
+    <ul>
+      <li>Due to varying sentence lengths, it’s not feasible to always input every word.</li>
+      <li>A common approach is to use a fixed number of previous words (like the last four) to predict the next word.</li>
+      <li>This ensures consistent input size and enables the model to process sentences of any length.</li>
+    </ul>
+  </li>
+  <li><strong>Importance of Word Embeddings:</strong>
+    <ul>
+      <li>Word embeddings ensure words appearing in similar contexts have similar representations.</li>
+      <li>For instance, since “apple” and “orange” can both be followed by “juice”, their embeddings will be somewhat similar.</li>
+      <li>This similarity ensures that the algorithm learns effectively from the data.</li>
+    </ul>
+  </li>
+  <li><strong>Exploring Different Contexts for Predictions:</strong>
+    <ul>
+      <li>Apart from using the last few words as context, there are alternative ways to define context:
+        <ul>
+          <li>Using both preceding and succeeding words.</li>
+          <li>Using just the immediate previous word.</li>
+          <li>Using a random nearby word (Skip-Gram model).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>The main goal defines the choice of context. If it’s language modeling, preceding words are natural. However, for word embeddings, various contexts can yield meaningful results.</p>
+  </li>
+  <li><strong>Conclusion:</strong>
+    <ul>
+      <li>The primary idea is using a context to predict target words, aiding in generating word embeddings.</li>
+      <li>Simpler algorithms and models, like Word2Vec, can still achieve this effectively.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="word2vec">Word2Vec</h2>
+<ol>
+  <li><strong>Introduction</strong>
+    <ul>
+      <li>The video introduces Word2Vec, a simple and more efficient algorithm for learning word embeddings compared to other neural language models.</li>
+      <li>Major contributors to the ideas in Word2Vec include Tomas Mikolov, Kai Chen, Greg Corrado, and Jeff Dean.</li>
+    </ul>
+  </li>
+  <li><strong>Skip-gram Model</strong>
+    <ul>
+      <li>The skip-gram model creates supervised learning problems using context-to-target pairs from sentences.</li>
+      <li>Rather than using a fixed number of words as context, a random word is selected from the sentence.</li>
+      <li>Another random word, within a specified window (e.g., +/- 5 or 10 words), is selected as the target.</li>
+      <li>The objective isn’t necessarily to perform perfectly on this problem but to use it as a method to learn good word embeddings.</li>
+    </ul>
+  </li>
+  <li><strong>Model Details</strong>
+    <ul>
+      <li>Typically, a vocabulary of about 10,000 words is used, though sometimes it exceeds a million.</li>
+      <li>Words, such as “orange” or “juice,” are represented as one-hot vectors based on their position in the vocabulary.</li>
+      <li>The embedding matrix, when multiplied by the one-hot vector, produces the embedding for the word.</li>
+      <li>The network structure involves the embedding fed to a softmax unit, which then outputs \(\hat{y}\).</li>
+    </ul>
+  </li>
+  <li><strong>Softmax Model</strong>
+    <ul>
+      <li>The softmax model calculates the probability of various target words given an input context word.</li>
+      <li>The loss function used is the negative log likelihood, suitable for softmax where the target word is represented as a one-hot vector.</li>
+    </ul>
+  </li>
+  <li><strong>Computational Concerns</strong>
+    <ul>
+      <li>The primary issue with the skip-gram model is computational speed due to the softmax step.</li>
+      <li>Calculating the softmax requires summing over the entire vocabulary, which is computationally expensive, especially for large vocabularies.</li>
+    </ul>
+  </li>
+  <li><strong>Solutions to the Computational Problem</strong>
+    <ul>
+      <li>Hierarchical softmax classifier: Instead of classifying among all words at once, a binary tree of classifiers is used to narrow down choices.</li>
+      <li>This reduces the computational cost from linear to logarithmic with respect to vocabulary size.</li>
+      <li>The tree’s structure can be optimized so that more frequent words are near the top, reducing traversal time for common words.</li>
+    </ul>
+  </li>
+  <li><strong>Sampling Context Words</strong>
+    <ul>
+      <li>For training, context words aren’t always chosen uniformly from the corpus.</li>
+      <li>Some words appear more frequently than others, and sampling uniformly might bias the training towards these common words.</li>
+      <li>Various heuristics balance sampling common and less common words to ensure that embeddings are learned for both.</li>
+    </ul>
+  </li>
+  <li><strong>CBOW Model</strong>
+    <ul>
+      <li>Besides the skip-gram model, the original Word2Vec paper also introduced the Continuous Bag of Words (CBow) model.</li>
+      <li>The CBow model predicts a middle word from its surrounding context, and it has its own advantages and disadvantages.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="negative-sampling">Negative Sampling</h2>
+
+<ol>
+  <li><strong>New Supervised Learning Problem:</strong>
+    <ul>
+      <li>Negative Sampling presents a new supervised learning problem. For any given pair of words (like “orange” and “juice”), the aim is to predict if they form a context-target pair. “Orange” and “juice” would be a positive example (labeled 1), while “orange” and “king” is considered a negative example (labeled 0).</li>
+    </ul>
+  </li>
+  <li><strong>Generating Data:</strong>
+    <ul>
+      <li>Positive Example: Start by picking a context word, and then from a window around that context word, pick a target word.</li>
+      <li>Negative Examples: Use the same context word and then pick ‘k’ random words from the vocabulary. Most of these randomly selected words would not be contextually related, hence they are negative samples.</li>
+    </ul>
+  </li>
+  <li><strong>Choosing k:</strong>
+    <ul>
+      <li>\(k\) represents the number of negative samples to be generated for every positive context-target pair. Recommendations vary based on the size of the dataset. Smaller datasets might benefit from a \(k\) value between 5 to 20, while larger datasets might be more efficient with \(k\) values between 2 to 5.</li>
+    </ul>
+  </li>
+  <li><strong>Learning Model:</strong>
+    <ul>
+      <li>It essentially models a binary classification problem, aiming to predict if a given pair of words are contextually related (1) or not (0).</li>
+      <li>The formula proposed uses the embeddings of the context and target words.</li>
+      <li>Visualized as a neural network, instead of a massive Softmax layer, it employs multiple logistic regression classifiers. Only a subset of these classifiers are trained in each iteration, keeping computational costs low.</li>
+      <li>The technique gets its name from the fact that for every positive example, several negative samples are generated and used for training.</li>
+    </ul>
+  </li>
+  <li><strong>Choosing Negative Examples:</strong>
+    <ul>
+      <li>Rather than just randomly picking words, or picking based on empirical frequency (which would over-represent common words like “the”, “and”, etc.), the authors proposed a heuristic: sample words proportionally to the frequency of a word raised to the power of 3/4.</li>
+    </ul>
+  </li>
+  <li>Negative Sampling provides a computationally efficient method to learn word embeddings. The embeddings learned are of good quality and can be used for various NLP tasks. While it’s feasible to learn embeddings from scratch, there are also pre-trained embeddings available that one can use for quick deployment.</li>
+</ol>
+
+<h2 id="glove">GloVe</h2>
+
+<ol>
+  <li><strong>Introduction to GloVe:</strong>
+    <ul>
+      <li>GloVe is another popular word embedding algorithm.</li>
+      <li>It was developed by Jeffrey Pennington, Richard Socher, and Chris Manning.</li>
+      <li>It differs from Word2Vec and skip-gram models but offers a relatively simple mechanism.</li>
+    </ul>
+  </li>
+  <li><strong>How GloVe Works:</strong>
+    <ul>
+      <li>GloVe explicitly counts how often two words (i and j) appear near each other in a corpus.</li>
+      <li>\(X_{ij}\) represents the number of times word i appears in the context of word j.</li>
+      <li>GloVe optimizes an objective that minimizes the difference between the dot product of the embedding vectors for words i and j and the log of \(X_{ij}\). This attempts to make the dot product of embedding vectors mirror the logarithm of their co-occurrence probability.</li>
+    </ul>
+  </li>
+  <li><strong>Specifics of the Algorithm:</strong>
+    <ul>
+      <li>If \(X_{ij}\) is zero (i.e., the words never appear together), you ignore that term to avoid the undefined log(0).</li>
+      <li>To account for words that appear very frequently (like “the” or “is”) or very infrequently (like “durion”), GloVe uses a weighting function, \(F(X_{ij})\), to give the right amount of emphasis to each word pair.</li>
+      <li>The roles of \(\theta\) (theta) and \(e\) in the GloVe algorithm are symmetric. After training, for each word, you can take the average of its \(\theta\) and \(e\) vectors to get its final embedding.</li>
+    </ul>
+  </li>
+  <li><strong>Interpretability Challenge:</strong>
+    <ul>
+      <li>Although we start with the idea that embeddings might capture clear concepts like gender, royalty, age, etc., in practice, the dimensions of embeddings are usually not directly interpretable.</li>
+      <li>This is because the learning algorithm might combine these concepts in arbitrary ways across dimensions.</li>
+      <li>The dimensions are learned in a way that’s useful for predicting the co-occurrence of words, not necessarily in a way that’s easy for humans to interpret.</li>
+    </ul>
+  </li>
+  <li><strong>Parallelogram Map for Analogies:</strong>
+    <ul>
+      <li>Despite the potential arbitrary representation in word embeddings, the concept that embeddings can capture relationships (like analogies) still holds. For instance, the relationship “king” - “man” + “woman” = “queen” can be visualized as a parallelogram in the embedding space.</li>
+    </ul>
+  </li>
+  <li><strong>Applications and Further Steps:</strong>
+    <ul>
+      <li>Word embeddings, whether from GloVe or other algorithms, are foundational in many NLP tasks.</li>
+      <li>The next step in the lesson appears to be about using these embeddings for sentiment classification.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="sentiment-classification-using-word-embeddings">Sentiment Classification using Word Embeddings</h2>
+
+<ol>
+  <li><strong>Definition and Importance:</strong>
+    <ul>
+      <li>Sentiment classification determines if a text is positive or negative about a subject.</li>
+      <li>Vital component in Natural Language Processing (NLP).</li>
+      <li>Used in a variety of applications.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges:</strong>
+    <ul>
+      <li>May not always have extensive labeled training data.</li>
+      <li>Word embeddings can assist in building efficient classifiers even with smaller datasets.</li>
+    </ul>
+  </li>
+  <li><strong>Example:</strong>
+    <ul>
+      <li>Input (X): Text (e.g., “The dessert is excellent”).</li>
+      <li>Output (Y): Sentiment (e.g., 4-star review).</li>
+      <li>Can monitor comments about products, services, etc.</li>
+    </ul>
+  </li>
+  <li><strong>Use Case:</strong>
+    <ul>
+      <li>Monitor restaurant reviews or comments on social media.</li>
+      <li>Gauge overall sentiment, identify problem areas, or track performance over time.</li>
+    </ul>
+  </li>
+  <li><strong>Benefit of Word Embeddings:</strong>
+    <ul>
+      <li>Useful especially when training data is limited.</li>
+      <li>Can learn from vast text corpora, including infrequent words.</li>
+    </ul>
+  </li>
+  <li><strong>Simple Sentiment Classification Model:</strong>
+    <ul>
+      <li>Convert sentence words into one-hot vectors using a dictionary (e.g., 10,000-word dictionary).</li>
+      <li>Extract word embeddings using a large pre-trained embedding matrix.</li>
+      <li>For a sentence, average (or sum) the embeddings of its words.</li>
+      <li>Pass the averaged embedding to a softmax classifier for sentiment prediction.</li>
+      <li>Averages the meaning of all words in a review.</li>
+      <li>Works for both short and long reviews.</li>
+    </ul>
+  </li>
+  <li><strong>Drawback of Simple Model:</strong>
+    <ul>
+      <li>Ignores word order.</li>
+      <li>May misinterpret sentiments, e.g., “Completely lacking in good taste” due to the repeated presence of the word “good”.</li>
+    </ul>
+  </li>
+  <li><strong>Advanced Model: RNN for Sentiment Classification:</strong>
+    <ul>
+      <li>Instead of averaging, use a Recurrent Neural Network (RNN).</li>
+      <li>Embeddings of words in a sentence are fed sequentially into an RNN.</li>
+      <li>Uses a many-to-one RNN architecture.</li>
+      <li>Takes word sequence into account, captures nuances like “not good” versus “good”.</li>
+      <li>Provides a better understanding of sentiment.</li>
+    </ul>
+  </li>
+  <li><strong>Advantages of RNN Model:</strong>
+    <ul>
+      <li>Better at understanding context and word order.</li>
+      <li>Generalizes better to new words or phrasings.</li>
+      <li>If a word isn’t in the labeled dataset but is in the corpus used for embeddings, it can still be effectively used for classification.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="sequence-to-sequence-models-and-their-applications">Sequence-to-Sequence Models and Their Applications</h2>
+
+<ol>
+  <li><strong>Introduction:</strong>
+    <ul>
+      <li>The last week of the deep learning specialization delves into sequence-to-sequence models, vital for tasks such as machine translation, speech recognition, and more.</li>
+      <li>A prime example is machine translation: converting a French sentence into its English counterpart.</li>
+    </ul>
+  </li>
+  <li><strong>Encoder-Decoder Architecture:</strong>
+    <ul>
+      <li>A typical sequence-to-sequence model consists of two main components: the encoder and the decoder.</li>
+      <li>The encoder is responsible for processing the input sequence (e.g., a sentence in French) and compressing this information into a fixed-size “context” or “encoding” vector.</li>
+      <li>This vector, which captures the essence of the input sequence, is then passed to the decoder. The decoder then produces the output sequence (e.g., the translated sentence in English) one token at a time.</li>
+    </ul>
+  </li>
+  <li><strong>Deep Dive into the Process:</strong>
+    <ul>
+      <li>Encoder:
+        <ul>
+          <li>It’s usually an RNN (like a GRU or LSTM). For a given input sequence, say a French sentence, the encoder processes each word sequentially.</li>
+          <li>At the end of the sequence, the RNN outputs a vector that captures the context of the input sentence.</li>
+        </ul>
+      </li>
+      <li>Decoder:
+        <ul>
+          <li>Also an RNN, the decoder takes the context vector from the encoder as its initial state.</li>
+          <li>It then starts generating the output sequence. For machine translation, this would be the translated words in English.</li>
+          <li>The process continues until the decoder outputs an “end of sequence” token.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Beyond Text - Image Captioning:</strong>
+    <ul>
+      <li>Sequence-to-sequence models aren’t limited to just text. They can be adapted for image captioning where the input is an image, and the output is a descriptive caption.</li>
+      <li>The encoder in this scenario is a pre-trained convolutional neural network (e.g., AlexNet). It processes the image to produce a feature vector, capturing the image’s essence.</li>
+      <li>This feature vector is fed to an RNN-based decoder, similar to the text scenario, which then generates a relevant caption for the image.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges &amp; Distinctions:</strong>
+    <ul>
+      <li>A key challenge with sequence-to-sequence models is the generation process. Unlike language models, where random text generation might be acceptable, tasks like translation or captioning require the “best” or most probable output.</li>
+      <li>For instance, in machine translation, you don’t want a randomly generated translation. Instead, you aim to get the most accurate or likely translation.</li>
+    </ul>
+  </li>
+  <li><strong>Historical Context &amp; Key Works:</strong>
+    <ul>
+      <li>The described sequence-to-sequence framework owes its foundation to significant works by Sutskever, Vinyals, Le, Cho, Bengio, and others.</li>
+      <li>The image captioning adaptation was notably proposed and worked upon by researchers like Mao, Xu, Yang, Vinyals, Karpathy, and Fei-Fei Yi, among others.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="picking-the-most-likely-sentence">Picking the most likely sentence</h2>
+
+<ol>
+  <li><strong>Conditional Language Models:</strong>
+    <ul>
+      <li>Machine translation can be considered a conditional language model. Unlike a standard language model, which predicts the next word based only on the preceding words, a machine translation model predicts the next word based on both the preceding words in the target language (e.g., English) and the entire input sentence in the source language (e.g., French).</li>
+    </ul>
+  </li>
+  <li><strong>Differences in Purpose:</strong>
+    <ul>
+      <li>In a language model, you’re interested in sampling or generating new sentences. This could involve generating text in creative ways, like story generation.</li>
+      <li>In machine translation, you’re not looking for a “random” output from a distribution. You want the translation that’s the most probable or makes the most sense given the input.</li>
+    </ul>
+  </li>
+  <li><strong>Problem of Sampling:</strong>
+    <ul>
+      <li>If you used a machine translation model like a standard language model and sampled outputs, you might get different translations every time. Some might be good, some not, and some might be downright wrong or nonsensical.</li>
+      <li>This inconsistency isn’t acceptable in tasks like translation. We desire consistency and accuracy.</li>
+    </ul>
+  </li>
+  <li><strong>Optimizing the Entire Sequence:</strong>
+    <ul>
+      <li>Greedy Search: This approach just picks the next word that is most likely at each step. However, by making local “best” choices, it might miss globally optimal sequences. For instance, the phrase “Jane is going” might seem likely initially, but it can lead to less fluent translations.</li>
+      <li>Beam Search: Instead of relying on pure greedy tactics, beam search keeps track of several possible sequences (beams) and tries to find the best among them. It’s a compromise between pure greedy search and exhaustive search, making it both efficient and more accurate than just greedy search.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges of Picking the Best Sequence:</strong>
+    <ul>
+      <li>The number of possible combinations is immense. For even modest sentence lengths and vocabularies, exhaustively evaluating every possible sentence to find the best one isn’t computationally feasible. That’s why beam search, an approximate method, is valuable.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In conclusion, while there are similarities between sequence-to-sequence models for machine translation and language models, the goals and optimization strategies differ. Machine translation seeks the most probable translation given an input, and this requires specialized techniques like beam search to navigate the vast space of possible translations effectively.</li>
+</ul>
+
+<h3 id="beam-search">Beam Search</h3>
+
+<ol>
+  <li>
+    <p><strong>Objective:</strong> Beam Search aims to find the most probable translation (or any other sequence), not just any random sequence.</p>
+  </li>
+  <li>
+    <p><strong>Greedy Search vs Beam Search:</strong> While Greedy Search picks the most probable word at each step and moves on, Beam Search considers multiple probable sequences simultaneously.</p>
+  </li>
+  <li>
+    <p><strong>Beam Width (B):</strong> This is a hyperparameter in Beam Search which determines how many sequences are considered at a time. A beam width of 3 means the algorithm looks at the three most probable sequences at each step.</p>
+  </li>
+  <li>
+    <p><strong>Calculation:</strong> At each step, the algorithm multiplies the probabilities of the sequences and chooses the sequences with the highest combined probabilities to proceed to the next step.</p>
+  </li>
+  <li>
+    <p><strong>Efficiency:</strong> While there may be a large number of possible sequences, due to the beam width, only a fixed number of sequences (equal to the beam width) are passed on to the next step. This ensures the algorithm is more efficient than a brute-force search across all possible sequences.</p>
+  </li>
+  <li>
+    <p><strong>Result:</strong> The outcome is a sequence that has one of the highest probabilities among all sequences considered.</p>
+  </li>
+  <li>
+    <p><strong>Comparison with Greedy Search:</strong> When the beam width is set to 1, Beam Search is equivalent to Greedy Search.</p>
+  </li>
+</ol>
+
+<h3 id="improving-upon-beam-search">Improving upon Beam Search</h3>
+
+<ol>
+  <li>**Length Normalization: **
+    <ul>
+      <li>Beam search aims to maximize the probability of a sequence, which is the product of probabilities of each term in the sequence.</li>
+      <li>Multiplying a large number of probabilities (all of which are less than 1) can result in a number too small to be represented accurately in a computer, causing numerical underflow.</li>
+      <li>To combat this, logarithms are taken, turning the product into a sum. This results in a more numerically stable algorithm.</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Maximizing $$ log P(y</td>
+              <td>x) \(is equivalent to maximizing\) P(y</td>
+              <td>x) $$ due to the monotonically increasing nature of the log function.</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>**Drawback of Using Product or Sum of Probabilities: **
+    <ul>
+      <li>Longer sentences inherently have smaller probabilities, as they’re the result of multiplying many terms that are less than 1.</li>
+      <li>This leads to an unintentional preference for shorter translations.</li>
+    </ul>
+  </li>
+  <li><strong>Normalizing by Sentence Length:</strong>
+    <ul>
+      <li>The algorithm can be modified to normalize by the number of words in the translation.</li>
+      <li>Instead of the exact sentence length, the length can be raised to some power alpha (e.g., 0.7) which acts as a middle ground between full normalization (alpha = 1) and no normalization (alpha = 0).</li>
+      <li>This approach, although somewhat heuristic and without solid theoretical grounding, has been found effective in practice.</li>
+    </ul>
+  </li>
+  <li><strong>Implementing Beam Search:</strong>
+    <ul>
+      <li>During the beam search, sentences of various lengths are generated.</li>
+      <li>Depending on the beam width, the top possibilities for each sentence length are kept.</li>
+      <li>After the beam search completes, each sentence is scored using the normalized log probability objective.</li>
+      <li>The sentence with the highest score is the final translation output.</li>
+    </ul>
+  </li>
+  <li><strong>Choosing the Beam Width:</strong>
+    <ul>
+      <li>Larger beam widths explore more possibilities, which can yield better results, but they also require more computation and memory.</li>
+      <li>Smaller beam widths are computationally efficient but might not find the best solutions.</li>
+      <li>In practice, a beam width of around 10 is typical for production systems, while research systems might push for beam widths of 1000 or even 3000. However, there are diminishing returns as the width increases.</li>
+    </ul>
+  </li>
+  <li><strong>Relating to Computer Science Search Algorithms:</strong>
+    <ul>
+      <li>Beam search is different from algorithms like Breadth First Search (BFS) or Depth First Search (DFS).</li>
+      <li>While BFS and DFS are exact search algorithms, beam search is faster but doesn’t guarantee to find the exact maximum.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="error-analysis-with-beam-search">Error Analysis with Beam Search</h3>
+
+<ol>
+  <li><strong>Context and Problem Setting:</strong>
+    <ul>
+      <li>Given a translation example, where the human translation (y*) is “Jane visits Africa in September” and the machine translation (\(\hat{y}\)) is “Jane visited Africa last September”, the objective is to determine which component is at fault for the incorrect translation: the RNN model or the beam search algorithm.</li>
+    </ul>
+  </li>
+  <li><strong>RNN and Beam Search:</strong>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>The RNN (encoder-decoder) computes the probability P(y</td>
+              <td>x) of a sentence y given an input x.</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Beam search aims to find the y that maximizes this probability, but because it’s heuristic, it might not always pick the most probable y.</li>
+    </ul>
+  </li>
+  <li><strong>Error Analysis:</strong>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Compare the probabilities P(y*</td>
+              <td>x) and P(\(\hat{y}\)</td>
+              <td>x).</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Case 1: If P(y*</td>
+              <td>x) &gt; P(\(\hat{y}\)</td>
+              <td>x), then beam search is at fault since it didn’t pick the sentence with the higher probability.</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Case 2: If P(y*</td>
+              <td>x) &lt;= P(\(\hat{y}\)</td>
+              <td>x), the RNN model is at fault since it gave the incorrect translation a higher probability than the correct one.</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Length Normalization:</strong>
+    <ul>
+      <li>There are complexities around length normalization. If length normalization is used, then the optimization objective should be evaluated taking that into account.</li>
+    </ul>
+  </li>
+  <li><strong>Error Analysis Process:</strong>
+    <ul>
+      <li>For each error in the development set, compute the probabilities and determine if the error is due to the beam search or the RNN model.</li>
+      <li>Tally the faults and determine which component (beam search or RNN model) is more responsible for the errors.</li>
+    </ul>
+  </li>
+  <li><strong>Decision Making:</strong>
+    <ul>
+      <li>If beam search is often at fault, consider increasing the beam width.</li>
+      <li>If the RNN model is at fault, consider techniques like regularization, collecting more data, or trying a different architecture.</li>
+    </ul>
+  </li>
+  <li><strong>General Application:</strong>
+    <ul>
+      <li>This error analysis process is useful for models using approximate optimization algorithms (like beam search) that work to optimize a cost function output by a learning algorithm (like an RNN).</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="bleu-score-for-evaluating-machine-translation">BLEU Score for Evaluating Machine Translation:</h2>
+
+<ol>
+  <li>
+    <p><strong>Problem Statement:</strong> Given a French sentence, there can be multiple correct English translations. Unlike image recognition where there’s typically one right answer, machine translation might have multiple valid solutions.</p>
+  </li>
+  <li>
+    <p><strong>Introduction to BLEU:</strong> BLEU (Bilingual Evaluation Understudy) provides a mechanism to evaluate machine translations. It measures how close the machine-generated translation is to human-generated translations (referred to as references).</p>
+  </li>
+  <li>
+    <p><strong>Brevity Penalty:</strong> Short translations can often have higher precisions since most of their words could appear in references. Therefore, the BLEU score incorporates a brevity penalty to avoid favoring very short translations.</p>
+  </li>
+  <li><strong>Calculation:</strong>
+    <ul>
+      <li>It checks for word occurrences (called unigrams) in the translated text as compared to reference translations.</li>
+      <li>It then checks for pairs of words (called bigrams), triples of words (trigrams), and so on.</li>
+      <li>Modified precision for each n-gram level (Pn) is calculated based on the number of times an n-gram in the machine output occurs in the human references, with a cap on the maximum count from any single reference.</li>
+      <li>BLEU combines these precisions (P1, P2, P3, P4) and computes an average. By convention, it uses the exponentiation of this average and multiplies it with the brevity penalty to get the final BLEU score.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Significance:</strong> The BLEU score was revolutionary for machine translation. It served as a single-number evaluation metric, accelerating progress in the field. It’s now widely used not only for machine translation but also for any system generating text like image captioning.</p>
+  </li>
+  <li><strong>Implementation:</strong> Few people implement the BLEU score from scratch as open-source tools are available. It’s especially helpful when multiple generated outputs can be equally valid, offering an automatic way to evaluate them.</li>
+</ol>
+
+<ul>
+  <li>It’s important to note that while the BLEU score is widely accepted and used, it’s not perfect. It provides a good approximation of the quality of machine-generated translations but should be used in conjunction with other evaluation methods or human judgments when possible.</li>
+</ul>
+
+<h2 id="attention-intuition">Attention intuition</h2>
+<ul>
+  <li><strong>Traditional Encoder-Decoder Architecture:</strong>
+    <ol>
+      <li>The traditional approach in machine translation involves an Encoder-Decoder architecture. The encoder reads and memorizes the whole sentence, and the decoder generates the translation.</li>
+      <li>It works well for short sentences but struggles with long ones due to the difficulty in memorizing and maintaining context for longer sequences.</li>
+    </ol>
+  </li>
+  <li><strong>The Attention Mechanism:</strong>
+    <ol>
+      <li>The Attention Model, developed by Dimitri Bahdanau, Kyunghyun Cho, and Yoshua Bengio, is one of the most influential ideas in deep learning.</li>
+      <li>It was designed to remedy the weaknesses of the Encoder-Decoder architecture, especially for longer sentences.</li>
+      <li>The idea behind attention is to allow the model to focus on specific parts of the input sentence when generating each word in the output sentence. This mimics how human translators would approach the task.</li>
+      <li>Instead of trying to remember the entire sentence, the model pays attention to relevant portions while generating the translation.</li>
+    </ol>
+  </li>
+  <li><strong>How It Works:</strong>
+    <ol>
+      <li>For the input sentence, a bidirectional RNN is used to generate a set of features for each word. This gives the context from both directions (forward and backward) for every word.</li>
+      <li>When generating the translation, the model calculates attention weights to decide which parts of the input sentence it should focus on for each output word.</li>
+      <li>These attention weights are denoted by alpha (α). For instance, α(t,t’) indicates the attention weight for the t-th word in the output with respect to the t’-th word in the input.</li>
+      <li>The model then uses these attention weights to compute a context for each word it generates. This context is a weighted combination of the features from the input sentence, guiding the model in generating the appropriate word.</li>
+      <li>This process repeats for every word in the output.</li>
+    </ol>
+  </li>
+  <li><strong>Benefits:</strong>
+    <ol>
+      <li>The Attention Model can handle longer sentences more gracefully because it doesn’t require the model to memorize the entire input.</li>
+      <li>It allows the model to generate translations that are more contextually relevant, as it can focus on specific parts of the input when generating each word.</li>
+    </ol>
+  </li>
+  <li>The Attention Model has had a significant impact on machine translation and has also been adopted in other deep learning applications. The next steps would involve delving deeper into the calculations and formulas behind attention weights and understanding how the context is computed using them.</li>
+</ul>
+
+<h2 id="attention-model">Attention model</h2>
+
+<ul>
+  <li>The provided text appears to be a detailed description of the attention mechanism as applied to neural machine translation and other tasks in deep learning. Let’s break down the key takeaways:</li>
+</ul>
+
+<ol>
+  <li><strong>Attention in Neural Machine Translation:</strong>
+    <ul>
+      <li>The attention model allows a neural network to focus on different parts of an input sequence selectively when generating an output sequence, akin to how human translators work.</li>
+      <li>In the context of translating languages, bidirectional RNNs (like LSTMs and GRUs) compute features on every word in the input sequence.</li>
+      <li>For each time step in the output sequence, the model computes a context vector which is a weighted sum of the features from the input sequence. These weights are the attention weights.</li>
+    </ul>
+  </li>
+  <li><strong>Defining the Attention Weights:</strong>
+    <ul>
+      <li>The attention weight \(\alpha(t, t')\) indicates the importance of the input at time step \(t'\) when generating the output at time step \(t\).</li>
+      <li>These weights sum to one across all the input time steps.</li>
+      <li>A small neural network is often used to compute these attention weights. It uses the activation from the previous output time step and the feature vector of the input time step as inputs.</li>
+    </ul>
+  </li>
+  <li><strong>Computational Consideration:</strong>
+    <ul>
+      <li>The attention mechanism increases the computational cost to quadratic because of the attention weights calculated for every combination of input and output time steps. However, for most machine translation tasks where the sequences aren’t exceedingly long, this cost is acceptable.</li>
+    </ul>
+  </li>
+  <li><strong>Attention Beyond Translation:</strong>
+    <ul>
+      <li>Attention isn’t limited to translation. For instance, it can be used in image captioning where the model pays attention to different parts of an image while generating a caption.</li>
+    </ul>
+  </li>
+  <li><strong>Visualization and Understanding:</strong>
+    <ul>
+      <li>Visualization of attention weights can give insights into what parts of the input sequence the model is focusing on for each word in the output sequence.</li>
+      <li>Such visualizations show that the model often aligns its attention similarly to how a human translator would.</li>
+    </ul>
+  </li>
+  <li><strong>Practical Implementation:</strong>
+    <ul>
+      <li>The text ends with a mention of a programming exercise in which students can apply attention to the date normalization problem, converting dates written in various formats to a standard format. This serves as a simpler introduction to the attention mechanism before diving into more complex tasks like machine translation.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>Overall, attention is a powerful concept in deep learning that improves sequence-to-sequence models by allowing them to focus on the most relevant parts of the input sequence when generating each part of the output sequence.</li>
+</ul>
+
+<h2 id="speech-recognition-systems-sequence-to-sequence-models">Speech Recognition Systems (Sequence-to-Sequence Models)</h2>
+
+<ol>
+  <li><strong>Definition:</strong> Convert an audio clip (x) into a text transcript (y).</li>
+  <li><strong>Audio Representation:</strong> Microphones measure changes in air pressure, plotted as audio clips over time.</li>
+  <li><strong>Spectrogram:</strong> Pre-processing step where raw audio is converted into a frequency vs. time representation.</li>
+  <li><strong>Traditional Approach:</strong> Using ‘phonemes’, basic hand-engineered units of sounds.</li>
+  <li><strong>End-to-End Deep Learning:</strong> Skips phoneme representation. Directly converts audio to transcript.</li>
+  <li><strong>Importance of Data:</strong> Best systems train on 10,000+ hours of transcribed audio.</li>
+  <li>Models:
+    <ul>
+      <li><strong>Attention Model:</strong> Focuses on different parts of the audio for accurate transcription.</li>
+      <li><strong>CTC (Connectionist Temporal Classification):</strong> Allows alignment of audio with shorter text by using blank characters.</li>
+    </ul>
+  </li>
+  <li><strong>Challenges:</strong> Large datasets and deep learning algorithms drive progress in speech recognition.</li>
+</ol>
+
+<h2 id="trigger-word-detection-systems">Trigger Word Detection Systems</h2>
+
+<ol>
+  <li><strong>Definition:</strong> Devices activated by specific trigger words or phrases.</li>
+  <li><strong>Examples:</strong> Amazon Echo (“Alexa”), Apple Siri (“Hey Siri”), Google Home (“Okay Google”), and Baidu DuerOS (“Xiadunihao”).</li>
+  <li><strong>Purpose:</strong> Wake up devices or activate certain functionalities with voice commands.</li>
+  <li><strong>Algorithm:</strong>
+    <ul>
+      <li>Process audio clip, extract features, and pass through an RNN.</li>
+      <li>Designate target labels post trigger word detection.</li>
+      <li>Counteract data imbalance by extending the ‘1’ label duration after the trigger word.</li>
+    </ul>
+  </li>
+  <li><strong>Implementation Benefits:</strong>
+    <ul>
+      <li>Allows users to create personalized voice-activated systems.</li>
+      <li>E.g., Activating lights or tasks on a computer.</li>
+    </ul>
+  </li>
+  <li><strong>Course Overview:</strong>
+    <ul>
+      <li>Topics covered: RNNs, Word embeddings, Attention model, Audio data processing.</li>
+    </ul>
+  </li>
+</ol>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/CourseraDL/sequence-models/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:19 GMT -->
+</html>

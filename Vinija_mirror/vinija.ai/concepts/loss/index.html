@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/concepts/loss/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:02 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Primers • Loss Functions</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Primers • Loss Functions</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#multi-class-classification" id="markdown-toc-multi-class-classification">Multi-Class Classification</a></li>
+  <li><a href="#multi-label-classification" id="markdown-toc-multi-label-classification">Multi-Label Classification</a></li>
+  <li><a href="#classification-loss-functions" id="markdown-toc-classification-loss-functions">Classification Loss functions</a>    <ul>
+      <li><a href="#cross-entropy-loss-function" id="markdown-toc-cross-entropy-loss-function">Cross-Entropy Loss function</a>        <ul>
+          <li><a href="#binary-cross-entropy-loss" id="markdown-toc-binary-cross-entropy-loss">Binary cross-entropy loss</a></li>
+          <li><a href="#focal-loss" id="markdown-toc-focal-loss">Focal Loss</a></li>
+          <li><a href="#categorical-cross-entropy" id="markdown-toc-categorical-cross-entropy">Categorical Cross Entropy</a></li>
+        </ul>
+      </li>
+      <li><a href="#kullbackleibler-kl-divergence" id="markdown-toc-kullbackleibler-kl-divergence">Kullback–Leibler (KL) Divergence</a>        <ul>
+          <li><a href="#intuition" id="markdown-toc-intuition">Intuition</a></li>
+          <li><a href="#mathematical-treatment" id="markdown-toc-mathematical-treatment">Mathematical Treatment</a></li>
+          <li><a href="#kl-divergence-vs-cross-entropy-loss" id="markdown-toc-kl-divergence-vs-cross-entropy-loss">KL divergence vs. Cross-entropy loss</a></li>
+        </ul>
+      </li>
+      <li><a href="#hinge-loss--multi-class-svm-loss" id="markdown-toc-hinge-loss--multi-class-svm-loss">Hinge Loss / Multi-class SVM Loss</a></li>
+      <li><a href="#polyloss" id="markdown-toc-polyloss">PolyLoss</a></li>
+      <li><a href="#generalized-end-to-end-loss" id="markdown-toc-generalized-end-to-end-loss">Generalized End-to-End Loss</a></li>
+      <li><a href="#additive-angular-margin-loss" id="markdown-toc-additive-angular-margin-loss">Additive Angular Margin Loss</a></li>
+      <li><a href="#dice-loss" id="markdown-toc-dice-loss">Dice Loss</a></li>
+      <li><a href="#summary" id="markdown-toc-summary">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#regression-loss-functions" id="markdown-toc-regression-loss-functions">Regression Loss Functions</a>    <ul>
+      <li><a href="#mean-absolute-error-mae--l1-loss" id="markdown-toc-mean-absolute-error-mae--l1-loss">Mean Absolute Error (MAE) / L1 Loss</a></li>
+      <li><a href="#mean-squared-error-mse--l2-loss" id="markdown-toc-mean-squared-error-mse--l2-loss">Mean Squared Error (MSE) / L2 Loss</a>        <ul>
+          <li><a href="#why-is-mse-not-used-for-binary-classification" id="markdown-toc-why-is-mse-not-used-for-binary-classification">Why is MSE not used for Binary Classification?</a></li>
+        </ul>
+      </li>
+      <li><a href="#root-mean-squared-error-rmse" id="markdown-toc-root-mean-squared-error-rmse">Root Mean Squared Error (RMSE)</a></li>
+      <li><a href="#normalized-mean-absolute-error-nmae" id="markdown-toc-normalized-mean-absolute-error-nmae">Normalized Mean Absolute Error (NMAE)</a></li>
+      <li><a href="#huber-loss-smooth-l1-loss--smooth-mean-absolute-error" id="markdown-toc-huber-loss-smooth-l1-loss--smooth-mean-absolute-error">Huber Loss (Smooth L1 Loss / Smooth Mean Absolute Error)</a>        <ul>
+          <li><a href="#asymmetric-huber-loss" id="markdown-toc-asymmetric-huber-loss">Asymmetric Huber loss</a></li>
+        </ul>
+      </li>
+      <li><a href="#summary-1" id="markdown-toc-summary-1">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#ranking-loss" id="markdown-toc-ranking-loss">Ranking Loss</a>    <ul>
+      <li><a href="#multiple-negative-ranking-loss" id="markdown-toc-multiple-negative-ranking-loss">Multiple Negative Ranking Loss</a></li>
+      <li><a href="#soft-pairwise-loss" id="markdown-toc-soft-pairwise-loss">Soft Pairwise Loss</a></li>
+      <li><a href="#pairwise-logistic-loss" id="markdown-toc-pairwise-logistic-loss">Pairwise Logistic Loss</a></li>
+      <li><a href="#pairwise-ranking-loss" id="markdown-toc-pairwise-ranking-loss">Pairwise Ranking Loss</a>        <ul>
+          <li><a href="#triplet-loss" id="markdown-toc-triplet-loss">Triplet Loss</a></li>
+          <li><a href="#margin-ranking-loss" id="markdown-toc-margin-ranking-loss">Margin Ranking Loss</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#contrastive-loss" id="markdown-toc-contrastive-loss">Contrastive Loss</a>    <ul>
+      <li><a href="#infonce-loss" id="markdown-toc-infonce-loss">InfoNCE Loss</a></li>
+    </ul>
+  </li>
+  <li><a href="#losses-in-deep-learning-based-reinforcement-learning" id="markdown-toc-losses-in-deep-learning-based-reinforcement-learning">Losses in Deep Learning-based Reinforcement Learning</a>    <ul>
+      <li><a href="#q-value-loss" id="markdown-toc-q-value-loss">Q-Value Loss</a></li>
+      <li><a href="#policy-gradient-loss" id="markdown-toc-policy-gradient-loss">Policy Gradient Loss</a></li>
+    </ul>
+  </li>
+  <li><a href="#further-reading" id="markdown-toc-further-reading">Further Reading</a></li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Loss functions, or cost/error functions, are indispensable in machine learning. They calculate the distance between a model’s predicted output and the expected (or true) output. By providing a measurement of how well a model is capturing patterns in the dataset, they serve as a critical feedback mechanism for the learning algorithm. Broadly speaking, if the predictions are largely inaccurate, the loss value will be high; if they are closer to the actual results, the loss value will be low.</li>
+  <li>Different machine learning tasks often require distinct loss functions, each suited to the specific nature of the problem at hand. We’ll begin by discussing the typical tasks involved in machine learning and then delve into the commonly employed loss functions in each context. The loss functions are divided into those used for classification and regression tasks.</li>
+  <li>The following figure summarizes a few common loss functions and their use cases <a href="https://theaiedge.io/">image source: AiEdge.io</a>.</li>
+</ul>
+
+<p><img src="../assets/loss/23.png" alt="" /></p>
+
+<ul>
+  <li>To get a quick refresher on activation functions such as softmax and sigmoid, check out the <a href="../activation/index.html">Activations</a> primer here.</li>
+  <li>In this article, we will explore the distinct categories of tasks in machine learning and subsequently delve into the corresponding loss functions utilized to optimize these tasks.</li>
+</ul>
+
+<h2 id="multi-class-classification">Multi-Class Classification</h2>
+<ul>
+  <li>Multi-class classification is sometimes referred to as a “one-of-many” classification. In this scenario, each instance or sample can belong exclusively to one of \(C\) classes. The model generates \(C\) output neurons, which can be consolidated into a scores vector \(s\), then fed as input to the softmax activation function. The ground truth, or target vector \(t\), is a one-hot vector—this means that it features a positive class (1) and \(C-1\) negative classes (0).</li>
+  <li>Multi-class classification is treated as a singular problem of classifying samples into one of \(C\) classes.</li>
+  <li>
+    <p>An appropriate loss function for multi-class classification is the categorical cross-entropy loss, computed as follows:</p>
+
+\[L = \frac{-1}{N * Σ Σ t_ij * log(s_ij)}\]
+
+    <ul>
+      <li>where \(N\) is the total number of samples, \(t_{ij}\) denotes the true label (0 or 1), and \(s_{ij}\) is the predicted score for each class.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="multi-label-classification">Multi-Label Classification</h2>
+<ul>
+  <li>In multi-label classification, each sample can belong to more than one class, contrasting with multi-class classification where each sample belongs to a single class. The model still outputs \(C\) neurons, similar to multi-class classification. However, the target vector \(t\) can contain more than one positive class, resulting in a multi-hot vector with \(C\) dimensionality. This differs from the one-hot vector utilized in multi-class classification, which contains a single positive class.</li>
+  <li>This task is interpreted as \(C\) independent binary classification problems, each deciding whether a sample belongs to a specific class or not. The binary cross-entropy loss, averaged over all classes, is commonly used for this scenario.</li>
+</ul>
+
+<p><img src="../assets/loss/mlc.png" alt="" /></p>
+
+<ul>
+  <li>The image above <a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">(source)</a> does a great job at illustrating the differences from multi-class and multi-label.</li>
+</ul>
+
+<h2 id="classification-loss-functions">Classification Loss functions</h2>
+<ul>
+  <li>Below, we will look at a few classification loss functions.</li>
+</ul>
+
+<h3 id="cross-entropy-loss-function">Cross-Entropy Loss function</h3>
+<ul>
+  <li>Cross-entropy loss or Negative Log Loss (NLL) measures the performance of a classification model whose output is a probability value between 0 and 1.</li>
+  <li>Cross-entropy loss increases as the predicted probability value moves further away from the actual label. A perfect model would have a loss of 0 because the predicted value would match the actual value.</li>
+  <li>For binary classification problems, binary cross-entropy is used, and for multi-class classification problems, categorical cross-entropy is used.</li>
+  <li>The cross-entropy loss calculates the error between the model’s predicted probabilities (from the softmax or sigmoid function) and the actual class labels (one-hot encoded in case of multi-class).
+    <blockquote>
+      <p>While cross-entropy seeks to maximize the predicted probability distribution to match the target/label distribution, i.e., maximize the negative log likelihood. However, since loss functions are typically minimized (rather than maximized, in which case they’re referred to as utility functions), we end up with a negative sign in the front of the summation to delineate minimizing the negative log likelihood.</p>
+    </blockquote>
+  </li>
+  <li>Let’s look at the formula for cross-entropy loss:
+    <ul>
+      <li>For a binary classification problem where the number of classes \(M\) equals 2:</li>
+    </ul>
+
+\[\text {CrossEntropyLoss}=-(y log(p) +(1-y)log(1-p))\]
+
+    <p><img src="../assets/loss/2.jpg" alt="" /></p>
+
+    <ul>
+      <li>where,
+        <ul>
+          <li>\(M\): The number of classes or output we want to predict.</li>
+          <li>\(y\): (One-hot) ground truth label (0 or 1).</li>
+          <li>\(p\): Predicted probability.</li>
+        </ul>
+      </li>
+      <li>Note that some literature in the field denotes the prediction as \(\hat{y}\) so the same equation then becomes:</li>
+    </ul>
+
+\[\text {CrossEntropyLoss}=-\left(y_{i} \log \left(\hat{y}_{i}\right)+\left(1-y_{i}\right) \log \left(1-\hat{y}_{i}\right)\right)\]
+
+    <ul>
+      <li>Below we see the formula for when our number of classes \(M\) is greater than 2.</li>
+    </ul>
+
+\[\text {CrossEntropyLoss}=-\sum_{c=1}^{M} y_{o, c} \log \left(p_{o, c}\right)\]
+
+    <ul>
+      <li>where,
+        <ul>
+          <li>\(M\): The number of classes or output we want to predict.</li>
+          <li>\(y_{o, c}\): One-hot ground truth label serving as a binary indicator if the class \(c\) is the correct classification for observation \(o\) (0 for incorrect classes \(c \neq o\), 1 for the correct class \(c = o\)).</li>
+          <li>\(p\): Predicted probability for observation \(o\) with class \(c\) being the correct classification.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Effectively, the cross-entropy loss “pulls” the predicted probability of the correct class towards 1 during training. This is accomplished by calculating gradients of the loss function w.r.t. the model’s weights; with the model’s sigmoid/softmax output (in case of binary/multiclass classification) serving as the prediction (i.e., the pre-argmax output is utilized since argmax is not differentiable).</li>
+  <li>
+    <p>Chris Olah’s <a href="https://colah.github.io/posts/2015-09-Visual-Information">Visual Information Theory</a> post is a good intro to the topic and motivates the concept of cross entropy pretty well.</p>
+  </li>
+  <li>We will look at the many flavors of cross-entropy loss below.</li>
+</ul>
+
+<h4 id="binary-cross-entropy-loss">Binary cross-entropy loss</h4>
+<ul>
+  <li>In machine learning, binary classification is a supervised learning algorithm that categorizes new observations into one of two classes. The model has a single output (which is fed as input to the sigmoid function) in the range [0,1]. If the output &gt; 0.5, then class 1 (positive class), else 0 (negative class).</li>
+  <li>Binary cross-entropy loss, also known as sigmoid cross-entropy loss, is the sigmoid activation with a cross entropy loss as shown below <a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">(source)</a>.</li>
+</ul>
+
+<p><img src="../assets/loss/sigmoid_CE_pipeline.png" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<ul>
+  <li>For binary classification, the binary cross-entropy loss can be computed as:</li>
+</ul>
+
+\[L = \frac{-1}{N * Σ [y*log(y_hat) + (1-y)*log(1-y_hat)]}\]
+
+<ul>
+  <li>Typical binary classification problems include:
+    <ul>
+      <li>Medical testing to determine if a patient has certain disease or not;</li>
+      <li>Quality control in industry, deciding whether a specification has been met;</li>
+      <li>In information retrieval, deciding whether a page should be in the result set of a search or not.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="focal-loss"><a href="https://arxiv.org/abs/1708.02002">Focal Loss</a></h4>
+<ul>
+  <li>Introduced by Facebook AI in <a href="https://arxiv.org/abs/1708.02002">Focal Loss for Dense Object Detection</a> for object detection tasks, it is a variant of Cross Entropy Loss designed to address class imbalance problem in a classification task.</li>
+  <li>The main idea behind Focal Loss is to give more weight to harder, easily misclassified examples, and less weight to easier examples. It adds a modulating factor to the standard cross entropy criterion, with the aim of focusing on the misclassified instances.</li>
+  <li>One of the most common choices when training deep neural networks for object detection and classification problems in general.</li>
+  <li>Focal loss applies a modulating term to the cross entropy loss in order to focus learning on hard misclassified examples. It is a dynamically scaled cross entropy loss, where the scaling factor decays to zero as confidence in the correct class increases.</li>
+</ul>
+
+\[\mathrm{FL}\left(p_{t}\right)=-\left(1-p_{t}\right)^{\gamma} \log \left(p_{t}\right)\]
+
+<p><img src="../assets/loss/8.jpg" alt="" /></p>
+
+<h4 id="categorical-cross-entropy">Categorical Cross Entropy</h4>
+<ul>
+  <li>Categorical Cross-Entropy loss is also referred to as Softmax Loss, but let’s make a quick clarification here on how it is different from Softmax activation. Softmax Loss is a Softmax activation plus a Cross Entropy loss as displayed below <a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">(source)</a>.</li>
+</ul>
+
+<p><img src="../assets/loss/softmax_CE_pipeline.png" alt="" /></p>
+
+<ul>
+  <li>It is used for multi-class classification tasks where each instance can belong to only one class out of multiple classes. It is a direct application of cross entropy loss in a multi-class classification setting.</li>
+</ul>
+
+<h3 id="kullbackleibler-kl-divergence">Kullback–Leibler (KL) Divergence</h3>
+
+<ul>
+  <li>The Kullback–Leibler divergence, denoted \(D_{\text{KL}}(P\mid\mid Q)\), is a type of statistical distance: a measure of how one probability distribution \(P\) is different from a second, reference probability distribution \(Q\).</li>
+  <li>A simple interpretation of the KL divergence of \(P\) from \(Q\) is the expected excess surprise from using \(Q\) as a model when the actual distribution is \(P\).</li>
+  <li>Note that KL divergence is commonly used as a difference (loss) and not a metric since it is not symmetric in the two distributions, i.e., \(D_{\mathrm{KL}}(P \| Q) \neq D_{\mathrm{KL}}(Q \| P)\).</li>
+</ul>
+
+<h4 id="intuition">Intuition</h4>
+
+<ul>
+  <li>The following section has been contributed by <a href="https://www.linkedin.com/in/lordgavy01/">Garvit Suri</a> and <a href="https://www.linkedin.com/in/sonisanskar/?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3BuHfMUjcySYmXxJ7uLJVvvw%3D%3D">Sanskar Soni</a>.</li>
+  <li>While it’s common to use the KL Divergence loss function while training ChatGPT with RLHF or teaching a smaller model to imitate a larger one during Knowledge Distillation, it’s not always the easiest concept to grasp.</li>
+  <li>That is why, in this blog, I intend to explain the intuition behind KL divergence without using any mathematical notations.</li>
+  <li>But before diving immediately into deciphering KL divergence, we first need to grasp two fundamental concepts from Information Theory: information and entropy. These two can be jointly understood with this – the less probable an event, the more surprising it is, and therefore, the more entropy it contains, providing more information to gain from it.</li>
+  <li>Simply, if I tell you a fact you already knew or had an idea about, you gained no information from our conversation as there was no “surprise” and, correspondingly, our exchange had little entropy.</li>
+  <li>Now let’s clarify the mystery surrounding KL Divergence using Lego blocks.</li>
+  <li>Imagine: two friends, \(A\) and \(B\), both have a box of Lego blocks. \(A\)’s box contains a variety of blocks in diverse colours and sizes. In contrast, \(B\)’s box only contains red and yellow blocks, all of the same size.</li>
+  <li>Here, \(A\)’s box has a higher entropy, owing to the unpredictability every time you reach inside. On the other hand, \(B\)’s box contains less entropy with only two possible outcomes whenever a block is drawn.</li>
+  <li>Now, we let \(B\) play with \(A\)’s box. \(B\)’s already accustomed to her box so she has a certain expectation as to which block she’d pull out. But \(A\)’s box is much less predictable for her. Every time she pulls out a new block, it’s a surprise!</li>
+  <li>This difference between \(B\)’s expectations from pulling a block out of the box (based on her box) and what happens when she pulls a block out of \(A\)’s box (the actual “surprise”) can be visualized as KL Divergence.</li>
+  <li>KL Divergence compares the “surprisingness” (entropy) of \(B\)’s box and \(A\)’s box and tells us how different the two boxes are in terms of their predictability or the surprise they offer.</li>
+  <li>Intuitively, the greater the KL Divergence, the more divergent your expectations are from the ground truth.</li>
+  <li>Coming back from the world of abstractions, here are some quick pointers every AI enthusiast should know about KL-Divergence:
+    <ul>
+      <li>Formally, KL Divergence measures how much a probability distribution \(Q\) diverges from a true probability distribution \(P\).</li>
+      <li>Often, KL Divergence is confused with Cross-Entropy in machine learning. However coincidentally, these terms point to the same value while classifying because the entropy of the true distribution is zero as the class labels are one-hot vectors. (\(A\) data point belongs to the class indicated by the ‘1’ in the vector. It doesn’t have any probability of belonging to any other class. So in this case, the entropy, or the measure of uncertainty, is 0 which can be verified mathematically as well.)</li>
+      <li>KL divergence is used when both the predicted and true values are probability distributions, whereas cross-entropy is used when the actual values are one-hot encoded labels, not probability distributions.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="mathematical-treatment">Mathematical Treatment</h4>
+
+<ul>
+  <li>
+    <p>For discrete probability distributions \(P\) and \(Q\) defined on the same probability space, \(\mathcal{X}\), the relative entropy from \(Q\) to \(P\) is defined to be:</p>
+
+\[D_{\mathrm{KL}}(P \| Q)=\sum_{x \in \mathcal{X}} P(x) \log \left(\frac{P(x)}{Q(x)}\right)\]
+
+    <ul>
+      <li>which is equivalent to</li>
+    </ul>
+
+\[D_{\mathrm{KL}}(P \| Q)=-\sum_{x \in \mathcal{X}} P(x) \log \left(\frac{Q(x)}{P(x)}\right)\]
+  </li>
+  <li>In other words, it is the expectation of the logarithmic difference between the probabilities \(P\) and \(Q\), where the expectation is taken using the probabilities \(P\).</li>
+  <li><a href="https://www.countbayesie.com/blog/2017/5/9/kullback-leibler-divergence-explained">Kullback-Leibler Divergence Explained</a> offers a walk-through of KL divergence using an example.</li>
+</ul>
+
+<h4 id="kl-divergence-vs-cross-entropy-loss">KL divergence vs. Cross-entropy loss</h4>
+
+<ul>
+  <li>
+    <p><strong>Explanation 1:</strong></p>
+
+    <ul>
+      <li>
+        <p>You will need some conditions to claim the equivalence between minimizing cross entropy and minimizing \(\mathrm{KL}\) divergence. I will put your question under the context of classification problems using cross entropy as loss functions.</p>
+      </li>
+      <li>
+        <p>Let us first recall that entropy is used to measure the uncertainty of a system, which is defined as,</p>
+
+\[S(v)=-\sum_i p\left(v_i\right) \log p\left(v_i\right)\]
+
+        <ul>
+          <li>for \(p\left(v_i\right)\) as the probabilities of different states \(v_i\) of the system. From an information theory point of view, \(S(v)\) is the amount of information is needed for removing the uncertainty.</li>
+        </ul>
+      </li>
+      <li>For instance, the event \(I\) <code class="language-plaintext highlighter-rouge">I will die within 200 years</code> is almost certain (we may solve the aging problem for the word almost), therefore it has low uncertainty which requires only the information of <code class="language-plaintext highlighter-rouge">the aging problem cannot be solved</code> to make it certain. However, the event \(II\) <code class="language-plaintext highlighter-rouge">I will die within 50 years</code> is more uncertain than event \(I\), thus it needs more information to remove the uncertainties. Here entropy can be used to quantify the uncertainty of the distribution <code class="language-plaintext highlighter-rouge">When will I die?</code>, which can be regarded as the expectation of uncertainties of individual events like \(I\) and \(II\).</li>
+      <li>Now look at the definition of KL divergence between distributions \(\mathrm{A}\) and \(\mathrm{B}\),</li>
+    </ul>
+
+\[D_{K L}(A \| B)=\sum_i p_A\left(v_i\right) \log p_A\left(v_i\right)-p_A\left(v_i\right) \log p_B\left(v_i\right)\]
+
+    <ul>
+      <li>
+        <p>where the first term of the right hand side is the entropy of distribution \(A\), the second term can be interpreted as the expectation of distribution \(\mathrm{B}\) in terms of \(A\). And the \(D_{K L}\) describes how different \(\mathrm{B}\) is from \(\mathrm{A}\) from the perspective of \(\mathrm{A}\). It’s worth of noting \(A\) usually stands for the data, i.e. the measured distribution, and \(B\) is the theoretical or hypothetical distribution. That means, you always start from what you observed.</p>
+      </li>
+      <li>
+        <p>To relate cross entropy to entropy and KL divergence, we formalize the cross entropy in terms of distributions \(A\) and \(B\) as,</p>
+      </li>
+    </ul>
+
+\[H(A, B)=-\sum_i p_A\left(v_i\right) \log p_B\left(v_i\right)\]
+
+    <ul>
+      <li>From the definitions, we can easily see,</li>
+    </ul>
+
+\[H(A, B)=D_{K L}(A \| B)+S_A\]
+
+    <ul>
+      <li>
+        <p>If \(S_A\) is a constant, then minimizing \(H(A, B)\) is equivalent to minimizing \(D_{K L}(A \| B)\).</p>
+      </li>
+      <li>
+        <p>A further question follows naturally as how the entropy can be a constant. In a machine learning task, we start with a dataset (denoted as \(P(\mathcal{D})\)) which represent the problem to be solved, and the learning purpose is to make the model estimated distribution (denoted as \(P(model)\)) as close as possible to true distribution of the problem (denoted as \(P(truth)\)). \(P(truth)\) is unknown and represented by \(P(\mathcal{D})\). Therefore in an ideal world, we expect</p>
+
+\[P(\text { model }) \approx P(\mathcal{D}) \approx P(\text { truth })\]
+
+        <ul>
+          <li>and minimize \(D_{K L}(P(\mathcal{D}) \| P(model))\). And luckily, in practice \(\mathcal{D}\) is given, which means its entropy \(S(D)\) is fixed as a constant.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Explanation 2:</strong></p>
+    <ul>
+      <li>
+        <p>Considering models usually work with the samples packed in mini-batches, for \(\mathrm{KL}\) divergence and Cross-Entropy, their relation can be written as:</p>
+
+\[H(q, p)=D_{K L}(p, q)+H(p)=-\sum_i p_i \log \left(q_i\right)\]
+      </li>
+      <li>
+        <p>which gives:</p>
+
+\[D_{K L}(p, q)=H(q, p)-H(p)\]
+      </li>
+      <li>From the equation, we can see that KL divergence can depart into a Cross-Entropy of \(p\) and \(q\) (\(KL(p, q)\), which is the first part), and a global entropy of ground truth \(p\) (\(H(p)\), which is the second part).</li>
+      <li>In many machine learning projects, mini-batch is involved to expedite training, where the \(p^{\prime}\) of a minibatch may be different from the global \(p\). In such a case, Cross-Entropy is relatively more robust in practice while \(\mathrm{KL}\) divergence needs a more stable \(\mathrm{H}(\mathrm{p})\) to finish her job.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="hinge-loss--multi-class-svm-loss">Hinge Loss / Multi-class SVM Loss</h3>
+
+<ul>
+  <li>The hinge loss is used for “maximum-margin” classification, most notably for support vector machines (SVMs).</li>
+  <li>The hinge loss is a convex function, so many of the usual convex optimizers used in machine learning can work with it.</li>
+  <li>For an intended output \(t = \pm1\) and a classifier score y, the hinge loss of the prediction y is defined as:</li>
+</ul>
+
+\[\ell(y) = \max(0, 1-t \cdot y)\]
+
+<ul>
+  <li>The hinge loss is a specific type of cost function that incorporates a margin or distance from the classification boundary into the cost calculation.</li>
+  <li>Even if new observations are classified correctly, they can incur a penalty if the margin from the decision boundary is not large enough. The hinge loss increases linearly.</li>
+</ul>
+
+<p><img src="../assets/loss/5.jpg" alt="" /></p>
+
+<h3 id="polyloss"><a href="https://openreview.net/forum?id=gSdSJoenupI">PolyLoss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/2204.12511">PolyLoss: A Polynomial Expansion Perspective of Classification Loss Functions</a> by Leng et al. in 2022.</li>
+  <li>Cross-entropy loss and focal loss are the most common choices when training deep neural networks for classification problems.</li>
+  <li>Generally speaking, however, a good loss function can take on much more flexible forms, and should be tailored for different tasks and datasets.</li>
+  <li>PolyLoss is a generalized form of Cross Entropy loss.</li>
+  <li>The paper proposes a framework to view and design loss functions as a linear combination of polynomial functions, motivated by how functions can be approximated via Taylor expansion. Under polynomial expansion, focal loss is a horizontal shift of the polynomial coefficients compared to the cross-entropy loss.</li>
+  <li>Motivated by this new insight, they explore an alternative dimension, i.e., vertically modify the polynomial coefficients.</li>
+</ul>
+
+\[\text { PolyLoss }=\sum_{i=1}^{n} \epsilon_{i} \frac{\left(1-p_{t}\right)^{i}}{i}+C E \text { Loss }\]
+
+<h3 id="generalized-end-to-end-loss"><a href="https://arxiv.org/abs/1710.10467">Generalized End-to-End Loss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/1710.10467">Generalized End-to-End Loss for Speaker Verification</a> by Wan et al. in ICASSP 2018.</li>
+  <li>GE2E makes the training of speaker verification models more efficient than our previous tuple-based end-to-end (TE2E) loss function.</li>
+  <li>Unlike TE2E, the GE2E loss function updates the network in a way that emphasizes examples that are difficult to verify at each step of the training process.</li>
+  <li>Additionally, the GE2E loss does not require an initial stage of example selection.</li>
+</ul>
+
+\[L\left(\mathbf{e}_{j i}\right)=-\mathbf{S}_{j i, j}+\log \sum_{k=1}^{N} \exp \left(\mathbf{S}_{j i, k}\right)\]
+
+<h3 id="additive-angular-margin-loss"><a href="https://arxiv.org/abs/1801.07698">Additive Angular Margin Loss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/1801.07698">ArcFace: Additive Angular Margin Loss for Deep Face Recognition</a> by Deng et al. in 2018.</li>
+  <li>AAM has been predominantly utilized in for face recognition but has recently found applications in other areas such as speaker verification.</li>
+  <li>One of the main challenges in feature learning using Deep Convolutional Neural Networks (DCNNs) for large-scale face recognition is the design of appropriate loss functions that enhance discriminative power.
+    <ul>
+      <li>Centre loss penalises the distance between the deep features and their corresponding class centres in the Euclidean space to achieve intra-class compactness.</li>
+      <li>SphereFace assumes that the linear transformation matrix in the last fully connected layer can be used as a representation of the class centres in an angular space and penalises the angles between the deep features and their corresponding weights in a multiplicative way.</li>
+      <li>Recently, a popular line of research is to incorporate margins in well-established loss functions in order to maximise face class separability.</li>
+    </ul>
+  </li>
+  <li>Additive Angular Margin (AAM) Loss (ArcFace) obtains highly discriminative features with a clear geometric interpretation (better than other loss functions) due to the exact correspondence to the geodesic distance on the hypersphere.</li>
+  <li>ArcFace consistently outperforms the state-of-the-art and can be easily implemented with negligible computational overhead. We release all refined training data, training codes, pre-trained models and training logs, which will help reproduce the results in this paper.</li>
+  <li>
+    <p>Specifically, the proposed ArcFace \(\cos(\theta + m)\) directly maximises the decision boundary in angular (arc) space based on the L2 normalised weights and features.</p>
+
+\[-\frac{1}{N} \sum_{i=1}^{N} \log \frac{e^{S *\left(\cos \left(\theta_{y_{i}}+m\right)\right)}}{e^{s *\left(\cos \left(\theta_{y_{i}}+m\right)\right)}+\sum_{j=1, j \neq y_{i}}^{n} e^{s * \cos \theta_{j}}}\]
+
+    <ul>
+      <li>where,
+        <ul>
+          <li>\(\theta_{j}\) is the angle between the weight \(W_{j}\) and the feature \(x_{i}\).</li>
+          <li>\(s\): feature scale, the hypersphere radius.</li>
+          <li>\(m\): angular margin penalty.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="dice-loss"><a href="https://ieeexplore.ieee.org/document/9338261">Dice Loss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://ieeexplore.ieee.org/document/9338261">Rethinking Dice Loss for Medical Image Segmentation</a> by Zhao et al. in ICDM 2020.</li>
+  <li>Dice loss originates from Sørensen–Dice coefficient, which is a statistic developed in 1940s to gauge the similarity between two samples.</li>
+  <li>It was brought to computer vision community by <a href="https://arxiv.org/abs/1606.04797">Milletari et al. in 2016</a> for 3D medical image segmentation.</li>
+</ul>
+
+\[D=\frac{2 \sum_{i}^{N} p_{i} g_{i}}{\sum_{i}^{N} p_{i}^{2}+\sum_{i}^{N} g_{i}^{2}}\]
+
+<p><img src="../assets/loss/11.jpg" alt="" /></p>
+
+<ul>
+  <li>The image above another view of the Dice coefficient mentioned above, from the perspective of set theory, in which the Dice coefficient (DSC) is a measure of overlap between two sets.</li>
+  <li>For example, if two sets A and B overlap perfectly, DSC gets its maximum value to 1. Otherwise, DSC starts to decrease, getting to its minimum value to 0 if the two sets don ‘t overlap at all.</li>
+  <li>Therefore, the range of DSC is between 0 and 1, the larger the better. Thus we can use 1-DSC as Dice loss to maximize the overlap between two sets.</li>
+</ul>
+
+<h3 id="summary">Summary</h3>
+
+<ul>
+  <li>For classification problems, cross-entropy loss tends to be almost universally adopted.</li>
+  <li>With <a href="#focal-loss">focal cross-entropy</a>, samples where the model is less confident is weighed more giving more focus on the “hard” samples to classify.</li>
+  <li>The KL divergence is another information theoretic metric and can be less stable than cross-entropy in small batches due to the more fluctuating averages of the logs.</li>
+  <li>The hinge loss is the original loss of the SVM algorithm. The squared hinge is simply the square of the hinge loss and the soft margin is simply a softer differentiable version of it.</li>
+</ul>
+
+<h2 id="regression-loss-functions">Regression Loss Functions</h2>
+
+<h3 id="mean-absolute-error-mae--l1-loss">Mean Absolute Error (MAE) / L1 Loss</h3>
+
+<ul>
+  <li>As the name suggests, MAE takes the average sum of the absolute differences between the actual and the predicted values.</li>
+  <li>Regression problems may have variables that are not strictly Gaussian in nature due to the presence of outliers (values that are very different from the rest of the data).</li>
+  <li>
+    <p>Mean Absolute Error would be an ideal option in such cases because it does not take into account the direction of the outliers (unrealistically high positive or negative values).</p>
+
+\[M A E=\frac{1}{m} \sum_{i=1}^{m}\left|h\left(x^{(i)}\right)-y^{(i)}\right|\]
+
+    <ul>
+      <li>where,
+        <ul>
+          <li>MAE: mean absolute error</li>
+          <li>\(\mathrm{m}\): number of samples</li>
+          <li>\(x^{(i)}\): \(i^{th}\) sample from dataset</li>
+          <li>\(h\left(x^{(i)}\right)\): prediction for i-th sample (thesis)</li>
+          <li>\(y^{(i)}\): ground truth label for \(\mathrm{i}\)-th sample</li>
+        </ul>
+      </li>
+      <li>A quick note here on L1 and L2, these are both used for regularization.</li>
+      <li>L1 Loss Function is used to minimize the error which is the sum of the all the absolute differences between the true value and the predicted value.</li>
+      <li>L1 is not affected by outliers and thus is preferrable if the dataset contains outliers.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="mean-squared-error-mse--l2-loss">Mean Squared Error (MSE) / L2 Loss</h3>
+
+<ul>
+  <li>
+    <p>Formally, the Mean Squared Error (MSE) is given by,</p>
+
+\[M S E=\frac{1}{m} \sum_{i=1}^{m}\left(y^{(i)}-\hat{y}^{(i)}\right)^{2}\]
+
+    <ul>
+      <li>where,
+        <ul>
+          <li>\(\mathrm{m}\): number of samples</li>
+          <li>\(y^{(i)}\): ground truth label for i-th sample</li>
+          <li>\(\hat{y}^{(i)}\): predicted label for i-th sample</li>
+        </ul>
+      </li>
+      <li>Mean Squared Error is the average of the squared differences between the actual and the predicted values.</li>
+      <li>L2 Loss Function is used to minimize the error which is the sum of the all the squared differences between the true value and the predicted value. It is also the more preferred loss function compared to L1.</li>
+      <li>However, when outliers are present in the dataset, L2 will not perform as well because the squared differences will lead to a much larger error.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="why-is-mse-not-used-for-binary-classification">Why is MSE not used for Binary Classification?</h4>
+
+<ul>
+  <li>First, using MSE means that we assume that the underlying data has been generated from a normal distribution (a bell-shaped curve). In Bayesian terms, this means we assume a <a href="https://en.wikipedia.org/wiki/Conjugate_prior">Gaussian prior</a>. While in reality, a dataset that can be classified into two categories (i.e., binary) is usually not from a normal distribution but a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a>.</li>
+  <li>Secondly, the MSE function is non-convex for binary classification.
+    <ul>
+      <li>As a reminder, a function is non-convex if the function is not a convex function. Non-convex functions are those functions that have many minimum points, in the form of local and global minimum points. The following figure <a href="https://www.quora.com/Why-is-nonconvex-optimization-so-difficult-compared-to-convex-optimization">(source)</a> shows the difference between convex and non-convex functions.</li>
+    </ul>
+
+    <p><img src="../assets/loss/convex.webp" alt="" /></p>
+
+    <ul>
+      <li>Note that the loss functions that are applied in the context of machine learning models are convex functions, while those applied in the context of neural networks are non-convex functions.</li>
+      <li>Put simply, if a binary classification model is trained with the MSE cost function, it is not guaranteed to minimize the cost function. This is because MSE function expects real-valued inputs in range \((-\infty, \infty)\), while binary classification models outputs discrete probabilities in range \((0,1)\) through the sigmoid/logistic function.</li>
+    </ul>
+  </li>
+  <li><a href="https://towardsdatascience.com/why-using-mean-squared-error-mse-cost-function-for-binary-classification-is-a-bad-idea-933089e90df7">Why Using Mean Squared Error (MSE) Cost Function for Binary Classification is a Bad Idea?</a> offers a great overview of this topic.</li>
+</ul>
+
+<h3 id="root-mean-squared-error-rmse">Root Mean Squared Error (RMSE)</h3>
+
+<ul>
+  <li>Root Mean Squared Error (RMSE) is a standard way to measure the error of a model in predicting quantitative data. It represents the square root of the second sample moment of the differences between predicted values and observed values or the quadratic mean of these differences. These deviations are called residuals when the calculations are performed over the data sample that was used for estimation, and they are called errors (or prediction errors) when calculated out-of-sample. RMSE is commonly used in climatology, forecasting, and regression analysis to verify experimental results.</li>
+  <li>
+    <p>The RMSE of an estimator \(\hat{\theta}\) with respect to an estimated parameter \(\theta\) is defined as the square root of the mean square error:</p>
+
+\[\text{RMSE}(\hat{\theta}) = \sqrt{\text{MSE}(\hat{\theta})}\]
+
+    <ul>
+      <li>where MSE is the Mean Squared Error, given by:</li>
+    </ul>
+
+\[\text{MSE}(\hat{\theta}) = \frac{1}{n} \sum_{i=1}^n (\hat{\theta}_i - \theta_i)^2\]
+
+    <ul>
+      <li>where, \(\hat{\theta}_i\) is the predicted value, \(\theta_i\) is the observed value, and \(n\) is the number of observations.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="normalized-mean-absolute-error-nmae">Normalized Mean Absolute Error (NMAE)</h3>
+
+<ul>
+  <li>Normalized Mean Absolute Error (NMAE) is another measure of prediction accuracy in a regression analysis. It is a normalized version of the Mean Absolute Error (MAE), which scales the error to make it relative, rather than absolute. This normalization can be done in several ways, such as by dividing by the range of the data or the mean of the observed values, making the NMAE more interpretable, especially when comparing across different datasets.</li>
+  <li>
+    <p>The NMAE is calculated as:</p>
+
+\[\text{NMAE} = \frac{1}{\text{norm}} \cdot \frac{1}{n} \sum_{i=1}^n \|\hat{\theta}_i - \theta_i\|\]
+
+    <p>where:</p>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>$$</td>
+              <td>\hat{\theta}_i - \theta_i</td>
+              <td>$$ is the absolute error for each prediction,</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>\(n\) is the number of observations,</li>
+      <li>and \(\text{norm}\) is the normalization factor, which could be, for example, the range of \(\theta\) (i.e., \(\text{max}(\theta) - \text{min}(\theta)\)) or the mean of \(\theta\) (i.e., \(\text{mean}(\theta)\)).</li>
+      <li>The choice of normalization factor depends on the specific context and requirements of the analysis.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="huber-loss-smooth-l1-loss--smooth-mean-absolute-error">Huber Loss (Smooth L1 Loss / Smooth Mean Absolute Error)</h3>
+
+<ul>
+  <li>Huber loss is a loss function used in regression, that is less sensitive to outliers in data than the squared error loss.</li>
+  <li>Huber loss is the combination of MSE and MAE. It takes the good properties of both the loss functions by being less sensitive to outliers and differentiable at minima.</li>
+  <li>When the error is smaller, the MSE part of the Huber is utilized and when the error is large, the MAE part of Huber loss is used.</li>
+  <li>A new hyper-parameter \(\delta\) is introduced which tells the loss function where to switch from MSE to MAE. Additional \(\delta\) terms are introduced in the loss function to smoothen the transition from MSE to MAE.</li>
+  <li>
+    <p>The Huber loss function describes the penalty incurred by an estimation procedure \(f\). Huber loss defines the loss function piecewise by:</p>
+
+\[L_{\delta}(a)= \begin{cases}\frac{1}{2} a^{2} &amp; \text { for }|a| \leq \delta \\ \delta \cdot\left(|a|-\frac{1}{2} \delta\right), &amp; \text { otherwise }\end{cases}\]
+
+    <ul>
+      <li>where:
+        <ul>
+          <li>\(L_{\delta}(a)\) is the Huber loss for a given error \(a\) (which can be the difference between the predicted value and the actual value).</li>
+          <li>\(\delta\) is a threshold parameter that defines the limit where the loss changes from quadratic to linear.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>For errors smaller than \(\delta\), the loss is quadratic, making it less sensitive to small errors (like mean squared error). For errors larger than \(\delta\), the loss becomes linear, which reduces the impact of large errors (like mean absolute error). This makes Huber loss robust to outliers.</p>
+  </li>
+  <li>The above equation is quadratic for small values of \(a\), and linear for large values, with equal values and slopes of the different sections at the two points where \(\|a\|=\delta\). The variable a often refers to the residuals, that is to the difference between the observed and predicted values \(a=y-f(x)\), so the former can be expanded to:</li>
+</ul>
+
+\[L_{\delta}(y, f(x))= \begin{cases}\frac{1}{2}(y-f(x))^{2} &amp; \text { for }|y-f(x)| \leq \delta \\ \delta \cdot\left(|y-f(x)|-\frac{1}{2} \delta\right), &amp; \text { otherwise }\end{cases}\]
+
+<ul>
+  <li>The below diagram (<a href="www.evergreeninnovations.html">source</a>) compares Huber loss with squared loss and absolute loss:</li>
+</ul>
+
+<p><img src="../assets/loss/huber.png" alt="" /></p>
+
+<h4 id="asymmetric-huber-loss">Asymmetric Huber loss</h4>
+
+<ul>
+  <li>Asymmetric Huber loss is a variation of the traditional Huber loss, designed to handle asymmetry in errors differently. In standard Huber loss, the loss function behaves like mean squared error for small errors and like mean absolute error for large errors. The asymmetric version introduces a way to handle overestimations and underestimations differently by applying different thresholds or scaling factors to positive and negative errors. This is particularly useful in scenarios where the cost of overestimating is different from the cost of underestimating, such as in ETA predictions where overestimation and underestimation of time may have different implications.</li>
+  <li>
+    <p>The equation for asymmetric Huber loss, which adjusts differently for overestimation and underestimation, can be written as follows:</p>
+
+\[L_{\delta}(a) = \begin{cases} 
+  \frac{1}{2}a^2 &amp; \text{for } |a| \leq \delta, \\
+  \delta\left(|a| - \frac{1}{2}\delta\right) &amp; \text{for } a &gt; \delta, \\
+  \alpha\delta\left(|a| - \frac{1}{2}\delta\right) &amp; \text{for } a &lt; -\delta.
+\end{cases}\]
+
+    <ul>
+      <li>where:
+        <ul>
+          <li>\(a\) is the prediction error (predicted value minus actual value).</li>
+          <li>\(\delta\) is a threshold defining where the loss function shifts from quadratic to linear.</li>
+          <li>\(\alpha\) is an asymmetry parameter that scales the loss differently for underestimations compared to overestimations.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>This modification allows the loss function to weigh overestimations and underestimations differently, which can be crucial in scenarios where these have different impacts.</li>
+</ul>
+
+<h3 id="summary-1">Summary</h3>
+
+<ul>
+  <li>When it comes to regression problems, the Huber and Smooth L1 losses are the best of both worlds between MSE and MAE being differentiable at 0 and limiting the weight of outliers for large values. The LogCosh has the same advantage, having a similar shape to the Huber one.</li>
+  <li>The mean absolute percentage error and the mean squared logarithmic error greatly mitigate the effects of outliers.</li>
+  <li>Poisson regression is widely used for count targets that can only be positive.</li>
+</ul>
+
+<h2 id="ranking-loss">Ranking Loss</h2>
+<ul>
+  <li>Ranking loss goes by many names as mentioned by <a href="https://gombru.github.io/2019/04/03/ranking_loss/">(source)</a>:
+    <ul>
+      <li>Ranking loss: This name comes from the information retrieval field, where we want to train models to rank items in an specific order.</li>
+      <li>Margin Loss: This name comes from the fact that these losses use a margin to compare samples representations distances.</li>
+      <li>Contrastive Loss: Contrastive refers to the fact that these losses are computed contrasting two or more data points representations. This name is often used for Pairwise Ranking Loss, but I’ve never seen using it in a setup with triplets.</li>
+      <li>Triplet Loss: Often used as loss name when triplet training pairs are employed.</li>
+      <li>Hinge loss: Also known as max-margin objective. It’s used for training SVMs for classification. It has a similar formulation in the sense that it optimizes until a margin. That’s why this name is sometimes used for Ranking Losses.</li>
+    </ul>
+  </li>
+  <li>Ranking loss functions are commonly used in machine learning tasks where the goal is to learn a ranking or similarity between instances. Here, we will discuss three popular ranking loss functions: margin ranking loss, soft pairwise loss, and pairwise logistic loss.</li>
+  <li>
+    <p>“Ranking Losses functions are very flexible in terms of training data: We just need a similarity score between data points to use them. That score can be binary (similar / dissimilar). As an example, imagine a face verification dataset, where we know which face images belong to the same person (similar), and which not (dissimilar). Using a Ranking Loss function, we can train a CNN to infer if two face images belong to the same person or not.</p>
+  </li>
+  <li>To use a Ranking Loss function we first extract features from two (or three) input data points and get an embedded representation for each of them. Then, we define a metric function to measure the similarity between those representations, for instance euclidian distance. Finally, we train the feature extractors to produce similar representations for both inputs, in case the inputs are similar, or distant representations for the two inputs, in case they are dissimilar.
+We don’t even care about the values of the representations, only about the distances between them. However, this training methodology has demonstrated to produce powerful representations for different tasks.” <a href="https://gombru.github.io/2019/04/03/ranking_loss/">(source)</a></li>
+</ul>
+
+<h3 id="multiple-negative-ranking-loss"><a href="https://arxiv.org/pdf/1705.00652.pdf">Multiple Negative Ranking Loss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/pdf/1705.00652.pdf">Efficient Natural Language Response Suggestion for Smart Reply</a> by Henderson et al. from Google in 2017.</li>
+  <li>Multiple Negative Ranking (MNR) Loss is a great loss function if you only have positive pairs, for example, only pairs of similar texts like pairs of paraphrases, pairs of duplicate questions, pairs of <code class="language-plaintext highlighter-rouge">(query, response)</code>, or pairs of <code class="language-plaintext highlighter-rouge">(source_language, target_language)</code>.</li>
+  <li>This loss function works great to train embeddings for retrieval setups where you have positive pairs (e.g. <code class="language-plaintext highlighter-rouge">(query, relevant_doc)</code>) as it will sample <code class="language-plaintext highlighter-rouge">n-1</code> negative docs in each batch randomly.The performance usually increases with increasing batch sizes.</li>
+  <li>This is because with MNR loss, we drop all rows with neutral or contradiction labels — keeping only the positive entailment pairs (<a href="https://www.pinecone.io/learn/fine-tune-sentence-transformers-mnr/">source</a>).</li>
+  <li>Models trained with MNR loss outperform those trained with softmax loss in high-performing sentence embeddings problems.</li>
+  <li>Below is a code sample referenced from <a href="https://www.sbert.net/docs/package_reference/losses.html#multiplenegativesrankingloss">sbert.net</a>:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">InputExample</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s">'distilbert-base-uncased'</span><span class="p">)</span>
+<span class="n">train_examples</span> <span class="o">=</span> <span class="p">[</span><span class="n">InputExample</span><span class="p">(</span><span class="n">texts</span><span class="o">=</span><span class="p">[</span><span class="s">'Anchor 1'</span><span class="p">,</span> <span class="s">'Positive 1'</span><span class="p">]),</span>
+    <span class="n">InputExample</span><span class="p">(</span><span class="n">texts</span><span class="o">=</span><span class="p">[</span><span class="s">'Anchor 2'</span><span class="p">,</span> <span class="s">'Positive 2'</span><span class="p">])]</span>
+<span class="n">train_dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_examples</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">train_loss</span> <span class="o">=</span> <span class="n">losses</span><span class="p">.</span><span class="n">MultipleNegativesRankingLoss</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>For more, please refer <a href="https://www.pinecone.io/learn/fine-tune-sentence-transformers-mnr/">Next-Gen Sentence Embeddings with Multiple Negatives Ranking Loss</a> and <a href="https://www.sbert.net/docs/package_reference/losses.html#multiplenegativesrankingloss">SBert MNR Loss</a>.</li>
+</ul>
+
+<h3 id="soft-pairwise-loss">Soft Pairwise Loss</h3>
+
+<ul>
+  <li>Soft pairwise loss is another ranking loss function that aims to learn a similarity ranking between instances. It assigns higher scores to similar instances and lower scores to dissimilar instances while considering the pairwise relationships between instances. The soft pairwise loss can be defined as:</li>
+</ul>
+
+\[\mathcal{L}_{\text{soft-pairwise}} = \sum_{i=1}^{N} \sum_{j=1}^{N} \log(1 + \exp(-y_{i} \cdot (s_{i} - s_{j})))\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(\mathcal{L}_{\text{soft-pairwise}}\) is the soft pairwise loss.</li>
+      <li>\(s_{i}\) is the score for instance \(i\).</li>
+      <li>\(y_{i}\) is the label indicating the similarity (1) or dissimilarity (-1) of instance \(i\).</li>
+    </ul>
+  </li>
+  <li>The soft pairwise loss encourages similar instances to have higher scores than dissimilar instances, and it penalizes large score differences between instances of different labels.</li>
+</ul>
+
+<h3 id="pairwise-logistic-loss">Pairwise Logistic Loss</h3>
+
+<ul>
+  <li>Pairwise logistic loss is a ranking loss function commonly used in binary classification tasks where instances need to be ranked based on their likelihood of belonging to a certain class. It considers pairs of instances and encourages the model to assign higher probabilities to positive instances than negative instances. The pairwise logistic loss can be defined as:</li>
+</ul>
+
+\[\mathcal{L}_{\text{pairwise-logistic}} = \sum_{i=1}^{N} \sum_{j=1}^{N} \log(1 + \exp(-(y_{i} - y_{j}) \cdot (s_{i} - s_{j})))\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(\mathcal{L}_{\text{pairwise-logistic}}\) is the pairwise logistic loss.</li>
+      <li>\(s_{i}\) is the score for instance \(i\).</li>
+      <li>\(y_{i}\) is the label indicating the positive (1) or negative (0) class of instance \(i\).</li>
+    </ul>
+  </li>
+  <li>The pairwise logistic loss encourages the model to assign higher scores to positive instances compared to negative instances and penalizes large score differences between instances of different labels.</li>
+  <li>These ranking loss functions are used in various applications, including information retrieval, recommender systems, and natural language processing tasks, to learn effective rankings or similarities between instances based on their characteristics and labels.</li>
+  <li>Both pairwise logistic loss and pairwise ranking loss are commonly used in tasks where instances need to be ranked or compared pairwise. However, they differ in their underlying formulations and objectives.</li>
+</ul>
+
+<h3 id="pairwise-ranking-loss">Pairwise Ranking Loss</h3>
+
+<ul>
+  <li>The terminology around “pairwise loss” and “ranking loss” can sometimes be a bit confusing, and there can be overlap between them. However, the key difference often lies in the structure of the learning task.</li>
+  <li><strong>Pairwise loss functions</strong>, such as the Triplet Loss, operate on pairs (or in this case, triplets) of samples at a time. The main objective of these loss functions is to learn a representation such that the distance between similar samples is less than the distance between dissimilar samples. The key focus is on the relative distances between individual samples or pairs of samples.</li>
+  <li>On the other hand, <strong>ranking loss functions</strong> are typically concerned with the ordering of a set of items, often more than just pairs or triplets. They are used in tasks where items need to be sorted in some type of order, and the loss is typically related to the number of inversions in this order (i.e., pairs of items that are out of order).</li>
+  <li>So, the Triplet Loss is generally considered a pairwise loss because it operates on triplets of samples, comparing the distances between an anchor sample and a positive sample (similar), and an anchor sample and a negative sample (dissimilar). It doesn’t directly consider the overall ranking among a larger set of samples, which is typically the concern of ranking loss functions.</li>
+  <li>However, note that these categories are not mutually exclusive, and the exact classification can depend on the specific context and implementation. For instance, pairwise methods can be used as a part of a larger ranking problem, and some loss functions can be used both for pairwise comparisons and for ranking a set of items.</li>
+  <li>Thus,ranking is the broader concept that encompasses the overall task of ordering or sorting items, while pairwise refers to a specific approach or technique used to compare and rank items based on pairwise comparisons. Pairwise methods are a common approach within the broader field of ranking.</li>
+</ul>
+
+<p><img src="../assets/loss/pairwise_ranking_loss_faces.png" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<ul>
+  <li>As illustrated by the image above <a href="https://gombru.github.io/2019/04/03/ranking_loss/">(source)</a>, pairwise ranking loss is a loss function used to train models that can rank instances based on their similarity or preference. It is often employed in tasks where the goal is to learn a ranking or preference order among instances.</li>
+  <li>There are different formulations of pairwise ranking loss, and one common approach is to use the hinge loss formulation. The pairwise ranking loss can be defined as:</li>
+</ul>
+
+\[\mathcal{L}_{\text{pairwise-ranking}} = \sum_{i=1}^{N} \sum_{j=1}^{N} \max(0, m - y_{i} \cdot (s_{i} - s_{j}))\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(\mathcal{L}_{\text{pairwise-ranking}}\) is the pairwise ranking loss.</li>
+      <li>\(s_{i}\) is the score for instance \(i\).</li>
+      <li>\(y_{i}\) is the label indicating the preference or ranking position of instance \(i\).</li>
+      <li>\(m\) is the margin that controls the desired separation between instances with different ranks.</li>
+    </ul>
+  </li>
+  <li>The pairwise ranking loss encourages the model to assign higher scores to instances that should be ranked higher and penalizes violations of the ranking order by imposing a margin constraint. It focuses on capturing the relative ranking positions of instances.</li>
+</ul>
+
+<h4 id="triplet-loss"><a href="https://arxiv.org/abs/1503.03832">Triplet Loss</a></h4>
+
+<p><img src="../assets/loss/triplet_loss_faces.png" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<ul>
+  <li>As illustrated by the image above <a href="https://gombru.github.io/2019/04/03/ranking_loss/">(source)</a>, triplet loss uses triplets of training samples instead of pairs.</li>
+  <li>Proposed in <a href="https://arxiv.org/abs/1503.03832">FaceNet: A Unified Embedding for Face Recognition and Clustering</a> by Schroff et al. in CVPR 2015.</li>
+  <li>Triplet loss was orginally used to learn face recognition of the same person at different poses and angles.</li>
+  <li>Triplet loss is a loss function for machine learning algorithms where a reference input (called anchor) is compared to a matching input (called positive) and a non-matching input (called negative).</li>
+</ul>
+
+<!-- $$
+\mathcal{J}=\sum_{i=1}^{M} \mathcal{L}\left(A^{(i)}, P^{(i)}, N^{(i)}\right)
+$$
+ -->
+
+\[L=max(d(A, P) - d(A, N) + \alpha, 0)\]
+
+<ul>
+  <li>where,
+    <ul>
+      <li>\(A\) is an anchor input.</li>
+      <li>\(P\) is a positive input of the same class as \(A\).</li>
+      <li>\(N\) is a negative input of a different class from \(A\).</li>
+      <li>\(d\) is a function to measure the distance between these three samples.</li>
+      <li>\(\alpha\) is a margin between positive and negative pairs.
+<!--   - $$f$$ is an embedding. --></li>
+    </ul>
+  </li>
+  <li>Consider the task of training a neural network to recognize faces (e.g. for admission to a high security zone).</li>
+  <li>A classifier trained to classify an instance would have to be retrained every time a new person is added to the face database.</li>
+  <li>This can be avoided by posing the problem as a similarity learning problem instead of a classification problem.</li>
+  <li>Here the network is trained (using a contrastive loss) to output a distance which is small if the image belongs to a known person and large if the image belongs to an unknown person.</li>
+  <li>However, if we want to output the closest images to a given image, we would like to learn a ranking and not just a similarity. A triplet loss is used in this case.</li>
+</ul>
+
+<h4 id="margin-ranking-loss"><a href="https://arxiv.org/pdf/1907.05336.pdf">Margin Ranking Loss</a></h4>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/pdf/1907.05336.pdf">Adaptive Margin Ranking Loss for Knowledge Graph Embeddings via a Correntropy Objective Function</a> by Nayyeri et al. in 2019.</li>
+  <li>As the name suggests, Margin Ranking Loss (MRL) is used for ranking problems.</li>
+  <li>MRL calculates the loss provided there are inputs \(X1\), \(X2\), as well as a label tensor, \(y\) containing 1 or -1.</li>
+  <li>When the value of \(y\) is 1 the first input will be assumed as the larger value and will be ranked higher than the second input.</li>
+  <li>Similarly, if \(y=-1\), the second input will be ranked as higher. It is mostly used in ranking problems.</li>
+</ul>
+
+\[\mathcal{L}=\sum_{(h, r, t) \in S^{+}} \sum_{\left(h^{\prime}, r^{\prime}, t^{\prime}\right) \in S^{-}}\left[f_{r}(h, t)+\gamma-f_{r}\left(h^{\prime}, t^{\prime}\right)\right]_{+}\]
+
+<ul>
+  <li>Let’s look at the code for this below from <a href="https://analyticsindiamag.com/all-pytorch-loss-function/#h-9-margin-ranking-loss-nn-marginrankingloss">analyticsindiamag</a>:</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">first_input</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">Second_input</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">).</span><span class="n">sign</span><span class="p">()</span>
+
+<span class="n">ranking_loss</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">MarginRankingLoss</span><span class="p">()</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">ranking_loss</span><span class="p">(</span><span class="n">first_input</span><span class="p">,</span> <span class="n">Second_input</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">output</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'input one: '</span><span class="p">,</span> <span class="n">first_input</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'input two: '</span><span class="p">,</span> <span class="n">Second_input</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'target: '</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'output: '</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Ranking losses tend to be extensions of the pointwise ones, penalizing the losses when two samples are misaligned compared to the ground truth. The margin ranking, the soft pairwise hinge and the pairwise logistic losses are extensions of the hinge losses. However, the downside of ranking loss functions is that they are painfully slow to compute as the time complexity is \(O(N^2)\) where \(N\) is the number of samples within a batch. <a href="https://www.linkedin.com/feed/update/urn:li:activity:7080658763547869184/?utm_source=share&amp;utm_medium=member_desktop">(source)</a>.</li>
+  <li>Margin ranking loss is often used in tasks where instances need to be ranked based on their similarity or dissimilarity. It encourages the model to assign higher scores to similar instances and lower scores to dissimilar instances. The margin ranking loss can be defined as:</li>
+</ul>
+
+\[\mathcal{L}_{\text{margin}} = \sum_{i=1}^{N} \max(0, m - s_{i}^+ + s_{i}^-)\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(\mathcal{L}_{\text{margin}}\) is the margin ranking loss,</li>
+      <li>\(s_{i}^+\) is the score for a positive (similar) instance,</li>
+      <li>\(s_{i}^-\) is the score for a negative (dissimilar) instance,</li>
+      <li>\(m\) is the margin that defines the desired separation between positive and negative scores.</li>
+    </ul>
+  </li>
+  <li>The margin ranking loss encourages the positive instance scores to be higher than the negative instance scores by at least the margin $m$. This loss function is often used in tasks such as image retrieval and recommendation systems, where instances need to be ranked based on their similarity.</li>
+</ul>
+
+<h2 id="contrastive-loss"><a href="http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf">Contrastive Loss</a></h2>
+<ul>
+  <li>A quick note here to differentiate ranking vs contrastive loss:
+    <ul>
+      <li>Contrastive learning is a method used in machine learning, specifically in self-supervised learning, to learn representations from unlabeled data. It operates on the principle of learning to tell apart different data samples (contrasting them) while pushing together, or attracting, transformations of the same data sample.
+        <ol>
+          <li><strong>Multiple Negative Ranking Loss:</strong> This can be considered a type of contrastive loss. In this method, a positive sample is contrasted with multiple negative samples to learn the representations.</li>
+          <li><strong>Soft Pairwise Loss and Pairwise Logistic Loss:</strong> While these are used for pairwise ranking, they are not typically categorized under contrastive learning. Pairwise ranking losses generally aim to optimize the rank order of items rather than learning representations that contrast different samples.</li>
+        </ol>
+      </li>
+      <li>However, the boundary isn’t always clear-cut, and it could depend on the specific context and use case. Some methods and loss functions can be considered as contrastive under certain conditions or when used in certain ways, even if they might not be traditionally categorized as such.</li>
+      <li>For instance, the Triplet Loss, despite being a pairwise loss, is a contrastive loss function because it tries to learn representations that contrast an anchor sample with a positive sample (which should be similar) and a negative sample (which should be different). In this context, it’s doing a type of contrastive learning.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Contrastive learning often involves pairs of samples: a positive pair that is similar, and a negative pair that is different. In this context, the contrastive loss can be defined as follows:</p>
+  </li>
+  <li>Given:
+    <ul>
+      <li>\(x_i^{+}\) as the positive sample similar to \(x_i\).</li>
+      <li>\(x_i^{-}\) as the negative sample different from \(x_i\).</li>
+      <li>\(D(.)\) as the distance function between two samples.</li>
+      <li>\(m\) as the margin, a hyperparameter to tune.</li>
+    </ul>
+  </li>
+  <li>The Contrastive Loss (<code class="language-plaintext highlighter-rouge">L</code>) for a single observation can be defined as:</li>
+</ul>
+
+\[L(x_i, x_i^+, x_i^-) = D(x_i, x_i^+) + max(0, m - D(x_i, x_i^-))\]
+
+<ul>
+  <li>In this formula, the first term \(D(x_i, x_i^{+})\) pushes the positive pair to be closer (minimizes the distance), and the second term \(max(0, m - D(x_i, x_i^-))\) pushes the negative pair to be farther apart, but at least a distance of \(m\).</li>
+  <li>For the overall loss, you typically average this over all observations in your dataset.</li>
+  <li>Proposed in <a href="http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf">Dimensionality Reduction by Learning an Invariant Mapping</a> by Hadsell et al. (with Yann LeCun) in IEEE CVPR 2006.</li>
+  <li>Contrastive loss is a distance-based loss as opposed to more conventional error-prediction losses. This loss is used to learn embeddings in which two “similar” points have a low Euclidean distance and two “dissimilar” points have a large Euclidean distance.</li>
+  <li>Contrastive learning is a very simple way to learn aligned semantic representations of multimodal data. For example, triplet margin loss was used in <a href="https://arxiv.org/pdf/1503.03832.pdf">FaceNet</a> and cosine embedding loss in <a href="https://arxiv.org/pdf/2103.00020.pdf">CLIP</a>. The hinge embedding loss is similar but we replace the cosine similarity with the Euclidean distance.</li>
+  <li>Contrastive loss takes the output of the network for a positive example and calculates its distance to an example of the same class and contrasts that with the distance to negative examples.</li>
+  <li>Two samples are either similar or dissimilar. This binary similarity can be determined using several approaches:
+    <ul>
+      <li>In this work, the \(N\) closest neighbors of a sample in input space (e.g. pixel space) are considered similar; all others are considered dissimilar. (This approach yields a smooth latent space; e.g. the latent vectors for two similar views of an object are close)</li>
+      <li>To the group of similar samples to a sample, we can add transformed versions of the sample (e.g. using data augmentation). This allows the latent space to be invariant to one or more transformations.</li>
+      <li>We can use a manually obtained label determining if two samples are similar. (For example, we could use the class label. However, there can be cases where two samples from the same class are relatively dissimilar, or where two samples from different classes are relatively similar. Using classes alone does not encourage a smooth latent space.)</li>
+    </ul>
+  </li>
+  <li>Put simply, clusters of points belonging to the same class are pulled together in embedding space, while simultaneously pushing apart clusters of samples from different classes. In other words, contrastive loss calculates the distance between positive example (example of the same class) and negative example (example not of the same class). So loss can be expected to be low if the positive examples are encoded (in this embedding space) to similar examples and the negative ones are further away encoded to different representations. This behavior is illustrated in the image below:</li>
+</ul>
+
+<p><img src="../assets/loss/21.jpg" alt="" /></p>
+
+<ul>
+  <li>Formally, if we consider \(\vec{X}\) as the input data and \(G_W(\vec{X})\) the output of a neural network, the interpoint distance is given by,</li>
+</ul>
+
+\[D_W\left(\vec{X}_1, \vec{X}_2\right)=\left\|G_W\left(\vec{X}_1\right)-G_W\left(\vec{X}_2\right)\right\|_2\]
+
+<ul>
+  <li>
+    <p>The contrastive loss is simply,</p>
+
+\[\begin{aligned}
+\mathcal{L}(W) &amp;=\sum_{i=1}^P L\left(W,\left(Y, \vec{X}_1, \vec{X}_2\right)^i\right) \\
+L\left(W,\left(Y, \vec{X}_1, \vec{X}_2\right)^i\right) &amp;=(1-Y) L_S\left(D_W^i\right)+Y L_D\left(D_W^i\right)
+\end{aligned}\]
+
+    <ul>
+      <li>where \(Y=0\) when \(X_1\) and \(X_2\) are similar and \(Y=1\) otherwise, and \(L_S\) is a loss for similar points and \(L_D\) is a loss for dissimilar points.</li>
+    </ul>
+  </li>
+  <li>
+    <p>More formally, the contrastive loss is given by,</p>
+
+\[\begin{aligned}
+&amp;L\left(W, Y, \vec{X}_1, \vec{X}_2\right)= \\
+&amp;\quad(1-Y) \frac{1}{2}\left(D_W\right)^2+(Y) \frac{1}{2}\left\{\max \left(0, m-D_W\right)\right\}^2
+\end{aligned}\]
+
+    <ul>
+      <li>where \(m\) is a predefined margin.</li>
+    </ul>
+  </li>
+  <li>
+    <p>The gradient is given by the simple equations:</p>
+  </li>
+</ul>
+
+\[\begin{gathered}
+\frac{\partial L_S}{\partial W}=D_W \frac{\partial D_W}{\partial W} \\
+\frac{\partial L_D}{\partial W}=-\left(m-D_W\right) \frac{\partial D_W}{\partial W}
+\end{gathered}\]
+
+<ul>
+  <li>
+    <p>Contrastive Loss is often used in image retrieval tasks to learn discriminative features for images. During training, an image pair is fed into the model with their ground truth relationship: equals 1 if the two images are similar and 0 otherwise. The loss function for a single pair is:</p>
+
+\[y d^2+(1-y) \max (\operatorname{margin}-d, 0)^2\]
+
+    <ul>
+      <li>where \(d\) is the Euclidean distance between the two image features (suppose their features are \(f_1\) and \(f_2\)): \(d=\left \| f_1-f_2\right \|_{2}\). The \(margin\) term is used to “tighten” the constraint: if two images in a pair are dissimilar, then their distance should be at least \(margin\), or a loss will be incurred.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Shown below are the results from the <a href="https://www.researchgate.net/publication/4246277_Dimensionality_Reduction_by_Learning_an_Invariant_Mapping">paper</a> which are quite convincing:</p>
+  </li>
+</ul>
+
+<p><img src="../assets/loss/conloss.png" alt="" /></p>
+
+<ul>
+  <li>Note that while this is one of the earliest of the contrastive losses, this is not the only one. For instance, the contrastive loss used in <a href="#a-simple-framework-for-contrastive-learning-of-visual-representations">SimCLR</a> is quite different.</li>
+</ul>
+
+<h3 id="infonce-loss"><a href="https://arxiv.org/pdf/1807.03748v2.pdf">InfoNCE Loss</a></h3>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/pdf/1807.03748v2.pdf">Contrastive Predictive Coding</a> by van den Oord et al. in 2018.</li>
+  <li>InfoNCE, where NCE stands for Noise-Contrastive Estimation, is a type of contrastive loss function used for self-supervised learning.</li>
+  <li>The InfoNCE loss, inspired by NCE, uses categorical cross-entropy loss to identify the positive sample amongst a set of unrelated noise samples.</li>
+</ul>
+
+\[\mathcal{L}_{\mathrm{N}}=-\underset{X}{\mathbb{E}}\left[\log \frac{f_{k}\left(x_{t+k}, c_{t}\right)}{\sum_{x_{j} \in X} f_{k}\left(x_{j}, c_{t}\right)}\right]\]
+
+<h2 id="losses-in-deep-learning-based-reinforcement-learning">Losses in Deep Learning-based Reinforcement Learning</h2>
+
+<ul>
+  <li>Deep Learning had a profound effect on Reinforcement Learning, allowing us to train models with high state and action dimensionalities.</li>
+  <li>For Deep Q-learning, the loss can simply take the form of the MSE for the residuals of the Bellman equation. In the case of Policy gradient-based reinforcement learning algorithms, the loss is the cross-entropy of the action probabilities weighted by the Q-value.</li>
+  <li>Deep learning has significantly impacted reinforcement learning, enabling the training of models with high-dimensional state and action spaces. In deep reinforcement learning, various loss functions are employed to train models effectively. Let’s explore two commonly used loss functions: Q-value loss and policy gradient loss.</li>
+</ul>
+
+<h3 id="q-value-loss">Q-Value Loss</h3>
+
+<ul>
+  <li>
+    <p>In deep Q-learning, the goal is to learn a Q-value function that estimates the expected cumulative rewards for different state-action pairs. The loss function used in Q-learning is the mean squared error (MSE) of the temporal difference (TD) error, which represents the difference between the current Q-value estimate and the target Q-value derived from the Bellman equation.</p>
+  </li>
+  <li>
+    <p>The Bellman equation can be written as follows:</p>
+  </li>
+</ul>
+
+\[Q(s, a) = r + \gamma \max_{a'} Q(s', a')\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(Q(s, a)\) is the Q-value for a given state-action pair.</li>
+      <li>\(r\) is the immediate reward obtained after taking action \(a\) in state \(s\).</li>
+      <li>\(\gamma\) is the discount factor that determines the importance of future rewards.</li>
+      <li>\(s'\) is the next state after taking action \(a\) in state \(s\).</li>
+    </ul>
+  </li>
+  <li>The Q-value loss can be defined as:</li>
+</ul>
+
+\[\mathcal{L}_{\text{Q}} = \mathbb{E}\left[(Q(s, a) - (r + \gamma \max_{a'} Q(s', a')))^2\right]\]
+
+<ul>
+  <li>The Q-value loss drives the network to minimize the TD error, thus improving the accuracy of the Q-value estimates and ultimately leading to better action selection.</li>
+</ul>
+
+<h3 id="policy-gradient-loss">Policy Gradient Loss</h3>
+
+<ul>
+  <li>
+    <p>Policy gradient methods directly optimize a policy function that maps states to actions without explicitly estimating Q-values. The objective is to maximize the expected cumulative rewards by updating the policy parameters using gradient ascent.</p>
+  </li>
+  <li>
+    <p>The loss function in policy gradient methods is typically the negative expected return (or a variant of it) weighted by a baseline, which helps reduce the variance of the gradient estimates. The return is defined as the sum of rewards obtained from a starting state following a policy. One common variant is the advantage function, which measures the advantage of taking a particular action over the average action value.</p>
+  </li>
+  <li>
+    <p>The policy gradient loss can be written as:</p>
+  </li>
+</ul>
+
+\[\mathcal{L}_{\text{PG}} = -\mathbb{E}\left[\sum_{t=0}^{T} \nabla_{\theta}\log \pi(a_t|s_t) \cdot A(s_t, a_t)\right]\]
+
+<ul>
+  <li>where:
+    <ul>
+      <li>\(\mathcal{L}_{\text{PG}}\) is the policy gradient loss.</li>
+      <li>\(\pi(a_t\|s_t)\) is the probability of taking action \(a_t\) given state \(s_t\).</li>
+      <li>\(\nabla_{\theta}\log \pi(a_t\|s_t)\) is the gradient of the log probability of the action.</li>
+      <li>\(A(s_t, a_t)\) is the advantage function.</li>
+    </ul>
+  </li>
+  <li>
+    <p>The policy gradient loss encourages actions with higher advantages to have higher probabilities, pushing the policy towards more favorable actions.</p>
+  </li>
+  <li>
+    <p>These loss functions, Q-value loss and policy gradient loss, are fundamental in training deep reinforcement learning models, enabling them to learn effective policies for complex decision-making tasks.</p>
+  </li>
+  <li>Please note that there are various extensions and modifications to these loss functions based on specific algorithms and problem settings.</li>
+</ul>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<ul>
+  <li><a href="https://pytorch.org/docs/stable/nn.html#loss-functions">PyTorch Losses Documentation</a></li>
+  <li><a href="https://www.sbert.net/docs/package_reference/losses.html">SBERT: Losses</a></li>
+  <li><a href="https://www.pinecone.io/learn/fine-tune-sentence-transformers-mnr/">Next-Gen Sentence Embeddings with Multiple Negatives Ranking Loss</a></li>
+  <li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">A Gentle Introduction to Cross-Entropy for Machine Learning</a></li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://machinelearningmastery.com/cross-entropy-for-machine-learning/">Machine Learning Mastery</a></li>
+  <li><a href="https://ml-cheatsheet.readthedocs.io/en/latest/loss_functions.html">ML CheatSheet</a></li>
+  <li><a href="https://neptune.ai/blog/cross-entropy-loss-and-its-applications-in-deep-learning">Neptune.ai</a></li>
+  <li><a href="https://www.section.io/engineering-education/understanding-loss-functions-in-machine-learning/">Section.ai</a></li>
+  <li><a href="https://afteracademy.com/blog/what-are-l1-and-l2-loss-functions">After Academy</a></li>
+  <li><a href="https://programmathically.com/understanding-hinge-loss-and-the-svm-cost-function/">Programmathically</a></li>
+  <li><a href="https://paperswithcode.com/method/focal-loss">PapersWithCode: Focal Loss</a></li>
+  <li><a href="https://www.researchgate.net/publication/322674945_ArcFace_Additive_Angular_Margin_Loss_for_Deep_Face_Recognition">ArcFace Additive Angular Margin Loss for Deep Face Recognition</a></li>
+  <li><a href="https://medium.com/analytics-vidhya/face-recognition-and-arcface-additive-angular-margin-loss-for-deep-face-recognition-44abc56916c">Medium AnalyticsVidhya</a></li>
+  <li><a href="https://openreview.net/forum?id=gSdSJoenupI">PolyLoss</a></li>
+  <li><a href="https://arxiv.org/abs/1710.10467">Generalized End-to-End Loss</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Huber_loss">Wikipedia article on Huber loss</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Triplet_loss#:~:text=Triplet%20loss%20is%20a%20loss,matching%20input%20(called%20negative).">Wikipedia article on Triplet loss</a></li>
+  <li><a href="https://towardsdatascience.com/contrastive-learning-in-3-minutes-89d9a7db5a28">Towards Data Science</a></li>
+  <li><a href="https://paperswithcode.com/method/infonce#:~:text=InfoNCE%2C%20where%20NCE%20stands%20for,used%20for%20self%2Dsupervised%20learning.">Papers With Code infoNCE</a></li>
+  <li><a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/">Lilian Weng: Contrastive learning</a></li>
+  <li><a href="https://medium.com/ai-salon/understanding-dice-loss-for-crisp-boundary-detection-bb30c2e5f62b">Dice Loss by Shuchen Du</a></li>
+  <li><a href="https://analyticsindiamag.com/all-pytorch-loss-function/#h-9-margin-ranking-loss-nn-marginrankingloss">Margin Ranking Loss</a></li>
+  <li><a href="https://arxiv.org/pdf/1907.05336.pdf">Margin Ranking Loss Official Paper</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Kullback–Leibler_divergence">Wikipedia: Kullback–Leibler divergence</a></li>
+  <li><a href="https://www.countbayesie.com/blog/2017/5/9/kullback-leibler-divergence-explained">Kullback-Leibler Divergence Explained</a></li>
+  <li><a href="https://stats.stackexchange.com/questions/357963/what-is-the-difference-cross-entropy-and-kl-divergence">What is the difference Cross-entropy and KL divergence?</a></li>
+  <li><a href="https://gombru.github.io/2019/04/03/ranking_loss/">Understanding Ranking Loss, Contrastive Loss, Margin Loss, Triplet Loss, Hinge Loss and all those confusing names</a></li>
+  <li><a href="https://gombru.github.io/2018/05/23/cross_entropy_loss/">Understanding Categorical Cross-Entropy Loss, Binary Cross-Entropy Loss, Softmax Loss, Logistic Loss, Focal Loss and all those confusing names
+</a></li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2020DistilledLossFunctions,
+  title   = {Loss Functions},
+  author  = {Chadha, Aman and Jain, Vinija},
+  journal = {Distilled AI},
+  year    = {2020},
+  note    = {\url{https://vinija.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/concepts/loss/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:07 GMT -->
+</html>

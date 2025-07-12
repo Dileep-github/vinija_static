@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/nlp/parameter-efficient-fine-tuning/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:36 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Primers • Parameter Efficient Fine-Tuning</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Primers • Parameter Efficient Fine-Tuning</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#parameter-efficient-fine-tuning-peft" id="markdown-toc-parameter-efficient-fine-tuning-peft">Parameter-Efficient Fine-Tuning (PEFT)</a></li>
+  <li><a href="#advantages" id="markdown-toc-advantages">Advantages</a>    <ul>
+      <li><a href="#practical-use-case" id="markdown-toc-practical-use-case">Practical use-case</a></li>
+    </ul>
+  </li>
+  <li><a href="#peft-methods" id="markdown-toc-peft-methods">PEFT methods</a>    <ul>
+      <li><a href="#prompt-modifications" id="markdown-toc-prompt-modifications">Prompt Modifications</a>        <ul>
+          <li><a href="#soft-prompt-tuning" id="markdown-toc-soft-prompt-tuning">Soft Prompt Tuning</a></li>
+          <li><a href="#soft-prompt-vs-prompting" id="markdown-toc-soft-prompt-vs-prompting">Soft Prompt vs Prompting</a></li>
+          <li><a href="#prefix-tuning" id="markdown-toc-prefix-tuning">Prefix tuning</a></li>
+          <li><a href="#hard-prompt-tuning" id="markdown-toc-hard-prompt-tuning">Hard prompt tuning</a></li>
+        </ul>
+      </li>
+      <li><a href="#adapter-methods" id="markdown-toc-adapter-methods">Adapter Methods</a>        <ul>
+          <li><a href="#what-is-an-adapter-module" id="markdown-toc-what-is-an-adapter-module">What is an Adapter Module?</a></li>
+          <li><a href="#how-to-decide-the-value-of-m" id="markdown-toc-how-to-decide-the-value-of-m">How to decide the value of \(m\)?</a></li>
+          <li><a href="#llama-adapters" id="markdown-toc-llama-adapters">LLaMA-Adapters</a></li>
+        </ul>
+      </li>
+      <li><a href="#reparameterization" id="markdown-toc-reparameterization">Reparameterization</a>        <ul>
+          <li><a href="#low-rank-adaptation-lora" id="markdown-toc-low-rank-adaptation-lora">Low Rank Adaptation (LoRA)</a></li>
+        </ul>
+      </li>
+      <li><a href="#qlora" id="markdown-toc-qlora">QLoRA</a></li>
+      <li><a href="#quantization-aware-low-rank-adaptation-qalora" id="markdown-toc-quantization-aware-low-rank-adaptation-qalora">Quantization-Aware Low-Rank Adaptation (QALoRA)</a></li>
+      <li><a href="#refined-low-rank-adaptation-relora" id="markdown-toc-refined-low-rank-adaptation-relora">Refined Low-Rank Adaptation (ReLoRA)</a></li>
+      <li><a href="#reft-representation-finetuning-for-language-models" id="markdown-toc-reft-representation-finetuning-for-language-models">ReFT: Representation Finetuning for Language Models</a></li>
+    </ul>
+  </li>
+  <li><a href="#summary-of-lora-techniques" id="markdown-toc-summary-of-lora-techniques">Summary of LoRA Techniques</a></li>
+  <li><a href="#which-peft-technique-to-choose-a-mental-model" id="markdown-toc-which-peft-technique-to-choose-a-mental-model">Which PEFT Technique to Choose: A Mental Model</a>    <ul>
+      <li><a href="#soft-prompt-tuning-1" id="markdown-toc-soft-prompt-tuning-1">Soft Prompt Tuning</a></li>
+      <li><a href="#prefix-tuning-1" id="markdown-toc-prefix-tuning-1">Prefix Tuning</a></li>
+      <li><a href="#adapters" id="markdown-toc-adapters">Adapters</a></li>
+      <li><a href="#lora" id="markdown-toc-lora">LoRA</a></li>
+      <li><a href="#qalora" id="markdown-toc-qalora">QALoRA</a></li>
+      <li><a href="#relora" id="markdown-toc-relora">ReLoRA</a></li>
+    </ul>
+  </li>
+  <li><a href="#comparison-of-popular-peft-methods" id="markdown-toc-comparison-of-popular-peft-methods">Comparison of popular PEFT methods</a></li>
+  <li><a href="#practical-tips-for-finetuning-llms-using-lora" id="markdown-toc-practical-tips-for-finetuning-llms-using-lora">Practical Tips for Finetuning LLMs Using LoRA</a></li>
+  <li><a href="#surgical-fine-tuning" id="markdown-toc-surgical-fine-tuning">Surgical fine-tuning</a></li>
+  <li><a href="#tracing-model-outputs-to-the-training-data-by-anthropic" id="markdown-toc-tracing-model-outputs-to-the-training-data-by-anthropic">Tracing Model Outputs to the Training Data by Anthropic</a></li>
+  <li><a href="#lora-vs-qlora-experimentation-by-sebastian-raschka" id="markdown-toc-lora-vs-qlora-experimentation-by-sebastian-raschka">LoRA vs. QLoRA experimentation by Sebastian Raschka</a></li>
+  <li><a href="#papers" id="markdown-toc-papers">Papers</a></li>
+  <li><a href="#repos" id="markdown-toc-repos">Repos</a></li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+  <li><a href="#citation" id="markdown-toc-citation">Citation</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Fine-tuning of large pre-trained models on downstream tasks is called “transfer learning”.</li>
+  <li>While full fine-tuning pre-trained models on downstream tasks is a common, effective approach, it is an inefficient approach to transfer learning.</li>
+  <li>The simplest way out for efficient fine-tuning could be to freeze the networks’ lower layers and adapt only the top ones to specific tasks.</li>
+  <li>In this article, we’ll explore Parameter Efficient Fine-Tuning (PEFT) methods that enable us to adapt a pre-trained model to downstream tasks more efficiently – in a way that trains lesser parameters and hence saves cost and training time, while also yielding performance similar to full fine-tuning.</li>
+</ul>
+
+<h2 id="parameter-efficient-fine-tuning-peft">Parameter-Efficient Fine-Tuning (PEFT)</h2>
+<ul>
+  <li>Let’s start off by defining what parameter-efficient fine-tuning is and give some context on it.</li>
+  <li>Parameter-efficient fine-tuning is particularly used in the context of large-scale pre-trained models (such as in NLP), to adapt that pre-trained model to a new task without drastically increasing the number of parameters.</li>
+  <li>The challenge is this: modern pre-trained models (like BERT, GPT, T5, etc.) contain hundreds of millions, if not billions, of parameters. Fine-tuning all these parameters on a downstream task, especially when the available dataset for that task is small, can easily lead to overfitting. The model may simply memorize the training data instead of learning genuine patterns. Moreover, introducing additional layers or parameters during fine-tuning can drastically increase computational requirements and memory consumption.</li>
+  <li>As mentioned earlier, PEFT allows to only fine-tune a small number of model parameters while freezing most of the parameters of the pre-trained LLM. This helps overcome the <a href="https://arxiv.org/abs/1312.6211">catastrophic forgetting</a> issue that full fine-tuned LLMs face where the LLM forgets the original task it was trained on after being fine-tuned.</li>
+  <li>The image and advantages below, <a href="https://sebastianraschka.com/blog/2023/llm-finetuning-llama-adapter.html">by Sebastian Raschka</a>, gives a nice overview of PEFT and its benefits.</li>
+  <li><img src="../assets/parameter-efficient-fine-tuning/peftOverview.png" alt="" /></li>
+</ul>
+
+<h2 id="advantages">Advantages</h2>
+
+<ul>
+  <li>Parameter-efficient fine-tuning is useful due the following reasons:
+    <ol>
+      <li>Reduced computational costs (requires fewer GPUs and GPU time).</li>
+      <li>Faster training times (finishes training faster).</li>
+      <li>Lower hardware requirements (works with cheaper GPUs with less VRAM).</li>
+      <li>Better modeling performance (reduces overfitting).</li>
+      <li>Less storage (majority of weights can be shared across different tasks).</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="practical-use-case">Practical use-case</h3>
+
+<ul>
+  <li>Credits to the below section go to <a href="https://www.linkedin.com/in/pranaypasula/">Pranay Pasula</a>.</li>
+  <li>PEFT obviates the need for 40 or 80GB A100s to make use of powerful LLMs. In other words, you can fine-tune 10B+ parameter LLMs for your desired task for free or on cheap consumer GPUs.</li>
+  <li>Using PEFT methods like LoRA, especially 4-bit quantized base models via <a href="#QLoRA">QLoRA</a>, you can fine-tune 10B+ parameter LLMs that are 30-40GB in size on 16GB GPUs. If it’s out of your budget to buy a 16GB GPU/TPU, Google Colab occasionally offers a 16GB VRAM Tesla T4 for free. Remember to save your model checkpoints every now and then and reload them as necessary, in the event of a Colab disconnect/kernel crash.</li>
+  <li>If you’re fine-tuning on a single task, the base models are already so expressive that you need only a few (~10s-100s) of examples to perform well on this task. With PEFT via LoRA, you need to train only a trivial fraction (in this case, 0.08%), and though the weights are stored as 4-bit, computations are still done at 16-bit.</li>
+  <li>Note that while a good amount of VRAM is still needed for the fine-tuning process, using PEFT, with a small enough batch size, and little gradient accumulation, can do the trick while still retaining ‘fp16’ computation. In some cases, the performance on the fine-tuned task can be comparable to that of a fine-tuned 16-bit model.</li>
+  <li>Key takeaway: You can fine-tune powerful LLMs to perform well on a desired task using free compute. Use a &lt;10B parameter model, which is still huge, and use quantization, PEFT, checkpointing, and provide a small training set, and you can quickly fine-tune this model for your use case.</li>
+</ul>
+
+<h2 id="peft-methods">PEFT methods</h2>
+
+<ul>
+  <li>Below, we will delve into individual PEFT methods and delve deeper into their nuances.
+    <h3 id="prompt-modifications">Prompt Modifications</h3>
+    <h4 id="soft-prompt-tuning">Soft Prompt Tuning</h4>
+  </li>
+  <li>First introduced in the <a href="https://aclanthology.org/2021.emnlp-main.243.pdf">The Power of Scale for Parameter-Efficient Prompt Tuning</a>; this paper by Lester et al. introduces a simple yet effective method called soft prompt tuning, which prepends a trainable tensor to the model’s input embeddings, essentially creating a soft prompt to condition frozen language models to perform specific downstream tasks. Unlike the discrete text prompts, soft prompts are learned through backpropagation and can be fine-tuned to incorporate signals from any number of labeled examples.</li>
+  <li>Soft prompt tuning only requires storing a small task-specific prompt for each task, and enables mixed-task inference using the original pre-trained model.</li>
+  <li>The authors show that prompt tuning outperforms few-shot learning by a large margin, and becomes more competitive with scale.</li>
+  <li>This is an interesting approach that can help to effectively use a single frozen model for multi-task serving.</li>
+  <li>Model tuning requires making a task-specific copy of the entire pre-trained model for each downstream task and inference must be performed in separate batches. Prompt tuning only requires storing a small task-specific prompt for each task, and enables mixed-task inference using the original pretrained model. With a T5 “XXL” model, each copy of the tuned model requires 11 billion parameters. By contrast, our tuned prompts would only require 20,480 parameters per task—a reduction of over five orders of magnitude – assuming a prompt length of 5 tokens.</li>
+  <li>Thus, instead of using discrete text prompts, prompt tuning employs soft prompts. Soft prompts are learnable and conditioned through backpropagation, making them adaptable for specific tasks.</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/PromptTuning.jpg" alt="" /></p>
+
+<ul>
+  <li>Prompt Tuning offers many benefits such as:
+    <ul>
+      <li>Memory-Efficiency: Prompt tuning dramatically reduces memory requirements. For instance, while a T5 “XXL” model necessitates 11 billion parameters for each task-specific model, prompt-tuned models need a mere 20,480 parameters (assuming a prompt length of 5 tokens).</li>
+      <li>Versatility: Enables the use of a single frozen model for multi-task operations.</li>
+      <li>Performance: Outshines few-shot learning and becomes more competitive as the scale grows.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="soft-prompt-vs-prompting">Soft Prompt vs Prompting</h4>
+<ul>
+  <li>Soft prompt tuning and prompting a model with extra context are both methods designed to guide a model’s behavior for specific tasks, but they operate in different ways. Here’s how they differ:</li>
+</ul>
+
+<ol>
+  <li><strong>Mechanism</strong>:
+    <ul>
+      <li><strong>Soft Prompt Tuning</strong>: This involves introducing trainable parameters (soft prompts) that are concatenated or added to the model’s input embeddings. These soft prompts are learned during the fine-tuning process and are adjusted through backpropagation to condition the model to produce desired outputs for specific tasks.</li>
+      <li><strong>Prompting with Extra Context</strong>: This method involves feeding the model with handcrafted or predefined text prompts that provide additional context. There’s no explicit fine-tuning; instead, the model leverages its pre-trained knowledge to produce outputs based on the provided context. This method is common in few-shot learning scenarios where the model is given a few examples as prompts and then asked to generalize to a new example.</li>
+    </ul>
+  </li>
+  <li><strong>Trainability</strong>:
+    <ul>
+      <li><strong>Soft Prompt Tuning</strong>: The soft prompts are trainable. They get adjusted during the fine-tuning process to optimize the model’s performance on the target task.</li>
+      <li><strong>Prompting with Extra Context</strong>: The prompts are static and not trainable. They’re designed (often manually) to give the model the necessary context for the desired task.</li>
+    </ul>
+  </li>
+  <li><strong>Use Case</strong>:
+    <ul>
+      <li><strong>Soft Prompt Tuning</strong>: This method is particularly useful when there’s a need to adapt a pre-trained model to various downstream tasks without adding significant computational overhead. Since the soft prompts are learned and optimized, they can capture nuanced information necessary for the task.</li>
+      <li><strong>Prompting with Extra Context</strong>: This is often used when fine-tuning isn’t feasible or when working with models in a zero-shot or few-shot setting. It’s a way to leverage the vast knowledge contained in large pre-trained models by just guiding their behavior with carefully crafted prompts.</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>In essence, while both methods use prompts to guide the model, soft prompt tuning involves learning and adjusting these prompts, whereas prompting with extra context involves using static, handcrafted prompts to guide the model’s behavior.</li>
+</ul>
+
+<h4 id="prefix-tuning">Prefix tuning</h4>
+
+<ul>
+  <li>Proposed in <a href="https://arxiv.org/abs/2101.00190">Prefix-Tuning: Optimizing Continuous Prompts for Generation</a>, prefix-tuning is a lightweight alternative to fine-tuning for natural language generation tasks, which keeps language model parameters frozen, but optimizes a small continuous task-specific vector (called the prefix).</li>
+  <li>Instead of adding a soft prompt to the model input, it prepends trainable parameters to the hidden states of all transformer blocks. During fine-tuning, the LM’s original parameters are kept frozen while the prefix parameters are updated.</li>
+  <li>Prefix-tuning draws inspiration from prompting, allowing subsequent tokens to attend to this prefix as if it were “virtual tokens”.</li>
+  <li>The figure below from the paper shows that fine-tuning (top) updates all Transformer parameters (the red Transformer box) and requires storing a full model copy for each task. They propose prefix-tuning (bottom), which freezes the Transformer parameters and only optimizes the prefix (the red prefix blocks). Consequently, prefix-tuning only need to store the prefix for each task, making prefix-tuning modular and space-efficient. Note that each vertical block denote transformer activations at one time step.</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/Prefix-Tuning.jpg" alt="" /></p>
+
+<ul>
+  <li>
+    <p>They apply prefix-tuning to GPT-2 for table-to-text generation and to BART for summarization. They find that by learning only 0.1% of the parameters, prefix-tuning obtains comparable performance in the full data setting, outperforms fine-tuning in low-data settings, and extrapolates better to examples with topics unseen during training.</p>
+  </li>
+  <li>
+    <p>The image below, <a href="https://sebastianraschka.com/blog/2023/llm-finetuning-llama-adapter.html">by Sebastian Raschka</a>, illustrate how in prefix tuning, trainable tensors are addted to each transformer block instead of only in the input embedding.
+<img src="../assets/parameter-efficient-fine-tuning/prefixtuningraschka.png" alt="" /></p>
+  </li>
+</ul>
+
+<h4 id="hard-prompt-tuning">Hard prompt tuning</h4>
+<ul>
+  <li>Hard prompt tuning directly modifies the input prompt to the model. This can involve a vast multitude of things such as:
+    <ul>
+      <li>We can add examples of outputs we expect from the prompt</li>
+      <li>We can add tags specifically relating to our task at hand</li>
+    </ul>
+  </li>
+  <li>In essence, it is just the modification of the string input, or prompt, to the model.</li>
+</ul>
+
+<h3 id="adapter-methods">Adapter Methods</h3>
+<ul>
+  <li>Adapter layers, often termed “Adapters”, add minimal additional parameters to the pretrained model. These adapters are inserted between existing layers of the network.</li>
+  <li>Adapters is a PEFT technique shown to achieve similar performance as compared to tuning the top layers while requiring as fewer parameters as two orders of magnitude.</li>
+  <li>Adapter-based tuning simply inserts new modules called “adapter modules” between the layers of the pre-trained network.</li>
+  <li>The image below, <a href="https://sebastianraschka.com/blog/2023/llm-finetuning-llama-adapter.html">by Sebastian Raschka</a>, illustrates this concept for the transformer block:</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/adapterraschka.png" alt="" /></p>
+
+<ul>
+  <li>During fine-tuning, only the parameters of these adapter layers are updated, while the original model parameters are kept fixed. This results in a model with a small number of additional parameters that are task-specific.</li>
+  <li>Keeping the full PT model frozen, these modules are the only optimizable ones while fine-tuning – this means only a very few parameters are introduced per task yielding “compact” models.</li>
+  <li>They offer many benefits such as:
+    <ul>
+      <li>Parameter-Efficiency: By keeping the main model frozen and only updating the adapter layers, a minimal number of parameters are added per task. This results in compact models that are memory-efficient.</li>
+      <li>Performance: Despite the small parameter footprint, adapters often achieve performance comparable to conventional fine-tuning.</li>
+    </ul>
+  </li>
+  <li>
+    <p>The adapter module consists of two fully connected layers with a bottleneck structure. This structure is inspired by autoencoders, which are designed to encode information into a compressed representation and then decode it back to its original form.</p>
+  </li>
+  <li>Here’s how the parameter efficiency is achieved:</li>
+</ul>
+
+<ol>
+  <li>
+    <p><strong>Bottleneck Structure</strong>: The first layer of the adapter reduces the dimensionality of the input (e.g., from 1024 to 24 dimensions). This drastic reduction means that the information from the original 1024 dimensions must be compressed into just 24 dimensions. The second layer then projects these 24 dimensions back to the original 1024 dimensions.</p>
+  </li>
+  <li>
+    <p><strong>Reduction in Parameters</strong>: This bottleneck approach significantly reduces the number of parameters. In your example, the total number of parameters introduced by the adapter is 49,152 (from the computation 1024x24 + 24x1024). If we were to use a single fully connected layer to project a 1024-dimensional input to a 1024-dimensional output directly, it would require 1,048,576 parameters (1024x1024).</p>
+  </li>
+  <li>
+    <p><strong>Efficiency Analysis</strong>: By using the adapter approach, the number of parameters is substantially lower. Comparing 49,152 parameters to 1,048,576 parameters shows a dramatic reduction, making the adapter much more efficient in terms of parameter usage.</p>
+  </li>
+  <li>
+    <p><strong>Why is this Beneficial?</strong>: This efficiency is particularly beneficial when fine-tuning large pre-trained models. Instead of retraining or adapting the entire network (which would be computationally expensive and memory-intensive), adapters allow for targeted adjustments with far fewer additional parameters. This makes the process more manageable and practical, especially when resources are limited.</p>
+  </li>
+</ol>
+
+<ul>
+  <li>The adapter’s bottleneck structure allows it to achieve similar functionality (adapting the model to new tasks or data) as a full-sized layer would, but with a significantly reduced number of parameters. This efficiency makes adapters a popular choice for fine-tuning large pre-trained models in a resource-effective manner.</li>
+</ul>
+
+<h4 id="what-is-an-adapter-module">What is an Adapter Module?</h4>
+
+<ul>
+  <li>Let’s look at the application of the adapter module in the transformer architecture in three points:
+    <ul>
+      <li>The adapter module (right) first projects the original \(d\)-dimensional features into a smaller \(m\)-dimensional vector, applies a non-linearity, and then projects it back to \(d\) dimensions.</li>
+      <li>As can be seen, the module features a skip-connection - With it in place, when the parameters of the projection layers are initialized to near-zero which eventually leads to near identity initialization of the module. This is required for stable fine-tuning and is intuitive as with it, we essentially do not disturb the learning from pre-training.</li>
+      <li>In a transformer block (left), the adapter is applied directly to the outputs of each of the layers (attention and feedforward).</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="how-to-decide-the-value-of-m">How to decide the value of \(m\)?</h4>
+
+<ul>
+  <li>The size \(m\) in the Adapter module determines the no. of optimizable parameters and hence poses a parameter vs performance tradeoff.</li>
+  <li>The original paper experimentally investigates that the performance remains fairly stable across varying Adapter sizes m and hence for a given model a fixed size can be used for all downstream tasks.</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/adapter.jpg" alt="" /></p>
+
+<h4 id="llama-adapters"><a href="https://arxiv.org/abs/2303.16199">LLaMA-Adapters</a></h4>
+<ul>
+  <li>This paper introduces an efficient fine-tuning method called LLaMA-Adapter. This method is designed to adapt the LLaMA model into an instruction-following model with high efficiency in terms of resource usage and time. Key aspects of this paper include:</li>
+</ul>
+
+<ol>
+  <li>
+    <p><strong>Parameter Efficiency</strong>: LLaMA-Adapter introduces only 1.2 million learnable parameters on top of the frozen LLaMA 7B model, which is significantly fewer than the full 7 billion parameters of the model. This approach leads to a more efficient fine-tuning process both in terms of computational resources and time, taking less than one hour on 8 A100 GPUs.</p>
+  </li>
+  <li>
+    <p><strong>Learnable Adaption Prompts</strong>: The method involves appending a set of learnable adaption prompts to the input instruction tokens in the higher transformer layers of LLaMA. These prompts are designed to adaptively inject new instructions into the frozen LLaMA while preserving its pre-trained knowledge, effectively guiding the subsequent contextual response generation.</p>
+  </li>
+  <li>
+    <p><strong>Zero-initialized Attention Mechanism</strong>: To avoid disturbances from randomly initialized adaption prompts, which can harm fine-tuning stability and effectiveness, the paper proposes a zero-initialized attention mechanism with a learnable gating factor. This mechanism allows for a stable learning process and progressive incorporation of instructional signals during training. It ensures that the newly acquired instructional signals are effectively integrated into the transformer while retaining the pre-trained knowledge of LLaMA.</p>
+  </li>
+  <li>
+    <p><strong>Generalization and Multi-modal Reasoning</strong>: LLaMA-Adapter is not only effective for language tasks but can also be extended to multi-modal instructions, allowing for image-conditioned LLaMA models. This capability enables superior reasoning performance on benchmarks like ScienceQA and COCO Caption. Additionally, the approach has demonstrated strong generalization capacity in traditional vision and language tasks.</p>
+  </li>
+</ol>
+
+<ul>
+  <li>
+    <p>In summary, the LLaMA-Adapter represents a significant advancement in the field of parameter-efficient fine-tuning of large language models. Its innovative use of learnable adaption prompts and zero-initialized attention mechanism provides a highly efficient method for adapting pre-trained models to new tasks and domains, including multi-modal applications.</p>
+  </li>
+  <li>
+    <p>The image below, <a href="https://sebastianraschka.com/blog/2023/llm-finetuning-llama-adapter.html">by Sebastian Raschka</a>,illustrates this concept below.
+<img src="../assets/parameter-efficient-fine-tuning/Llamaadapter.png" alt="" /></p>
+  </li>
+</ul>
+
+<h3 id="reparameterization">Reparameterization</h3>
+
+<h4 id="low-rank-adaptation-lora">Low Rank Adaptation (LoRA)</h4>
+
+<ul>
+  <li><strong>Essence:</strong>
+    <ul>
+      <li>Low Rank Adaptation (LoRA) simplifies the fine-tuning of large models by decomposing complex, high-dimensional weight matrices into lower-dimensional forms. This technique, akin to methods like PCA and SVD, allows for the retention of critical information while significantly reducing the size and complexity of the weights, thus enhancing fine-tuning efficiency on resource-constrained settings.</li>
+    </ul>
+  </li>
+  <li><strong>Application:</strong>
+    <ul>
+      <li>LoRA identifies key dimensions in the original weight matrix of neural networks, optimizing these reduced dimensions to maintain the model’s learning capabilities with less computational cost. It adds trainable low-rank matrices to the model’s architecture, specifically to the Transformer layers, and optimizes these matrices instead of the entire model, leading to fewer trainable parameters and reduced memory requirements.</li>
+    </ul>
+  </li>
+  <li><strong>Benefits:</strong>
+    <ul>
+      <li>This approach offers considerable time and memory efficiency, as a large portion of the model’s parameters are kept frozen, reducing both training time and GPU memory requirements. It also avoids additional inference latency and facilitates easy task-switching during deployment, requiring changes only in a small subset of weights.</li>
+    </ul>
+  </li>
+  <li><strong>In Summary:</strong>
+    <ul>
+      <li>LoRA represents a smart balance in model fine-tuning, preserving the core strengths of large pre-trained models while adapting them efficiently for specific tasks or datasets. It’s a technique that redefines efficiency in the world of massive language models.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/lora2.png" alt="" /></p>
+
+<ul>
+  <li>A matrix is said to be rank-deficient if it does not have full rank. The rank deficiency of a matrix is the difference between the lesser of the number of rows and columns, and the rank. For more, refer <a href="https://en.wikipedia.org/wiki/Rank_(linear_algebra)">Wikipedia: Rank</a>.</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/lora.jpg" alt="" /></p>
+
+<ul>
+  <li>Before we continue, let’s recap by taking a quick look at traditional finetuning vs. LoRA with the images <a href="https://sebastianraschka.com/blog/2023/llm-finetuning-lora.html">(source)</a> below:</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/1.png" alt="" /></p>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/2.png" alt="" /></p>
+
+<blockquote>
+  <p>LoRA efficiently fine-tunes large-scale neural networks by introducing trainable low-rank matrices, simplifying the model’s complexity while retaining its robust learning capabilities.</p>
+</blockquote>
+
+<h3 id="qlora">QLoRA</h3>
+
+<ul>
+  <li><strong>Definition:</strong>
+    <ul>
+      <li>Quantized Low-Rank Adaptation (QLoRA) is a method designed to efficiently fine-tune large pre-trained language models (LLMs), like a 65B parameter model, on limited GPU memory without sacrificing performance. It combines the principles of Low-Rank Adaptation (LoRA) with innovative 4-bit NormalFloat (NF4) quantization and Double Quantization techniques, optimizing parameter efficiency and computational resource utilization.</li>
+    </ul>
+  </li>
+  <li><strong>Key Components:</strong>
+    <ol>
+      <li><strong>Low-Rank Adaptation:</strong> QLoRA follows LoRA’s strategy of injecting trainable low-rank matrices into the architecture of pretrained LLMs, specifically targeting Transformer layers. This selective fine-tuning strategy focuses on optimizing these low-rank matrices rather than the entire model, reducing the number of trainable parameters and computational costs.</li>
+      <li><strong>Quantization:</strong> The distinguishing aspect of QLoRA lies in its quantization approach, which includes:
+        <ul>
+          <li>NF4 Quantization: This technique involves quantizing the model weights to 4-bit NormalFloat (NF4), efficiently compressing them to fit a specific distribution suitable for NF4 without complex algorithms.</li>
+          <li>Double Quantization: This secondary quantization further reduces memory overhead by quantizing the quantization constants themselves, using 8-bit floats with a 256 block size, achieving significant memory savings without affecting model performance.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Operation:</strong>
+    <ul>
+      <li>QLoRA employs a frozen, 4-bit quantized pretrained language model and fine-tunes it by backpropagating gradients into the low rank adapters. This method optimizes computation through low-bit quantization and reduces the number of parameters by using low-rank structures, striking a balance between efficiency and performance.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/QLoRA.jpg" alt="" /></p>
+
+<blockquote>
+  <p>In the QLoRA approach, it is the original model’s weights that are quantized to 4-bit precision. The newly added Low-rank Adapter (LoRA) weights are not quantized; they remain at a higher precision and are fine-tuned during the training process. This strategy allows for efficient memory use while maintaining the performance of large language models during finetuning.</p>
+</blockquote>
+
+<h3 id="quantization-aware-low-rank-adaptation-qalora">Quantization-Aware Low-Rank Adaptation (QALoRA)</h3>
+
+<ul>
+  <li>
+    <p>Quantization-Aware Low-Rank Adaptation (QALoRA) is an enhancement of LoRA specifically designed for efficient fine-tuning of low-bit diffusion models. It differentiates itself from LoRA and QLoRA by introducing a quantization-aware variant that allows for the joint quantization of LoRA weights with model weights. This enables efficient bit-wise operations during inference, thus optimizing both the memory footprint and computational efficiency. QALoRA addresses the challenges of fine-tuning in low-bit settings by merging and quantizing LoRA weights with full-precision model weights, a key distinction from its predecessors.</p>
+  </li>
+  <li><strong>Essence:</strong>
+    <ul>
+      <li>QALoRA, standing for Quantization-Aware Low-Rank Adapter, is an advanced method for fine-tuning low-bit diffusion models efficiently. It uniquely combines the principles of Low-Rank Adaptation with quantization-aware techniques.</li>
+    </ul>
+  </li>
+  <li><strong>Application:</strong>
+    <ul>
+      <li>This approach allows for the joint quantization of LoRA weights with the full-precision model weights, optimizing both memory usage and computational efficiency during inference. This makes it particularly suitable for low-bit settings where traditional methods may be less effective.</li>
+    </ul>
+  </li>
+  <li><strong>In Summary:</strong>
+    <ul>
+      <li>QALoRA represents an innovative stride in fine-tuning diffusion models, addressing the challenges in low-bit environments by merging and quantizing LoRA weights with model weights, thus enhancing both the efficiency and effectiveness of the process.</li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p>QALoRA quantizes both the new LoRA weights and the original model’s weights. In the QALoRA approach, the LoRA weights are first merged (a combination of these weights followed by their joint quantization to a specific target bit-width) with the full-precision model weights and then jointly quantized to the targeted bit-width. This process ensures that both the added LoRA weights and the existing weights of the model are quantized together, optimizing memory and computational efficiency during inference.</p>
+</blockquote>
+
+<ul>
+  <li>Overall steps for QALoRA:
+    <ol>
+      <li>
+        <p><strong>Adding LoRA Weights</strong>: Initially, QALoRA adds Low-Rank Adapter (LoRA) weights to the pre-trained model.</p>
+      </li>
+      <li>
+        <p><strong>Fine-Tuning LoRA Weights</strong>: These LoRA weights are then fine-tuned. This fine-tuning step involves updating only the LoRA weights while keeping the original weights of the model unchanged.</p>
+      </li>
+      <li>
+        <p><strong>Merging LoRA and Original Model Weights</strong>: After the fine-tuning of the LoRA weights, these weights are merged with the original weights of the model.</p>
+      </li>
+      <li>
+        <p><strong>Quantization</strong>: The merged weights (original model weights + LoRA weights) are then quantized together . This quantization step converts them into a lower-bit format, which is crucial for reducing memory and computational costs.</p>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="refined-low-rank-adaptation-relora">Refined Low-Rank Adaptation (ReLoRA)</h3>
+
+<ul>
+  <li>Refined Low-Rank Adaptation (ReLoRA), is a technique that refines the Low-Rank Adaptation (LoRA) approach for training high-rank networks more efficiently. It leverages the concept of low-rank updates in a novel way to achieve high-rank training results.</li>
+  <li>ReLoRA applies low-rank updates iteratively, each time incrementally increasing the effective rank of the model. This approach allows for a more robust training process, capable of achieving results comparable to high-rank training while using significantly fewer resources.</li>
+  <li>ReLoRA represents an advancement in efficient neural network training, enabling the training of high-performing, large-scale models with reduced computational requirements. It’s particularly useful for large transformer language models.</li>
+</ul>
+
+<blockquote>
+  <p>ReLoRA refines neural network training by iteratively applying low-rank updates to achieve high-rank performance, streamlining the process for large models.</p>
+</blockquote>
+
+<ul>
+  <li>ReLoRA differs from prior techniques like LoRA by iteratively applying low-rank updates, each time effectively increasing the rank of the model, which allows for training high-rank networks more efficiently. This iterative process of increasing the rank distinguishes ReLoRA from the standard low-rank update methods, offering a more dynamic and refined approach to training large-scale models.</li>
+</ul>
+
+<h3 id="reft-representation-finetuning-for-language-models"><a href="https://arxiv.org/pdf/2404.03592.pdf">ReFT: Representation Finetuning for Language Models</a></h3>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/3.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p><strong>Introduction of Representation Finetuning (ReFT):</strong> ReFT methods focus on adapting language models by editing representations rather than weights. This approach intervenes on hidden representations of a frozen base model to learn task-specific modifications.</p>
+  </li>
+  <li>
+    <p><strong>Concept of Low-rank Linear Subspace ReFT (LoReFT):</strong> LoReFT is an instance within the ReFT methods that employs low-rank projection matrices to intervene on hidden representations. It is demonstrated to be 10×–50× more parameter-efficient compared to existing state-of-the-art parameter-efficient finetuning methods (PEFTs).</p>
+  </li>
+  <li><strong>Technical Details:</strong>
+    <ul>
+      <li><strong>Distributed Alignment Search (DAS):</strong> Utilizes low-rank projections to find subspaces in hidden representations that maximize the probability of desired outputs under interventions.</li>
+      <li><strong>Intervention Strategy:</strong> LoReFT modifies the hidden representations by adding a term derived from a low-rank linear projection of the representation itself.</li>
+      <li><strong>Implementation:</strong> LoReFT operates as a drop-in replacement for weight-based PEFTs, requiring far fewer parameters and simplifying the model’s complexity during training and inference.</li>
+    </ul>
+  </li>
+  <li><strong>Efficiency and Performance:</strong>
+    <ul>
+      <li>LoReFT achieves significant reductions in the number of trainable parameters while either maintaining or improving performance across a variety of natural language processing tasks.</li>
+      <li>Demonstrated on models like RoBERTa and LLaMA across benchmarks like commonsense reasoning, arithmetic reasoning, and natural language understanding benchmarks.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Use Case Generalization:</strong> The paper evaluates LoReFT on a range of tasks and model sizes, showing broad applicability and efficiency, especially in larger models.</p>
+  </li>
+  <li><strong>Public Release of ReFT Training Library:</strong> The authors have made a ReFT training library available, facilitating the adoption and further exploration of this finetuning approach by the research community.</li>
+</ul>
+
+<h2 id="summary-of-lora-techniques">Summary of LoRA Techniques</h2>
+
+<ul>
+  <li>The following section is inspired from Cameron Woulfe’s [(source])(https://www.linkedin.com/in/cameron-r-wolfe-ph-d-04744a238/) post.</li>
+  <li>Here’s an overview of some prevalent variants of LoRA techniques:
+    <ul>
+      <li>LoRA models the update derived for a model’s weights during finetuning with a low rank decomposition, implemented in practice as a pair of linear projections. LoRA leaves the pretrained layers of the LLM fixed and injects a trainable rank decomposition matrix into each layer of the model.</li>
+      <li>QLoRA is (arguably) the most popular LoRA variant and uses model quantization techniques to reduce memory usage during finetuning while maintaining (roughly) equal levels of performance. QLoRA uses 4-bit quantization on the pretrained model weights and trains LoRA modules on top of this. In practice, QLoRA saves memory at the cost of slightly-reduced training speed.</li>
+      <li>QA-LoRA is an extension of LoRA/QLoRA that further reduces the computational burden of training and deploying LLMs. It does this by combining parameter-efficient finetuning with quantization (i.e., group-wise quantization applied during training/inference).</li>
+      <li>LoftQ studies a similar idea to QA-LoRA—applying quantization and LoRA finetuning on a pretrained model simultaneously.</li>
+      <li>LongLoRA attempts to cheaply adapt LLMs to longer context lengths using a parameter-efficient (LoRA-based) finetuning scheme. In particular, we start with a pretrained model and finetune it to have a longer context length. This finetuning is made efficient by:
+        <ul>
+          <li>Using sparse local attention instead of dense global attention (optional at inference time).</li>
+          <li>Using LoRA (authors find that this works well for context extension).</li>
+        </ul>
+      </li>
+      <li>S-LoRA aims to solve the problem of deploying multiple LoRA modules that are used to adapt the same pretrained model to a variety of different tasks. Put simply, S-LoRA does the following to serve thousands of LoRA modules on a single GPU (or across GPUs):
+        <ul>
+          <li>Stores all LoRA modules in main memory.</li>
+          <li>Puts modules being used to run the current query into GPU memory.</li>
+          <li>Uses unified paging to allocate GPU memory and avoid fragmentation.</li>
+          <li>Proposes a new tensor parallelism strategy to batch LoRA computations.</li>
+        </ul>
+      </li>
+      <li>ReLoRA refines neural network training by iteratively applying low-rank updates to achieve high-rank performance, streamlining the process for large models.</li>
+      <li>Many other LoRA variants exist as well:
+        <ul>
+          <li><strong>LQ-LoRA:</strong> uses a more sophisticated quantization scheme within QLoRA that performs better and can be adapted to a target memory budget.</li>
+          <li><strong>MultiLoRA:</strong> extension of LoRA that better handles complex multi-task learning scenarios.</li>
+          <li><strong>LoRA-FA:</strong> freezes half of the low-rank decomposition matrix (i.e., the A matrix within the product AB) to further reduce memory overhead.</li>
+          <li><strong>Tied-LoRA:</strong> leverages weight tying to further improve the parameter efficiency of LoRA.</li>
+          <li><strong>GLoRA:</strong> extends LoRA to adapt pretrained model weights and activations to each task in addition to an adapter for each layer.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="assets/parameter-efficient-fine-tuning/LoRAoverview.html" alt="" /></p>
+
+<h2 id="which-peft-technique-to-choose-a-mental-model">Which PEFT Technique to Choose: A Mental Model</h2>
+
+<ul>
+  <li>Choosing a PEFT involves simply matching them with your objectives as shown in the figure below.</li>
+</ul>
+
+<p><img src="../assets/parameter-efficient-fine-tuning/peft.jpg" alt="" /></p>
+
+<h3 id="soft-prompt-tuning-1">Soft Prompt Tuning</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> Soft Prompt tuning involves adding a small trainable prefix to the input of the pre-trained LLM during fine-tuning, which modifies the representation learned by the pre-trained model to better suit the downstream task.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> Prompt Tuning is a good choice when you have a large pre-trained LLM but want to fine-tune it for multiple different downstream tasks at inference time with minimal computational resources. It is also useful when you want to generate diverse and high-quality text outputs based on specific prompts.</p>
+  </li>
+</ul>
+
+<h3 id="prefix-tuning-1">Prefix Tuning</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> Prefix Tuning involves learning a set of trainable parameters that modify the pre-trained LLM’s hidden states in response to task-specific prompts during inference, effectively fine-tuning the model at inference time.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> When you want to fine-tune a pre-trained LLM for a specific downstream task and have limited computational resources when you want to modify the representation learned by the pre-trained model for a particular task.</p>
+  </li>
+</ul>
+
+<h3 id="adapters">Adapters</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> Adapters are tiny modules that are added to pre-trained LLMs, typically between the pre-trained layers, to adapt the model to new downstream tasks. During fine-tuning, only the weights of the adapter are learned, while the pre-trained model’s parameters remain fixed.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> When you need to fine-tune multiple downstream tasks on the same pre-trained model. Additionally, Adapters are flexible and can be quickly and easily plugged into different parts of the pre-trained model without requiring major modifications.</p>
+  </li>
+</ul>
+
+<h3 id="lora">LoRA</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> LoRA (Low-Rank Adaptation) is a technique that modifies the pre-trained LLM’s attention mechanism during fine-tuning by introducing a low-rank matrix factorization that learns task-specific attention patterns.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> LoRA is a good choice when you want to fine-tune a pre-trained LLM for a specific downstream task that requires task-specific attention patterns. It is also useful when you have limited computational resources and want to reduce the number of trainable parameters in the model. Specifically:</p>
+    <ul>
+      <li>Memory Efficiency is Desired but Not Critical: LoRA offers substantial savings in terms of parameters and computational requirements. If you’re looking to achieve a balanced reduction in trainable parameters without diving into the complexities of quantization, LoRA is an ideal choice.</li>
+      <li>Real-time Application: LoRA ensures no added inference latency, making it suitable for real-time applications.</li>
+      <li>Task-Switching is Required: LoRA can share the pretrained model across multiple tasks, reducing the need for maintaining separate models for each task.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="qalora">QALoRA</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> QALoRA is a specialized technique for fine-tuning low-bit diffusion models. It integrates quantization-aware strategies with Low-Rank Adaptation (LoRA) principles, providing an efficient way to handle low-bit model environments.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> Ideal for scenarios where the primary goal is to optimize memory usage and computational efficiency in low-bit settings. This method is particularly effective when traditional fine-tuning approaches fall short due to the constraints of low-bit environments.</p>
+  </li>
+  <li><strong>Key Features:</strong>
+    <ul>
+      <li><strong>Quantization-Aware Approach:</strong> QALoRA uniquely combines LoRA weights with full-precision model weights, then jointly quantizes them, enhancing memory and computational efficiency during inference.</li>
+      <li><strong>Efficient for Low-Bit Models:</strong> Tailored for low-bit diffusion models, it addresses the specific challenges posed by these environments, making it a standout choice in such contexts.</li>
+    </ul>
+  </li>
+  <li><strong>Process:</strong>
+    <ol>
+      <li><strong>Adding LoRA Weights:</strong> QALoRA begins by integrating LoRA weights into the pre-trained model.</li>
+      <li><strong>Fine-Tuning LoRA Weights:</strong> These weights are then fine-tuned, focusing solely on the LoRA weights while keeping the original model weights unchanged.</li>
+      <li><strong>Merging Weights:</strong> Post-fine-tuning, the LoRA and original model weights are merged.</li>
+      <li><strong>Quantization:</strong> The merged weights undergo quantization to a lower-bit format, crucial for reducing memory and computational costs.</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="relora">ReLoRA</h3>
+
+<ul>
+  <li>
+    <p><strong>What:</strong> ReLoRA is an innovative approach for training high-rank networks efficiently. It revises the Low-Rank Adaptation method by iteratively applying low-rank updates to gradually increase the model’s effective rank.</p>
+  </li>
+  <li>
+    <p><strong>When to use:</strong> Best suited for training large-scale models, particularly when the objective is to achieve high-rank training outcomes with less computational expenditure. ReLoRA is especially valuable for large transformer language models where resource efficiency is critical.</p>
+  </li>
+  <li><strong>Key Features:</strong>
+    <ul>
+      <li><strong>Iterative Low-Rank Updates:</strong> Unlike traditional low-rank methods, ReLoRA applies updates in an iterative manner, each time incrementally enhancing the model’s rank, leading to more efficient high-rank network training.</li>
+      <li><strong>Resource Efficiency:</strong> Allows for training of large, high-performing models while significantly reducing computational demands.</li>
+    </ul>
+  </li>
+  <li><strong>Differentiation from Other Techniques:</strong>
+    <ul>
+      <li>ReLoRA stands out from previous techniques like standard LoRA by its unique iterative process. This method incrementally increases the rank of the model through successive low-rank updates, enabling more dynamic and refined training for large-scale models.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="comparison-of-popular-peft-methods">Comparison of popular PEFT methods</h2>
+
+<div align="center">
+    <table class="tg">
+        <thead>
+            <tr>
+                <th class="tg-hcenter-valign-first"><strong>PEFT Methods</strong></th>
+                <th class="tg-hcenter-valign-first"><strong>Description</strong></th>
+                <th class="tg-hcenter-valign-first"><strong>When to Use</strong></th>
+                <th class="tg-hcenter-valign-first"><strong>Computational Overhead</strong></th>
+                <th class="tg-hcenter-valign-first"><strong>Memory Efficiency</strong></th>
+                <th class="tg-hcenter-valign-first"><strong>Versatility across Tasks</strong></th>
+                <th class="tg-hcenter-valign-second"><strong>Performance Impact</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="tg-tcenter-valign-first">Prompt Tuning</td>
+                <td class="tg-tleft-valign-first">Modifies LLM's hidden states with trainable parameters in response to task-specific prompts.</td>
+                <td class="tg-tleft-valign-first">Large pre-trained LLM.<br />Adaptation to multiple tasks.</td>
+                <td class="tg-tleft-valign-first">Low</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-first">High</td>
+                <td class="tg-tleft-valign-second">Depends on prompt quality</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">Prefix Tuning</td>
+                <td class="tg-tleft-valign-first">Adds a trainable prefix to modify LLM's learned representation.</td>
+                <td class="tg-tleft-valign-first">Task-specific adaptation.<br />Limited resources.</td>
+                <td class="tg-tleft-valign-first">Low</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-second">Can vary, but usually positive with proper tuning</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">Adapters</td>
+                <td class="tg-tleft-valign-first">Inserts neural modules between LLM layers; only adapter weights are updated during fine-tuning.</td>
+                <td class="tg-tleft-valign-first">Multiple tasks on one LLM.<br />Flexibility required.</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-first">Good (only adapters are fine-tuned)</td>
+                <td class="tg-tleft-valign-first">High (can be added for multiple tasks)</td>
+                <td class="tg-tleft-valign-second">Typically positive if adapters are well-tuned</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">LoRA</td>
+                <td class="tg-tleft-valign-first">Introduces a low-rank matrix into the attention mechanism to learn task-specific patterns.</td>
+                <td class="tg-tleft-valign-first">Tasks with specialized attention requirements.<br />Limited resources.</td>
+                <td class="tg-tleft-valign-first">Low-Moderate</td>
+                <td class="tg-tleft-valign-first">Good</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-second">Generally positive with good training</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">QLoRA</td>
+                <td class="tg-tleft-valign-first">Builds on LoRA with quantization for enhanced memory efficiency.</td>
+                <td class="tg-tleft-valign-first">Strict memory constraints.<br />Emphasis on performance &amp; efficiency.</td>
+                <td class="tg-tleft-valign-first">Low</td>
+                <td class="tg-tleft-valign-first">Excellent</td>
+                <td class="tg-tleft-valign-first">High</td>
+                <td class="tg-tleft-valign-second">Comparable or better than full fine-tuning</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">QALoRA</td>
+                <td class="tg-tleft-valign-first">Enhances LoRA with quantization-aware techniques for fine-tuning low-bit diffusion models.</td>
+                <td class="tg-tleft-valign-first">Optimizing efficiency in low-bit settings.<br />Resource-constrained environments.</td>
+                <td class="tg-tleft-valign-first">Low</td>
+                <td class="tg-tleft-valign-first">Excellent</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-second">Enhanced efficiency and effectiveness in specific settings</td>
+            </tr>
+            <tr>
+                <td class="tg-tcenter-valign-first">ReLoRA</td>
+                <td class="tg-tleft-valign-first">Iteratively applies low-rank updates for efficient training of high-rank networks.</td>
+                <td class="tg-tleft-valign-first">Large-scale models requiring high-rank training with reduced resources.</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-first">Good</td>
+                <td class="tg-tleft-valign-first">Moderate</td>
+                <td class="tg-tleft-valign-second">Achieves high-rank training efficiency and performance</td>
+            </tr>                        
+        </tbody>
+    </table>
+</div>
+
+<h2 id="practical-tips-for-finetuning-llms-using-lora"><a href="https://magazine.sebastianraschka.com/p/practical-tips-for-finetuning-llms">Practical Tips for Finetuning LLMs Using LoRA</a></h2>
+
+<ul>
+  <li>This section is inspired by the findings of <a href="https://magazine.sebastianraschka.com/p/practical-tips-for-finetuning-llms">Sebastian Raschka’s blog</a> talking about practical tips for finetuning.</li>
+</ul>
+
+<ol>
+  <li>
+    <p><strong>Consistency in LLM Training</strong>: Despite the inherent randomness in training models on GPUs, the outcomes of LoRA experiments remain consistent across multiple runs, which is promising for comparative studies.</p>
+  </li>
+  <li>
+    <p><strong>QLoRA Compute-Memory Trade-offs</strong>: Quantized LoRA (QLoRA) offers a 33% reduction in GPU memory usage at the cost of a 33% increase in runtime, proving to be a viable alternative to regular LoRA when facing GPU memory constraints.</p>
+  </li>
+  <li>
+    <p><strong>Learning Rate Schedulers</strong>: Using learning rate schedulers like cosine annealing can optimize convergence during training and avoid overshooting the loss minima. While it has a notable impact on SGD optimizer performance, it makes less difference when using Adam or AdamW optimizers.</p>
+  </li>
+  <li>
+    <p><strong>Choice of Optimizers</strong>: The optimizer choice (Adam vs. SGD) doesn’t significantly impact the peak memory demands of LLM training, and swapping Adam for SGD may not provide substantial memory savings, especially with a small LoRA rank (r).</p>
+  </li>
+  <li>
+    <p><strong>Impact of Multiple Training Epochs</strong>: Iterating multiple times over a static dataset in multi-epoch training may not be beneficial and could deteriorate model performance, possibly due to overfitting.</p>
+  </li>
+  <li>
+    <p><strong>Applying LoRA Across Layers</strong>: Enabling LoRA across all layers, not just the Key and Value matrices, can significantly increase model performance, though it also increases the number of trainable parameters and memory requirements.</p>
+  </li>
+  <li>
+    <p><strong>LoRA Hyperparameters</strong>: Adjusting the LoRA rank (r) and selecting an appropriate alpha value are crucial. A heuristic that yielded good results was setting alpha at twice the rank’s value, with r=256 and alpha=512 being the best setting in one particular case.</p>
+  </li>
+  <li>
+    <p><strong>Fine-tuning Large Models</strong>: LoRA allows for fine-tuning 7 billion parameter LLMs on a single GPU with 14 GB of RAM within a few hours. However, optimizing an LLM to excel across all benchmark tasks may be unattainable with a static dataset.</p>
+  </li>
+</ol>
+
+<ul>
+  <li>
+    <p>Additionally, the article addresses common questions related to LoRA:</p>
+  </li>
+  <li>
+    <p><strong>Importance of Dataset</strong>: The dataset used for fine-tuning is critical, and data quality is very important. Experiments showed that a curated dataset with fewer examples (like LIMA) could yield better performance than larger datasets (like Alpaca).</p>
+  </li>
+  <li>
+    <p><strong>LoRA for Domain Adaptation</strong>: LoRA’s effectiveness for domain adaptation requires further investigation. Including task-specific examples in the fine-tuning process is recommended.</p>
+  </li>
+  <li>
+    <p><strong>Selecting the Best Rank</strong>: Choosing the best rank for LoRA is a hyperparameter that needs to be explored for each LLM and dataset. A larger rank could lead to overfitting, while a smaller rank may not capture diverse tasks within a dataset.</p>
+  </li>
+  <li>
+    <p><strong>Enabling LoRA for All Layers</strong>: Exploring the impact of enabling LoRA for different combinations of layers is suggested for future experiments.</p>
+  </li>
+  <li>
+    <p><strong>Avoiding Overfitting</strong>: To prevent overfitting, one could decrease the rank or increase the dataset size, adjust the weight decay rate, or consider increasing the dropout value for LoRA layers.</p>
+  </li>
+  <li>
+    <p><strong>Other Optimizers</strong>: Exploring other optimizers, such as Sophia, which promises faster training and better performance than Adam, is suggested for future research.</p>
+  </li>
+  <li>
+    <p><strong>Factors Influencing Memory Usage</strong>: Model size, batch size, the number of trainable LoRA parameters, and dataset size can influence memory usage. Shorter training sequences can lead to substantial memory savings.</p>
+  </li>
+</ul>
+
+<h2 id="surgical-fine-tuning">Surgical fine-tuning</h2>
+
+<ul>
+  <li>A quick note here before we start, the <a href="https://arxiv.org/pdf/2210.11466.pdf">Surgical fine-tuning</a> paper, whose contents are mentioned below,  focuses on computer vision and does not directly deal with large language models (LLMs). The techniques are applied to convolutional neural networks and vision transformers for image classification tasks.</li>
+  <li><strong>Authors:</strong> Yoonho Lee, Annie S. Chen, Fahim Tajwar, Ananya Kumar, Huaxiu Yao, Percy Liang, Chelsea Finn</li>
+  <li><strong>Definition:</strong> Surgical fine-tuning is a method of selectively updating specific layers in a neural network based on how a fine-tuning dataset differs from the original pretraining dataset, rather than retraining every layer.</li>
+  <li><strong>Motivation:</strong>
+    <ol>
+      <li>
+        <p><strong>Layer Specificity:</strong> Early layers in a neural network capture fundamental features of inputs (e.g., edges or shapes in images), while deeper layers combine these features for predictions (e.g., classifying images).</p>
+      </li>
+      <li>
+        <p><strong>Efficiency:</strong> Rather than universally fine-tuning every layer, selectively updating specific layers can achieve better performance, especially when the fine-tuning dataset has notable differences from the pretraining dataset.</p>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Approaches:</strong>
+    <ol>
+      <li><strong>Manual Approach:</strong>
+        <ul>
+          <li>Fine-tune each layer individually and create a distinct model for each layer.</li>
+          <li>Compare the performance of each model to identify the best layers for fine-tuning.</li>
+        </ul>
+      </li>
+      <li><strong>Automated Approach:</strong>
+        <ul>
+          <li>Calculate gradients for each layer.</li>
+          <li>Derive relative gradients by dividing the layer’s gradient by its weight magnitude.</li>
+          <li>Normalize these relative gradients across layers, ranking them between 0 to 1.</li>
+          <li>Assign learning rates for layers based on their normalized relative gradient value during training.</li>
+        </ul>
+      </li>
+      <li>Based on the findings in this paper, here are some tips for determining which layers to fine-tune when adapting a pretrained model to a new target distribution:
+        <ul>
+          <li>Consider the type of distribution shift between the source and target data:
+1) For input-level shifts like image corruptions, fine-tuning earlier layers (first conv block) tends to work best. This allows the model to adapt to changes in the input while preserving higher-level features. 
+2) For feature-level shifts where the feature representations differ between source and target, fine-tuning middle layers (middle conv blocks) tends to work well. This tunes the mid-level features without distorting low-level or high-level representations.
+3) For output-level shifts like label distribution changes, fine-tuning later layers (fully connected classifier) tends to be most effective. This keeps the feature hierarchy intact and only adapts the output mapping.</li>
+          <li>Try fine-tuning only a single contiguous block of layers while freezing others. Systematically test first, middle, and last blocks to find the best one.</li>
+          <li>Use criteria like relative gradient norms to automatically identify layers that change the most for the target data. Fine-tuning those with higher relative gradients can work better than full fine-tuning.</li>
+          <li>When in doubt, fine-tuning only the classifier head is a solid default that outperforms no fine-tuning. But for shifts related to inputs or features, surgical fine-tuning of earlier layers can improve over this default.</li>
+          <li>If possible, do some quick validation experiments to directly compare different surgical fine-tuning choices on a small held-out set of target data.</li>
+          <li>The key insight is that different parts of the network are best suited for adapting to different types of distribution shifts between the source and target data.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Results:</strong>
+    <ul>
+      <li><strong>CIFAR-C Dataset:</strong>
+        <ul>
+          <li>Manual approach yielded an accuracy of 82.8%.</li>
+          <li>Fine-tuning the entire network resulted in 79.9% accuracy.</li>
+          <li>The automated approach achieved an accuracy of 81.4%.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Significance:</strong> Surgical fine-tuning is rooted in understanding how neural networks process input. This enhanced understanding can drive the discovery of more efficient methods to improve machine learning models.</li>
+  <li><strong>Consideration:</strong> For more complex datasets, discerning differences between pretraining and fine-tuning datasets can be challenging. This complexity might make automated approaches like the one proposed more valuable, even if it didn’t yield the best performance on CIFAR-C.</li>
+</ul>
+
+<h2 id="tracing-model-outputs-to-the-training-data-by-anthropic"><a href="https://www.anthropic.com/index/influence-functions">Tracing Model Outputs to the Training Data by Anthropic</a></h2>
+<ul>
+  <li>This article summarizes research by Anthropic on using influence functions to study how large language models generalize from their training data. While this is not specifically a fine-tuning methodology, it does provide some insight into the LLM’s generalization capabilities. The key points are:</li>
+  <li>Influence functions let them identify which training examples most influence a model’s outputs. This provides clues about how models generalize.
+    <ul>
+      <li>Influence functions are a technique from statistics used to determine which training examples most influence a machine learning model’s parameters and predictions.</li>
+      <li>The key idea is to approximate how much adding or removing a training example would affect the model’s learned parameters. This lets you identify the most “influential” examples in the training set.</li>
+    </ul>
+  </li>
+  <li>They scaled up influence functions to very large models (up to 52B parameters), which is necessary to study behaviors that emerge at scale.</li>
+  <li>Influence patterns become more abstract and conceptual with increasing model scale. Smaller models’ influences tend to involve token-level overlaps, while larger models’ influences are more thematically related.</li>
+  <li>Influence also becomes more cross-lingual with scale. Translated queries have higher influence from English training examples in larger models.</li>
+  <li>Influences are distributed across many training examples, not just a few. So models do not seem to be memorizing and reciting specific examples.</li>
+  <li>Influence can be localized to specific layers. Lower layers capture detailed wording while higher layers capture more abstract concepts.</li>
+  <li>Next steps are extending influence functions to fine-tuned models, connecting influence to mechanistic interpretability, and using it for alignment research.</li>
+</ul>
+
+<h2 id="lora-vs-qlora-experimentation-by-sebastian-raschka">LoRA vs. QLoRA experimentation by <a href="https://www.linkedin.com/posts/sebastianraschka_llms-genai-deeplearning-activity-7118583338696671233-2_kY?utm_source=share&amp;utm_medium=member_desktop">Sebastian Raschka</a></h2>
+<ul>
+  <li>This section is taken from <a href="https://www.linkedin.com/posts/sebastianraschka_llms-genai-deeplearning-activity-7118583338696671233-2_kY?utm_source=share&amp;utm_medium=member_desktop">Sebastian Raschka’s</a> post on LoRA &amp; QLoRA experiments to finetune open-source LLMs, and presents his learnings:
+    <ol>
+      <li>Despite embracing the inherent randomness of LLM training (or when training models on GPUs in general), the outcomes remain remarkably consistent across multiple runs.</li>
+      <li>QLoRA presents a trade-off that might be worthwhile if you’re constrained by GPU memory. It offers 33% memory savings at the cost of a 33% increase in runtime.</li>
+      <li>When finetuning LLMs, the choice of optimizer shouldn’t be a major concern. While SGD on its own is suboptimal, there’s minimal variation in outcomes whether you employ AdamW, SGD with a scheduler, or AdamW with a scheduler.</li>
+      <li>While Adam is often labeled a memory-intensive optimizer due to its introduction of two new parameters for every model parameter, this doesn’t significantly affect the peak memory demands of the LLM. This is because the majority of the memory is allocated for large matrix multiplications rather than retaining extra parameters.</li>
+      <li>For static datasets, iterating multiple times as done in multi-epoch training might not be beneficial. It often deteriorates the results, probably due to overfitting.</li>
+      <li>If you’re incorporating LoRA, ensure it’s applied across all layers, not just to the Key and Value matrices, to maximize model performance.</li>
+      <li>Adjusting the LoRA rank is essential, and so is selecting an apt alpha value. A good heuristic is setting alpha at twice the rank’s value.</li>
+      <li>7B models can be finetuned efficiently within a few hours on a single GPU possessing 14 Gb of RAM.
+        <ul>
+          <li>With a static dataset, optimizing an LLM to excel across all benchmark tasks is unattainable. Addressing this requires diverse data sources, or perhaps LoRA might not be the ideal tool.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="papers">Papers</h2>
+
+<ul>
+  <li><a href="https://arxiv.org/pdf/1902.00751">Adapters</a></li>
+  <li><a href="https://arxiv.org/abs/2106.09685">LoRA</a></li>
+  <li><a href="https://arxiv.org/abs/2101.00190">Prefix-Tuning</a></li>
+  <li><a href="https://arxiv.org/abs/2104.08691">Prompt Tuning</a></li>
+</ul>
+
+<h2 id="repos">Repos</h2>
+
+<ul>
+  <li><a href="https://github.com/microsoft/LoRA">LoRA</a></li>
+  <li><a href="https://github.com/huggingface/peft">HuggingFace PEFT</a></li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://magazine.sebastianraschka.com/p/finetuning-llms-with-adapters">Finetuning LLMs Efficiently with Adapters</a></li>
+  <li><a href="https://www.linkedin.com/in/srishti-gureja-a51841171">Srishti Gureja on LinkedIn</a></li>
+  <li><a href="https://www.linkedin.com/in/sebastianraschka/">Sebastian Raschka on LinkedIn</a></li>
+  <li><a href="https://www.linkedin.com/in/prithivirajdamodaran">Prithivi Da on LinkedIn</a></li>
+  <li><a href="https://huggingface.co/blog/peft">🤗 PEFT: Parameter-Efficient Fine-Tuning of Billion-Scale Models on Low-Resource Hardware</a></li>
+</ul>
+
+<h2 id="citation">Citation</h2>
+
+<p>If you found our work useful, please cite it as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@article{Chadha2020DistilledMultitaskLearning,
+  title   = {Multitask Learning},
+  author  = {Chadha, Aman},
+  journal = {Distilled AI},
+  year    = {2020},
+  note    = {\url{https://aman.ai}}
+}
+</code></pre></div></div>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/nlp/parameter-efficient-fine-tuning/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 13:58:41 GMT -->
+</html>

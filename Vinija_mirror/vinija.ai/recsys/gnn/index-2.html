@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/recsys/GNN/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:28 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • Recommendation Systems • Graph Neural Networks</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index-2.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Recommendation Systems • Graph Neural Networks</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#motivation" id="markdown-toc-motivation">Motivation</a></li>
+  <li><a href="#key-terms" id="markdown-toc-key-terms">Key terms</a></li>
+  <li><a href="#popular-gnn-architectures-for-recsys" id="markdown-toc-popular-gnn-architectures-for-recsys">Popular GNN Architectures for RecSys</a>    <ul>
+      <li><a href="#graph-convolutional-networks" id="markdown-toc-graph-convolutional-networks">Graph Convolutional Networks</a>        <ul>
+          <li><a href="#training-gcns" id="markdown-toc-training-gcns">Training GCNs</a></li>
+          <li><a href="#unique-characteristics" id="markdown-toc-unique-characteristics">Unique Characteristics</a></li>
+        </ul>
+      </li>
+      <li><a href="#graph-attention-networks" id="markdown-toc-graph-attention-networks">Graph Attention Networks</a>        <ul>
+          <li><a href="#what-are-gats" id="markdown-toc-what-are-gats">What are GATs?</a></li>
+          <li><a href="#gats-in-recommender-systems" id="markdown-toc-gats-in-recommender-systems">GATs in Recommender Systems</a></li>
+          <li><a href="#training-gats" id="markdown-toc-training-gats">Training GATs</a></li>
+          <li><a href="#unique-characteristics-1" id="markdown-toc-unique-characteristics-1">Unique Characteristics</a></li>
+        </ul>
+      </li>
+      <li><a href="#graphsage" id="markdown-toc-graphsage">GraphSAGE</a>        <ul>
+          <li><a href="#overview-of-graphsage" id="markdown-toc-overview-of-graphsage">Overview of GraphSAGE</a></li>
+          <li><a href="#graphsage-in-recommender-systems" id="markdown-toc-graphsage-in-recommender-systems">GraphSAGE in Recommender Systems</a></li>
+          <li><a href="#training-process" id="markdown-toc-training-process">Training Process</a></li>
+          <li><a href="#unique-characteristics-2" id="markdown-toc-unique-characteristics-2">Unique Characteristics</a></li>
+        </ul>
+      </li>
+      <li><a href="#edge-gnns" id="markdown-toc-edge-gnns">Edge GNNs</a>        <ul>
+          <li><a href="#overview-of-edge-gnns" id="markdown-toc-overview-of-edge-gnns">Overview of Edge GNNs</a></li>
+          <li><a href="#edge-gnns-in-recommender-systems" id="markdown-toc-edge-gnns-in-recommender-systems">Edge GNNs in Recommender Systems</a></li>
+          <li><a href="#training-process-1" id="markdown-toc-training-process-1">Training Process</a></li>
+          <li><a href="#unique-characteristics-3" id="markdown-toc-unique-characteristics-3">Unique Characteristics</a></li>
+        </ul>
+      </li>
+      <li><a href="#embedding-generation-neural-message-passing" id="markdown-toc-embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</a></li>
+    </ul>
+  </li>
+  <li><a href="#benefits-of-gnns-in-recsys" id="markdown-toc-benefits-of-gnns-in-recsys">Benefits of GNNs in RecSys</a></li>
+  <li><a href="#loss-functions" id="markdown-toc-loss-functions">Loss functions</a>    <ul>
+      <li><a href="#overview-1" id="markdown-toc-overview-1">Overview</a></li>
+      <li><a href="#tasks-rightarrow-loss-functions" id="markdown-toc-tasks-rightarrow-loss-functions">Tasks \(\rightarrow\) Loss Functions</a>        <ul>
+          <li><a href="#node-classification" id="markdown-toc-node-classification">Node Classification</a></li>
+          <li><a href="#graph-classification" id="markdown-toc-graph-classification">Graph Classification</a></li>
+          <li><a href="#link-prediction" id="markdown-toc-link-prediction">Link Prediction</a></li>
+          <li><a href="#graph-generation" id="markdown-toc-graph-generation">Graph Generation</a></li>
+          <li><a href="#graph-reconstruction" id="markdown-toc-graph-reconstruction">Graph Reconstruction</a></li>
+          <li><a href="#regularization-loss" id="markdown-toc-regularization-loss">Regularization Loss</a></li>
+          <li><a href="#additional-considerations" id="markdown-toc-additional-considerations">Additional Considerations</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#walkthrough" id="markdown-toc-walkthrough">Walkthrough</a></li>
+  <li><a href="#seasonality" id="markdown-toc-seasonality">Seasonality</a></li>
+  <li><a href="#summary" id="markdown-toc-summary">Summary</a></li>
+  <li><a href="#case-studies" id="markdown-toc-case-studies">Case Studies</a>    <ul>
+      <li><a href="#snap" id="markdown-toc-snap">Snap</a>        <ul>
+          <li><a href="#graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms" id="markdown-toc-graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms">Graph Neural Networks for Friend Ranking in Large-scale Social Platforms</a></li>
+          <li><a href="#embedding-based-retrieval-in-friend-recommendation" id="markdown-toc-embedding-based-retrieval-in-friend-recommendation">Embedding Based Retrieval in Friend Recommendation</a></li>
+          <li><a href="#friend-story-ranking-with-edge-contextual-local-graph-convolutions" id="markdown-toc-friend-story-ranking-with-edge-contextual-local-graph-convolutions">Friend Story Ranking with Edge-Contextual Local Graph Convolutions</a></li>
+        </ul>
+      </li>
+      <li><a href="#meta" id="markdown-toc-meta">Meta</a>        <ul>
+          <li><a href="#embedding-based-retrieval-in-facebook-search" id="markdown-toc-embedding-based-retrieval-in-facebook-search">Embedding-based Retrieval in Facebook Search</a></li>
+        </ul>
+      </li>
+      <li><a href="#pinterest" id="markdown-toc-pinterest">Pinterest</a>        <ul>
+          <li><a href="#pinsage" id="markdown-toc-pinsage">PinSage</a></li>
+        </ul>
+      </li>
+      <li><a href="#uber-eats" id="markdown-toc-uber-eats">Uber Eats</a>        <ul>
+          <li><a href="#food-discovery-with-uber-eats-using-graph-learning-to-power-recommendations" id="markdown-toc-food-discovery-with-uber-eats-using-graph-learning-to-power-recommendations">Food Discovery with Uber Eats: Using Graph Learning to Power Recommendations</a></li>
+        </ul>
+      </li>
+      <li><a href="#google-maps" id="markdown-toc-google-maps">Google Maps</a>        <ul>
+          <li><a href="#eta-prediction-with-graph-neural-networks-in-google-maps" id="markdown-toc-eta-prediction-with-graph-neural-networks-in-google-maps">ETA Prediction with Graph Neural Networks in Google Maps</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<ul>
+  <li>Graph Neural Networks (GNNs) are a type of neural network architecture designed for processing graph-structured data. Graphs are a versatile data structure that can represent complex relationships, and GNNs extend traditional neural networks to operate directly on graphs.</li>
+  <li>GNNs can aggregate information from neighboring nodes, capture local and global graph structures, and make predictions based on graph-structured data.</li>
+  <li>They have been successfully applied to various applications, such as node classification, link prediction, and recommendation systems.</li>
+  <li>Popular GNN architectures include Graph Convolutional Networks (GCNs), Graph Attention Networks (GATs), GraphSAGE, and GGNNs.</li>
+  <li>GNNs are used in several industry applications such as maps for Google/Uber and social networks for LinkedIn, Instagram, and Facebook.</li>
+  <li>GNNs are able to take advantage of both content information for entities (semantic), such as user and item features, as well as the underlying relationship between entities (structural), which may include user-item interactions or relationships with other entities, like sports. In contrast, traditional models often rely on just one of these sources of information, usually semantic.</li>
+  <li>Implementing GNNs has been made easy by libraries such as <a href="https://github.com/pyg-team/pytorch_geometric">PyTorch Geometric</a> or <a href="https://docs.dgl.ai/index.html">Deep Graph Library</a>.</li>
+  <li>The image below <a href="https://towardsdatascience.com/graph-neural-network-gnn-architectures-for-recommendation-systems-7b9dd0de0856">(source)</a> shows the different types of graphs. Note that recommender systems usually follow a bipartite graph.</li>
+</ul>
+
+<p><img src="../assets/GNN/8.webp" align="center" style="background-color: #fff; margin: 10px auto" /></p>
+
+<h2 id="motivation">Motivation</h2>
+
+<ul>
+  <li>Remember a graph is made up of sets of nodes or vertices that are connected by edges or links. At a high level, GNNs can be though of as an encoder-decoder architecture where the user and items are the nodes in the graph encoder and the edges represent the relationships or interactions between them.</li>
+  <li>In the encoder phase, the graph is fed into the GNN, which computes a representation or embedding for each node based on its local neighborhood and the overall graph structure. This embedding can capture both the content or features of the node as well as its context within the graph.</li>
+  <li>In the decoder phase, the GNN is used to make predictions or recommendations based on the learned node embeddings. This can involve computing similarity or distance measures between pairs of nodes, or using the embeddings as inputs to a downstream classifier or regression model.</li>
+  <li>One advantage of using GNNs for recommender systems is that they can incorporate both explicit and implicit feedback from users, as well as contextual information such as time or location. Additionally, GNNs can be used to model complex relationships between users and items, such as multimodal interactions or hierarchical structures.</li>
+  <li>The image below <a href="https://www.youtube.com/watch?v=hvTawbQnK_w">(source)</a> shows a high level overview of how GNNs work for recommendation.
+<img src="../assets/GNN/1.png" alt="" /></li>
+  <li>In GNN-based recommender systems, generating embeddings refers to the process of representing the user and item nodes in the graph as low-dimensional feature vectors that capture the relevant information about the node and its connections to other nodes in the graph. This is generally achieved through neural message passing.</li>
+  <li>Finally, the prediction of preferences is done via using cosine similarity.</li>
+</ul>
+
+<h2 id="key-terms">Key terms</h2>
+
+<ul>
+  <li>Let’s start with learning the nomenclature associated with GNNs:
+    <ul>
+      <li><strong>Homogeneous Graphs:</strong> This graph type has all the nodes and edges be of the same type. An example is a social network, where all the users are nodes and the edges are their friendships.</li>
+      <li><strong>Heterogeneous Graphs:</strong> In contrast, this graph type has all the nodes and edges of different types with different representation of entities and relationships. An example is a recommendation system where users, movies, and genres are the entities, the graph would be considered heterogeneous because the nodes represent different types of objects (users, movies, genres) and the edges represent different types of relationships (user-movie interactions, movie-genre associations).</li>
+      <li><strong>Node Embeddings:</strong> Node embeddings are low-dimensional vector representations that capture the structural and relational information of nodes in a graph. GNNs are designed to learn these embeddings by iteratively aggregating information from neighboring nodes.</li>
+      <li><strong>Message Passing:</strong> Message passing is a fundamental operation in GNNs where nodes exchange information with their neighbors. During message passing, each node aggregates the information from its neighbors to update its own representation.</li>
+      <li><strong>Aggregation Functions:</strong> Aggregation functions are used in GNNs to combine information from neighboring nodes. Common aggregation functions include summation, averaging, and max-pooling, among others. These functions determine how information is aggregated and propagated through the graph.</li>
+      <li><strong>Graph Convolutional Networks (GCNs):</strong> GCNs are a popular type of GNN architecture that perform convolutional operations on graph-structured data. They adapt the concept of convolutions from traditional neural networks to the graph domain, enabling information propagation and feature extraction across the graph.</li>
+      <li><strong>GraphSAGE:</strong> GraphSAGE (Graph Sample and Aggregation) is a GNN model that uses sampling techniques to efficiently learn node embeddings. It aggregates information from sampled neighborhood nodes to update a node’s representation. GraphSAGE is commonly used in large-scale graph applications.</li>
+      <li><strong>Graph Attention Networks (GATs):</strong> GATs are GNN models that incorporate attention mechanisms. They assign attention weights to the neighboring nodes during message passing, allowing the model to focus on more relevant nodes and relationships.</li>
+      <li><strong>Link Prediction:</strong> Link prediction is a task in GNNs that aims to predict the presence or absence of edges between nodes in a graph. GNNs can learn to model the likelihood of missing or future connections based on the graph’s structure and node features.</li>
+      <li><strong>Graph Pooling:</strong> Graph pooling refers to the process of aggregating or downsampling nodes and edges in a graph to create a coarser representation. Pooling is often used in GNNs to handle graphs of varying sizes and reduce computational complexity.</li>
+      <li><strong>Graph Classification:</strong> Graph classification involves assigning a label or category to an entire graph. GNNs can be trained to perform graph-level predictions by aggregating information from the nodes and edges in the graph.</li>
+      <li><strong>Semi-Supervised Learning:</strong> GNNs often operate in a semi-supervised learning setting, where only a subset of nodes have labeled data. GNNs can leverage both labeled and unlabeled data to propagate information and make predictions on unlabeled nodes or graphs.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="popular-gnn-architectures-for-recsys">Popular GNN Architectures for RecSys</h2>
+
+<h3 id="graph-convolutional-networks">Graph Convolutional Networks</h3>
+
+<ul>
+  <li>
+    <p>Graph Convolutional Networks (GCNs) are a type of neural network designed to work directly with graph-structured data. In the context of recommender systems, GCNs are particularly useful for several reasons:</p>
+
+    <ul>
+      <li>
+        <p><strong>Handling Sparse Data</strong>: Recommender systems often deal with sparse user-item interaction data. GCNs are adept at handling such sparse data by leveraging the graph structure.</p>
+      </li>
+      <li>
+        <p><strong>Capturing Complex Relationships</strong>: GCNs can capture complex and non-linear relationships between users and items. In a typical recommender system graph, nodes represent users and items, and edges represent interactions (like ratings or purchases). GCNs can effectively learn these relationships.</p>
+      </li>
+      <li>
+        <p><strong>Incorporating Side Information</strong>: GCNs can easily incorporate additional information (like user demographics or item descriptions) into the graph structure, providing a more holistic view of the user-item interactions.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="training-gcns">Training GCNs</h4>
+
+<ul>
+  <li>
+    <p>GCNs are trained in a manner similar to other neural networks, but with some key differences:</p>
+
+    <ul>
+      <li>
+        <p><strong>Graph Structure Processing</strong>: During training, GCNs use the adjacency matrix of the graph (which represents connections between nodes) along with node features (like user profiles or item attributes) to learn.</p>
+      </li>
+      <li>
+        <p><strong>Layer-wise Propagation</strong>: GCNs use a layer-wise propagation rule to aggregate and transform feature information from a node’s neighbors. This aggregation is often followed by non-linear activation functions.</p>
+      </li>
+      <li>
+        <p><strong>Backpropagation</strong>: Similar to other neural networks, GCNs use backpropagation to update the weights. However, the gradient calculations take into account the graph structure.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="unique-characteristics">Unique Characteristics</h4>
+
+<ul>
+  <li>
+    <p>GCNs stand out from other graph-based recommender systems due to:</p>
+
+    <ul>
+      <li>
+        <p><strong>Neighbor Aggregation</strong>: GCNs aggregate information from a node’s local neighborhood in each layer, effectively capturing the local graph structure around each node.</p>
+      </li>
+      <li>
+        <p><strong>Deeper Insights from Graph Topology</strong>: GCNs can leverage deeper layers to gather more global information from the graph, as opposed to simpler models that might only consider direct connections.</p>
+      </li>
+      <li>
+        <p><strong>Efficiency in Learning from Graph-structured Data</strong>: GCNs are designed specifically for graph-structured data, making them more efficient and effective at learning from such data compared to models that are adapted to handle graphs but are not inherently designed for them.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Overall, GCNs provide a powerful framework for building recommender systems that can harness the rich relational information inherent in user-item interaction data. Their ability to learn from both the graph structure and node features makes them a popular choice in modern recommender systems.</p>
+  </li>
+</ul>
+
+<h3 id="graph-attention-networks">Graph Attention Networks</h3>
+
+<ul>
+  <li>Graph Attention Networks (GATs) are a type of neural network designed to operate on graph-structured data. They are particularly noteworthy for how they incorporate the attention mechanism, a concept widely used in fields like natural language processing, into graph neural networks. Here’s a detailed explanation of GATs and their application in recommender systems:</li>
+</ul>
+
+<h4 id="what-are-gats">What are GATs?</h4>
+
+<ul>
+  <li>
+    <p><strong>Graph-based Framework:</strong> GATs are built for data represented in graph form. In a graph, data points (nodes) are connected by edges, which may represent various kinds of relationships or interactions.</p>
+  </li>
+  <li>
+    <p><strong>Attention Mechanism:</strong> The key feature of GATs is the use of the attention mechanism to weigh the importance of nodes in a graph. This mechanism allows the model to focus more on certain nodes than others when processing the information, which is crucial for capturing the complexities of graph-structured data.</p>
+  </li>
+</ul>
+
+<h4 id="gats-in-recommender-systems">GATs in Recommender Systems</h4>
+
+<ul>
+  <li>
+    <p><strong>Handling Complex Relationships:</strong> In recommender systems, GATs can effectively manage complex and non-linear interrelationships between users and items. For example, in a movie recommendation system, GATs can better understand nuanced user preferences and complex relationships between different movies.</p>
+  </li>
+  <li>
+    <p><strong>Personalized Recommendations:</strong> By focusing on different parts of the graph for different users, GATs can provide more personalized recommendations compared to traditional methods.</p>
+  </li>
+</ul>
+
+<h4 id="training-gats">Training GATs</h4>
+
+<ul>
+  <li>
+    <p><strong>Supervised Learning:</strong> GATs are typically trained in a supervised manner, using a set of known node features and connections to learn the patterns in the graph.</p>
+  </li>
+  <li>
+    <p><strong>Backpropagation:</strong> Like other neural networks, GATs use backpropagation for training. The network adjusts its weights based on the errors in its predictions.</p>
+  </li>
+  <li>
+    <p><strong>Attention Weights:</strong> During training, GATs learn to assign appropriate attention weights to the edges in the graph, reflecting the importance of each connection.</p>
+  </li>
+</ul>
+
+<h4 id="unique-characteristics-1">Unique Characteristics</h4>
+
+<ul>
+  <li>
+    <p>GATs stand out from other graph-based recommender systems due to:</p>
+
+    <ul>
+      <li>
+        <p><strong>Dynamic Attention:</strong> Unlike other graph neural networks that treat all connections equally or based on static rules, GATs dynamically assign importance to nodes and edges, which can adapt to different parts of the graph.</p>
+      </li>
+      <li>
+        <p><strong>Flexibility:</strong> GATs are inherently more flexible and can be applied to a wide range of graph types, including those with complex or irregular structures.</p>
+      </li>
+      <li>
+        <p><strong>Efficiency in Learning Representations:</strong> Due to their attention mechanism, GATs can be more efficient in learning node representations, especially in large and complex graphs.</p>
+      </li>
+      <li>
+        <p><strong>Handling Heterogeneous Data:</strong> GATs are particularly effective in dealing with heterogeneous data (where different types of nodes and edges exist), a common scenario in recommender systems.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>In summary, GATs stand out in the realm of graph-based recommender systems due to their ability to dynamically understand and interpret complex relationships in the data, offering more accurate and personalized recommendations. Their unique attention-based approach sets them apart from other graph-based architectures.</p>
+  </li>
+</ul>
+
+<h3 id="graphsage">GraphSAGE</h3>
+
+<ul>
+  <li>GraphSAGE (Graph Sample and AggregatE) is a Graph Neural Network (GNN) model introduced by Hamilton et al. in their paper <a href="https://arxiv.org/abs/1706.02216">“Inductive Representation Learning on Large Graphs”</a>. It is designed to generate node representations in a scalable way by incorporating information from a node’s entire neighborhood.</li>
+</ul>
+
+<h4 id="overview-of-graphsage">Overview of GraphSAGE</h4>
+
+<ul>
+  <li>
+    <p><strong>Scalable Neighborhood Incorporation</strong>: The core challenge addressed by GraphSAGE is to integrate information from a node’s entire neighborhood in a scalable manner. It achieves this through an innovative approach of sampling and aggregating features from a node’s local neighborhood.</p>
+  </li>
+  <li>
+    <p><strong>Message-Passing Aggregation</strong>: In this model, each node aggregates feature information from its immediate neighbors through a message-passing mechanism. Nodes gather features from their neighbors and perform a pooling operation (like mean or max pooling) to aggregate these features. This aggregated information is then used to update the node’s own representation. This process is iteratively conducted across multiple layers, allowing nodes to integrate information from various distances within the graph.</p>
+  </li>
+  <li>
+    <p><strong>Local and Global Graph Information</strong>: GraphSAGE utilizes these sampled and aggregated representations to learn node embeddings that encapsulate both local neighborhood and wider graph context, making these embeddings rich and informative for various applications.</p>
+  </li>
+</ul>
+
+<h4 id="graphsage-in-recommender-systems">GraphSAGE in Recommender Systems</h4>
+
+<ul>
+  <li>
+    <p>GraphSAGE’s application in recommender systems leverages its unique capabilities:</p>
+
+    <ul>
+      <li>
+        <p><strong>Personalized Recommendations</strong>: By learning embeddings that reflect user and item characteristics within the graph, GraphSAGE facilitates personalized recommendation generation.</p>
+      </li>
+      <li>
+        <p><strong>Handling Cold Start Problem</strong>: Its inductive learning nature allows it to generate embeddings for new users or items, effectively addressing the cold start challenge in recommender systems.</p>
+      </li>
+      <li>
+        <p><strong>Adaptability to Dynamic Systems</strong>: The model’s ability to adapt to new users or items continuously makes it ideal for evolving recommender systems.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="training-process">Training Process</h4>
+
+<ul>
+  <li>
+    <p>Training GraphSAGE involves:</p>
+
+    <ul>
+      <li>
+        <p><strong>Neighborhood Sampling</strong>: Selecting a subset of neighbors for computational efficiency.</p>
+      </li>
+      <li>
+        <p><strong>Feature Aggregation</strong>: Utilizing the pooling operations to aggregate features from the sampled neighborhood to form node embeddings.</p>
+      </li>
+      <li>
+        <p><strong>Loss Function</strong>: Implementing a task-specific loss function for effective learning.</p>
+      </li>
+      <li>
+        <p><strong>Backpropagation</strong>: Employing gradient descent to refine the model parameters.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="unique-characteristics-2">Unique Characteristics</h4>
+
+<ul>
+  <li>
+    <p>GraphSAGE’s distinct features compared to other graph-based recommender architectures include:</p>
+
+    <ul>
+      <li>
+        <p><strong>Inductive Learning</strong>: It can generalize to unseen nodes, a significant advantage over transductive models.</p>
+      </li>
+      <li>
+        <p><strong>Scalability</strong>: Its sampling technique renders it more scalable for large graphs.</p>
+      </li>
+      <li>
+        <p><strong>Aggregation Function Flexibility</strong>: The model supports various aggregation functions, enhancing its ability to model complex node relationships.</p>
+      </li>
+      <li>
+        <p><strong>Dynamic Graph Adaptability</strong>: GraphSAGE’s design accommodates dynamic changes in the graph, crucial for real-time recommender systems.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>GraphSAGE’s method of integrating local and global graph information through a scalable, message-passing aggregation process makes it a powerful tool in the realm of recommender systems, distinguishing it from other graph-based approaches.</p>
+  </li>
+</ul>
+
+<h3 id="edge-gnns">Edge GNNs</h3>
+
+<ul>
+  <li>Originally proposed in <a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Gong_Exploiting_Edge_Features_for_Graph_Neural_Networks_CVPR_2019_paper.pdf">Exploiting Edge Features for Graph Neural Networks</a> by Gong and Cheng from the University of Kentucky in CVPR 2019, Enhanced Graph Neural Network (EGNN) (or Edge GNN or Edge GraphSAGE) refers to an extension of the GraphSAGE model that incorporates information from both nodes and edges in the graph. While the original GraphSAGE focuses on aggregating information from neighboring nodes, Edge GNN takes into account the structural relationships between nodes provided by the edges. In the context of recommender systems, here’s how they function and stand out:</li>
+</ul>
+
+<h4 id="overview-of-edge-gnns">Overview of Edge GNNs</h4>
+
+<ul>
+  <li>Edge GNNs, also known as Enhanced Graph Neural Network (EGNN) or Edge GraphSAGE, extends the GraphSAGE model to incorporate both node and edge information in graphs. This model was initially proposed in the paper “Exploiting Edge Features for Graph Neural Networks” by Gong and Cheng from the University of Kentucky at CVPR 2019. It focuses on not just the nodes but significantly on the structural relationships between nodes provided by the edges.</li>
+</ul>
+
+<h4 id="edge-gnns-in-recommender-systems">Edge GNNs in Recommender Systems</h4>
+<ul>
+  <li>Edge GNNs enhance recommender systems by considering both the features of neighboring nodes and the connecting edges. This dual focus allows the model to capture more detailed information about node relationships, like the type or strength of connections. Such comprehensive modeling leads to more accurate and personalized recommendations, as the system understands both node-level and edge-level interactions.</li>
+</ul>
+
+<h4 id="training-process-1">Training Process</h4>
+<ul>
+  <li>Training involves an iterative message-passing framework similar to GraphSAGE, where nodes gather and aggregate information from both neighboring nodes and edges. This process helps the network learn comprehensive representations, capturing both semantic and structural information from the local and global neighborhoods in the graph.</li>
+</ul>
+
+<h4 id="unique-characteristics-3">Unique Characteristics</h4>
+
+<ul>
+  <li>Edge GNNs’s distinct features compared to other graph-based recommender architectures include:
+    <ul>
+      <li><strong>Rich Interaction Modeling:</strong> Edge GNNs, by incorporating edge features, model interactions more richly, capturing the nuances of relationships better.</li>
+      <li><strong>Expressive Representations:</strong> The integration of both node and edge features allows Edge GNNs to learn more expressive representations, detailing both node-level and edge-level information.</li>
+      <li><strong>Semantic and Structural Insights:</strong> The model’s capability to aggregate information from nodes and edges provides insights into both semantic and structural aspects of the graph.</li>
+      <li><strong>Adaptability to Complex Graph Structures:</strong> Given their focus on edge features, Edge GNNs adeptly handle complex graph structures where the nature and dynamics of connections are as vital as the entities themselves.</li>
+    </ul>
+  </li>
+  <li>Overall, Edge GNNs represent a significant evolution in graph neural networks, offering nuanced and comprehensive ways to model complex relationships in graphs, making them especially suitable for advanced recommender systems.</li>
+</ul>
+
+<h3 id="embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</h3>
+
+<ul>
+  <li>Generating embeddings in GNN is typically achieved through information propagation, also known as neural message passing, which involves passing information between neighboring nodes in the graph in a recursive manner, and updating the node representations based on the aggregated information.</li>
+  <li>The propagation process allows the embeddings to capture both local and global information about the nodes, and to incorporate the contextual information from their neighbors.</li>
+  <li>By generating informative and expressive embeddings, GNN-based recommenders can effectively capture the complex user-item interactions and item-item relations, and make accurate and relevant recommendations.</li>
+  <li>Neural message passing is a key technique for generating embeddings in GNN-based recommender systems. It allows the nodes in the graph to communicate with each other by passing messages along the edges, and updates their embeddings based on the aggregated information.</li>
+  <li>At a high level, the message passing process consists of two steps:
+    <ol>
+      <li><strong>Message computation:</strong> In this step, each node sends a message to its neighboring nodes, which is typically computed as a function of the node’s own embedding and the embeddings of its neighbors. The message function can be a simple linear transformation, or a more complex non-linear function such as a neural network.</li>
+      <li><strong>Message aggregation:</strong> In this step, each node collects the messages from its neighbors and aggregates them to obtain a new representation of itself. The aggregation function can also be a simple sum or mean, or a more complex function such as a max-pooling or attention mechanism.</li>
+    </ol>
+  </li>
+  <li>The message passing process is usually performed recursively for a fixed number of iterations, allowing the nodes to exchange information with their neighbors and update their embeddings accordingly. The resulting embeddings capture the local and global information about the nodes, as well as the contextual information from their neighbors, which is useful for making accurate and relevant recommendations.</li>
+  <li>Some common algorithms and techniques used for neural message passing in GNNs are:
+    <ul>
+      <li><strong>Graph Convolutional Networks (GCNs):</strong> GCNs apply a localized convolution operation to each node in the graph, taking into account the features of its neighboring nodes. This allows for the aggregation of information from neighboring nodes to update the node’s feature representation.</li>
+      <li><strong>Graph Attention Networks (GATs):</strong> GATs use a learnable attention mechanism to weigh the importance of neighboring nodes when updating a node’s feature representation. This allows the model to selectively focus on the most relevant neighbors.</li>
+      <li><strong>GraphSAGE:</strong> GraphSAGE uses a hierarchical sampling scheme to aggregate information from the neighborhood of each node. This allows for efficient computation of node embeddings for large graphs.</li>
+      <li><strong>Message Passing Neural Networks (MPNNs):</strong> MPNNs use a general framework for message passing between nodes in a graph, allowing for flexibility in modeling different types of interactions.</li>
+    </ul>
+  </li>
+  <li>In the context of GNNs for recommender systems, the goal is to generate embeddings for the user and item nodes in the graph. The embeddings can then be used for tasks such as candidate generation, scoring, and ranking.</li>
+  <li>The process of generating embeddings involves multiple GNN layers, each of which performs an exchange of information between the immediate neighbors in the graph. At each layer, the information exchanged is aggregated and processed to generate new embeddings for each node. This process can be repeated for as many layers as desired, and the number of layers determines how far information is propagated in the graph.</li>
+  <li>For example, in a 2-layer GNN model, each node will receive information from its immediate neighbors (i.e., nodes connected by an edge) and its immediate neighbors’ neighbors. This allows information to be propagated beyond a node’s direct neighbors, potentially capturing higher-level structural relationships in the graph.</li>
+  <li>From <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">Building a Recommender System Using Graph Neural Networks</a>, here is the pseudo-code for generating embeddings for a given node:
+    <ol>
+      <li>Fetch incoming messages from all neighbors.</li>
+      <li>Reduce all those messages into 1 message by doing mean aggregation.</li>
+      <li>Matrix multiplication of the neighborhood message with a learnable weight matrix.</li>
+      <li>Matrix multiplication of the initial node message with a learnable weight matrix.</li>
+      <li>Sum up the results from steps 3 and 4.</li>
+      <li>Pass the sum through a ReLU activation function to model non-linearity relationships in the data.</li>
+      <li>Repeat for as many layers as desired. The result is the output of the last layer.</li>
+    </ol>
+  </li>
+  <li>The image below <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a>, visually represents this pseudo code.</li>
+</ul>
+
+<p><img src="../assets/GNN/6.gif" alt="" /></p>
+
+<ul>
+  <li>Message passing has two steps, Aggregation and Update as we can see in the image <a href="http://www.aritrasen.com/graph-neural-network-message-passing-gcn-1-1/">(source)</a> below.</li>
+</ul>
+
+<p><img src="../assets/GNN/7.jpg" alt="" /></p>
+
+<ul>
+  <li>The aggregation function works on defining how the messages from the neighboring nodes are combined to compute new representations of the node.</li>
+  <li>“This aggregate function should be a permutation invariant function like sum or average. The update function itself can be a neural network (with attention or without attention mechanism) which will generate the updated node embeddings.” <a href="http://www.aritrasen.com/graph-neural-network-message-passing-gcn-1-1/">(source)</a></li>
+</ul>
+
+<h2 id="benefits-of-gnns-in-recsys">Benefits of GNNs in RecSys</h2>
+<ul>
+  <li><strong>Incorporating Graph Structure:</strong> GNNs are designed to process data with inherent graph structure, which is particularly useful in recommender systems. Recommender systems often involve modeling relationships between users, items, and their interactions. GNNs can effectively capture these complex relationships and dependencies by leveraging the graph structure, leading to more accurate and personalized recommendations.</li>
+  <li><strong>Implicit Collaborative Filtering:</strong> Collaborative filtering is a popular recommendation technique that relies on user-item interactions. GNNs can handle implicit feedback data, such as user clicks, views, or purchase history, without the need for explicit ratings. GNNs can learn from the graph connections and propagate information across users and items, enabling collaborative filtering in a more efficient and scalable manner.</li>
+  <li><strong>Modeling User and Item Features:</strong> GNNs can handle heterogeneous data by incorporating user and item features alongside the graph structure. In recommender systems, users and items often have associated attributes or contextual information that can influence the recommendations. GNNs can effectively integrate these features into the learning process, allowing for more personalized recommendations that consider both user preferences and item characteristics.</li>
+  <li><strong>Capturing Higher-Order Dependencies:</strong> GNNs can capture higher-order dependencies by aggregating information from neighboring nodes in multiple hops. This allows GNNs to capture complex patterns and relationships that may not be easily captured by traditional recommendation algorithms. GNNs can discover latent factors and capture long-range dependencies, resulting in improved recommendation quality.</li>
+  <li><strong>Cold Start Problem:</strong> GNNs can help address the cold start problem, which occurs when there is limited or no historical data for new users or items. By leveraging the graph structure and user/item features, GNNs can generalize from existing data and make reasonable recommendations even for users or items with limited interactions.</li>
+  <li><strong>Interpretability:</strong> GNNs provide interpretability by allowing inspection of the learned representations and the influence of different nodes or edges in the graph. This can help understand the reasoning behind recommendations and provide transparency to users, increasing their trust in the system.</li>
+</ul>
+
+<h2 id="loss-functions">Loss functions</h2>
+
+<h3 id="overview-1">Overview</h3>
+
+<ul>
+  <li>GNNs use various loss functions like Binary Cross-Entropy, Categorical Cross-Entropy, Mean Squared Error, Pairwise Ranking, Triplet Ranking, and Graph Reconstruction Loss to handle diverse tasks such as binary and multi-class classification, regression, ranking, and graph reconstruction. Specifics below:
+    <ul>
+      <li><strong>Binary Cross-Entropy Loss:</strong> Binary cross-entropy loss is often used for binary classification tasks in GNNs. It is suitable when the task involves predicting a binary label or making a binary decision based on the graph structure and node features.</li>
+      <li><strong>Categorical Cross-Entropy Loss:</strong> Categorical cross-entropy loss is used for multi-class classification tasks in GNNs. If the GNN is trained to predict the class label of nodes or edges in a graph, this loss function is commonly employed.</li>
+      <li><strong>Mean Squared Error (MSE) Loss:</strong> MSE loss is frequently used for regression tasks in GNNs. If the goal is to predict a continuous or numerical value associated with nodes or edges in the graph, MSE loss can measure the difference between predicted and true values.</li>
+      <li><strong>Pairwise Ranking Loss:</strong> Pairwise ranking loss is suitable for recommendation or ranking tasks in GNNs. It is used when the goal is to learn to rank items or nodes based on their relevance or preference to users. Examples of pairwise ranking loss functions include the hinge loss and the pairwise logistic loss.</li>
+      <li><strong>Triplet Ranking Loss:</strong> Triplet ranking loss is another type of loss function used for ranking tasks in GNNs. It aims to learn representations that satisfy certain constraints among a triplet of samples. The loss encourages the model to assign higher rankings to relevant items compared to irrelevant items.</li>
+      <li><strong>Graph Reconstruction Loss:</strong> Graph reconstruction loss is employed when the goal is to reconstruct the input graph or its properties using the GNN. This loss compares the reconstructed graph with the original graph to measure the similarity or reconstruction error.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="tasks-rightarrow-loss-functions">Tasks \(\rightarrow\) Loss Functions</h3>
+
+<ul>
+  <li>As mentioned earlier, several loss functions are used in GNNs, depending on the task at hand such as node classification, graph classification, and link prediction.</li>
+</ul>
+
+<h4 id="node-classification">Node Classification</h4>
+<ul>
+  <li>For node classification tasks, Cross-Entropy loss is commonly used, especially when the classes are exclusive.
+   \(L = -\sum_{i=1}^{N} y_i \log(\hat{y}_i)\)</li>
+  <li>Where:
+    <ul>
+      <li>\(N\) is the number of nodes.</li>
+      <li>\(y_i\) is the true label of node \(i\).</li>
+      <li>\(\hat{y}_i\) is the predicted label of node \(i\).</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="graph-classification">Graph Classification</h4>
+<ul>
+  <li>For graph classification tasks, Cross-Entropy or Mean Squared Error (MSE) loss can be used, depending on whether the task is a classification or a regression task, respectively.
+    <ul>
+      <li><strong>Cross-Entropy Loss</strong>:
+ \(L = -\sum_{i=1}^{N} y_i \log(\hat{y}_i)\)</li>
+      <li><strong>Mean Squared Error Loss</strong>:
+ \(L = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2\)</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="link-prediction">Link Prediction</h4>
+<ul>
+  <li>For link prediction tasks, the Binary Cross-Entropy loss is often used, as the task is usually to predict whether a link exists (1) or not (0) between two nodes.
+   \(L = -\frac{1}{N} \sum_{i=1}^{N} [y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i)]\)</li>
+</ul>
+
+<h4 id="graph-generation">Graph Generation</h4>
+<ul>
+  <li>When generating graphs, the Negative Log Likelihood (NLL) loss is often used to maximize the likelihood of generating real graphs.</li>
+</ul>
+
+<h4 id="graph-reconstruction">Graph Reconstruction</h4>
+<ul>
+  <li>For graph reconstruction tasks, reconstruction loss such as Mean Squared Error between the adjacency matrices of the original and reconstructed graphs can be used.
+  \(L = \frac{1}{N^2} \sum_{i=1}^{N} \sum_{j=1}^{N} (A_{ij} - \hat{A}_{ij})^2\)</li>
+  <li>Where:
+    <ul>
+      <li>\(A_{ij}\) is the original adjacency matrix.</li>
+      <li>\(\hat{A}_{ij}\) is the reconstructed adjacency matrix.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="regularization-loss">Regularization Loss</h4>
+<ul>
+  <li>Regularization terms like L1 or L2 regularization are also often added to the loss function to avoid overfitting.
+    <ul>
+      <li><strong>L1 Regularization</strong>:
+ \(L_{\text{reg}} = \lambda \sum_{i} |w_i|\)</li>
+      <li><strong>L2 Regularization</strong>:
+ \(L_{\text{reg}} = \lambda \sum_{i} w_i^2\)</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="additional-considerations">Additional Considerations</h4>
+<ul>
+  <li>The choice of a loss function also depends on the kind of graph involved (directed, undirected, weighted, etc.) and the specific requirements of the task.</li>
+  <li>The above loss functions might be combined or modified based on the specific needs of the task, and some tasks might require designing a custom loss function.</li>
+</ul>
+
+<h2 id="walkthrough">Walkthrough</h2>
+<ul>
+  <li>Now, let’s do a quick walkthrough on creating our own system from scratch and see all the steps that it would take.</li>
+  <li>First is the dataset, say we have user-item interaction, item features and user features available as shown below starting with user-item interaction. <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a>
+<img src="../assets/GNN/2.webp" alt="" /></li>
+  <li>Below we see item features <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a>
+<img src="../assets/GNN/3.webp" alt="" /></li>
+  <li>
+    <p>Below are the user features <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a>
+<img src="../assets/GNN/4.webp" alt="" /></p>
+  </li>
+  <li>
+    <p>The next step is to create a graph as shown below <a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">(source)</a>
+<img src="../assets/GNN/5.webp" alt="" /></p>
+  </li>
+  <li>The embeddings are created using the procedure elaborated in <a href="#embedding-generation-neural-message-passing">Embedding Generation: Neural Message Passing</a>.  The embeddings generated by GNNs are utilized to estimate the likelihood of a connection between two nodes. To calculate the probability of interaction between a user \(u\) and an item \(v\), we use the cosine similarity function. After computing scores for all items that a user did not interact with, the system recommends the items with the highest scores.</li>
+  <li>The main goal during training of the model is to optimize the trainable matrices (\(W\)) used for generating the embeddings. To achieve this, a max-margin loss function is used, which involves negative sampling. The training data set only includes edges representing click and purchase events.</li>
+  <li>The model is trained in such a way that it learns to predict a higher score for a positive edge (an edge between a user and an item that they actually interacted with) compared to randomly sampled negative edges. These negative edges are connections between a user and random items that they did not interact with. The idea is to teach the model to distinguish between actual positive interactions and randomly generated negative interactions.</li>
+</ul>
+
+<h2 id="seasonality">Seasonality</h2>
+<ul>
+  <li>Seasonality in recommender systems refers to the variation in user preferences and item popularity over time. For example, certain items may be more popular during a particular season or event, such as Christmas or the summer months. This can cause issues for recommender systems that are not able to adapt to changing user preferences and item popularity over time.</li>
+  <li>To overcome seasonality in a music or movie app, one approach is to incorporate time-based features into the recommender system. For example, the recommender system can take into account the time of year or the day of the week when making recommendations. Additionally, the system can use algorithms that can adapt to changing user preferences over time, such as collaborative filtering with temporal dynamics or matrix factorization with time-dependent factors.</li>
+  <li>Another approach is to use contextual information to inform recommendations. For example, the recommender system can take into account a user’s location or weather conditions to make more relevant recommendations. This can be especially useful for music or movie apps where the content can be influenced by the user’s environment.</li>
+</ul>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Graph Neural Networks (GNN) architectures utilize graph structures to capture relationships between users, items, and their interactions. GNNs propagate information through the user-item interaction graph, enabling the model to learn user and item representations that incorporate relational dependencies. This is particularly useful in scenarios with rich graph-based data.
+    <ul>
+      <li><strong>Pros:</strong> Captures relational dependencies and propagates information through graph structures, enabling better modeling of complex relationships.
+        <ul>
+          <li><strong>Cons:</strong> Requires graph-based data and potentially higher computational resources for training and inference.</li>
+          <li><strong>Advantages:</strong> Improved recommendations by incorporating the rich relational information among users, items, and their interactions.</li>
+          <li><strong>Example Use Case:</strong> Social recommendation systems, where user-user connections or item-item relationships play a significant role in personalized recommendations.</li>
+        </ul>
+      </li>
+      <li><strong>Phase:</strong> Candidate Generation, Ranking, Retrieval.</li>
+      <li><strong>Recommendation Workflow:</strong> GNN architectures are suitable for multiple phases of the recommendation workflow. In the candidate generation phase, GNNs can leverage graph structures to capture relational dependencies and generate potential candidate items. In the ranking phase, GNNs can learn user and item embeddings that incorporate relational information, leading to improved ranking. In the retrieval phase, GNNs can assist in efficient retrieval of relevant items based on their graph-based representations.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="case-studies">Case Studies</h2>
+
+<ul>
+  <li>Below, we will review research from various companies to see how they leverage GNNs for their recommender system tasks.</li>
+</ul>
+
+<h3 id="snap">Snap</h3>
+
+<h4 id="graph-neural-networks-for-friend-ranking-in-large-scale-social-platforms"><a href="https://assets.ctfassets.net/btheynltg5cn/53nweIQ8YcXmh9uRxAssqi/e43c35ef60dd613fe25689ca55e35ac9/GrafRank.WWW.21.pdf">Graph Neural Networks for Friend Ranking in Large-scale Social Platforms</a></h4>
+<ul>
+  <li>In this research, the authors propose the use of Graph Neural Networks (GNNs) for friend suggestion in large-scale social platforms. They address challenges specific to this task, such as heavy-tailed degree distributions and limited information about inactive users. The proposed GNN architecture, called GraFRank, takes into account multi-modal user features and link communication features to learn expressive user representations.</li>
+  <li>Graph Attention Friend Ranker (GraFRank) leverages in-platform actions, such as messages, likes, and other interactions, to capture rich information about user behavior and preferences. By incorporating these actions into the model, GraFRank can generate meaningful user representations. Put simply, GraFRank for friend ranking in a dynamic friendship graph focuses on learning user representations based on pairwise link features and time-sensitive multi-modal node features.</li>
+  <li>The authors begins with an empirical analysis of user feature modalities to understand the factors influencing friendship formation. They measure modality homophily, which is the tendency of users in a social graph to associate with others who are similar to them along attributes of a certain modality. They observe varying extents of attribute homophily across modalities, with higher variance for time-sensitive modalities.</li>
+  <li>Next, they analyze the correlation between different feature modalities in terms of induced clusterings of ego-networks. They find substantial correlations across certain modalities, indicating that friends who exhibit homophily in one modality are often correlated with friends who exhibit homophily in other modalities.</li>
+  <li>Based on these observations, the authors propose GraFRank, which consists of two modules: modality-specific neighbor aggregation and cross-modality attention layer. The modality-specific neighbor aggregation module treats each modality individually to account for the varying extent of induced homophily. They use a message-passing mechanism with friendship attention to aggregate information from the ego-network of each user.</li>
+  <li>The cross-modality attention layer takes into account the correlations between different feature modalities. They use normalized mutual information (NMI) and adjusted Rand Index (ARI) to evaluate the consensus between the clusterings induced by different modalities. They find substantial correlations between certain pairs of modalities.</li>
+  <li>GraFRank is a multi-faceted friend ranking model that considers the heterogeneity in modality homophily and the correlations between feature modalities. It leverages modality-specific neighbor aggregation and cross-modality attention to learn user representations in a dynamic friendship graph.</li>
+  <li>The authors propose a friend ranking approach that incorporates multi-modal user features and link communication features. They introduce a neural architecture called GraFRank, which addresses heterogeneity in modality homophily through modality-specific neighbor aggregators and captures non-linear modality correlations using cross-modality attention. The experiments conducted on two multi-million user datasets from Snapchat demonstrate significant improvements in friend candidate retrieval and ranking, particularly for less-active and low-degree users. The authors suggest that GraFRank can be applied to other bidirectional friending platforms like Facebook and LinkedIn with some adaptations for unidirectional scenarios like Twitter and Instagram.</li>
+  <li>The authors evaluate GraFRank on Snapchat datasets and compare its performance against existing methods in candidate retrieval and ranking tasks. The experimental results demonstrate that GraFRank outperforms the baseline methods, achieving significant improvements in Mean Reciprocal Rank (MRR) for both candidate retrieval and ranking tasks.</li>
+  <li>Interestingly, GraFRank shows particularly strong performance for less-active and low-degree users, indicating its effectiveness in suggesting friends for these critical user populations.</li>
+  <li>The research highlights the importance of learning latent user representations in user understanding, which is widely applicable in various industrial settings. While Graph Neural Networks have been successful in tasks like link prediction, community detection, and recommender systems, their application in friend suggestion within large-scale social platforms has been underexplored.</li>
+  <li>Friend suggestion is crucial for social networking platforms as it promotes user retention and engagement. Previous efforts in this area have mainly focused on link prediction and graph-based heuristics. However, GNN models have the potential to capture the social influence from friends and learn expressive user representations.</li>
+  <li>The authors address the challenges posed by heavy-tailed degree distributions and activity sparsity by leveraging rich knowledge from heterogeneous in-platform actions. They formulate friend suggestion as a multi-faceted friend ranking problem on an evolving friendship graph.</li>
+  <li>Users are represented using multiple modalities of features, and pairwise link features are utilized to capture communication activities between users. The authors analyze the diverse homophily distributions across feature modalities, which leads to the design of the GraFRank architecture.</li>
+  <li>GraFRank learns user representations through modality-specific neighbor aggregation and cross-modality attention mechanisms. This enables the model to capture the influence of individual features and pairwise communications in friend suggestion.</li>
+  <li>The contributions of this work include introducing graph neural friend ranking, designing the GraFRank model for multi-faceted user representations, and demonstrating robust experimental results on large-scale datasets from Snapchat. GraFRank consistently outperforms state-of-the-art baselines in friend candidate retrieval and ranking tasks, with notable gains observed for less-active and low-degree users.</li>
+  <li>To represent the friendship graph, a continuous-time dynamic graph (CTDG) approach is adopted. Each friendship link between users is assigned a unique timestamp, indicating the time of its creation. A function maps each timestamp to a corresponding snapshot, allowing the division of the observation time window into a sequence of daily snapshots.</li>
+  <li>User features are crucial for friend suggestion, and they are categorized into four modalities: profile attributes, content interests, friending activity, and engagement activity. Profile attributes encompass static demographic information about the user. Content interests capture the textual content (e.g., posts, stories) that the user interacts with on the platform. Friending activity involves the user’s actions related to adding friends, such as sent/received friend requests and viewed suggestions. Engagement activity measures the user’s interactions with other friends, including messages, comments, and likes.</li>
+  <li>The user features can be a combination of static and time-sensitive attributes. Profile attributes tend to be static, while the other modalities are time-sensitive and evolve at different scales among users. For example, long-time active users may have stable sets of friends they frequently communicate with, while new users are more likely to rapidly add new friends before engaging with them.</li>
+  <li>Pairwise link communication features capture the communication channels within the social network. Conversations represent direct user-to-user communications, such as text messages and media exchanges. Social actions, on the other hand, involve indirect interactions, such as broadcasting posts or liking content. Bidirectional link features are extracted to reflect the number of communications exchanged between friends, and link features per snapshot are aggregated based on different time intervals.</li>
+  <li>The problem of multi-faceted friend ranking aims to leverage the multi-modal user features, link features, and the friendship graph to generate user representations. These representations, denoted as h𝑣(𝑡) for each user 𝑣 at time 𝑡, should facilitate friend suggestion tasks, including candidate retrieval and re-ranking. The objective is to effectively recommend potential friends to users based on their diverse features and network interactions.</li>
+</ul>
+
+<h4 id="embedding-based-retrieval-in-friend-recommendation"><a href="http://nshah.net/publications/FriendingEBR.SIGIR.23.pdf">Embedding Based Retrieval in Friend Recommendation</a></h4>
+<ul>
+  <li>Friend recommendation systems in online social and professional networks aim to help users find friends and improve user engagement and retention.</li>
+  <li>Traditional friend recommendation systems, like Friends-of-Friends (FoF), rely on graph traversal and locality principle but have limitations:
+    <ul>
+      <li>Limited reach in cold-start scenarios.</li>
+      <li>Expensive and infeasible for real-time requests beyond 1 or 2 hops due to latency constraints.</li>
+      <li>Inability to capture graph topology and connection strengths effectively, requiring alternative ranking mechanisms for top-K candidates.</li>
+    </ul>
+  </li>
+  <li>The paper proposes an Embedding Based Retrieval (EBR) system as a solution:
+    <ul>
+      <li>EBR complements FoF retrieval by retrieving candidates beyond the 2-hop range.</li>
+      <li>EBR provides a natural way to rank FoF candidates.</li>
+    </ul>
+  </li>
+  <li>Online A/B tests demonstrate statistically significant improvements in the number of friendships made when EBR is used as an additional retrieval source.</li>
+  <li>Contributions of the paper:
+    <ul>
+      <li>Deployment of a novel retrieval system in a large-scale friend recommendation system at Snapchat.</li>
+      <li>Generation of embeddings for billions of users using Graph Neural Networks.</li>
+      <li>Development of EBR infrastructure at Snapchat to support the system at scale.</li>
+    </ul>
+  </li>
+  <li>The image below <a href="http://nshah.net/publications/FriendingEBR.SIGIR.23.pdf">(source)</a> depicts the high level architecture of friend recommendation.</li>
+</ul>
+
+<p><img src="../assets/GNN/9.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>As this paper notes, a users friends are critical for one’s engagement and retention on the app.</p>
+  </li>
+  <li><strong>Overview:</strong>
+    <ul>
+      <li>The friend recommendation system consists of a retrieval phase and a ranking phase.</li>
+      <li>The retrieval phase aims to maximize recall by including as many potential friends as possible for further consideration.</li>
+      <li>Recall is a measure of effectiveness, calculated as the ratio of relevant candidates retrieved to the total number of relevant candidates.</li>
+      <li>In the ranking phase, a deep neural network machine learning (ML) model is used to rank the retrieved candidates.</li>
+      <li>The ML model is trained on historical friend recommendation outcomes and considers user-level and user-to-user interaction features as signals for ranking.</li>
+      <li>The goal of the ranking phase is to maximize precision, which measures the fraction of candidates surfaced to users that they find relevant and worth sending friend requests to.</li>
+      <li>The top-\(K\) friend recommendations, where \(K\) is typically in the hundreds, are then sent to the end users for their consideration.</li>
+    </ul>
+  </li>
+  <li><strong>Embedding based retrieval:</strong>
+    <ul>
+      <li>Retrieval in friend recommendation systems based on homogeneous graphs presents unique challenges compared to other recommendation systems.</li>
+      <li>Traditional graph traversal approaches, such as Friends-of-Friends (FoF), are commonly used in social and professional networks like LinkedIn and Facebook.</li>
+      <li>However, FoF has limitations: it struggles in cold-start scenarios with low-density networks, it becomes computationally expensive to go beyond 2-hop connections, and it doesn’t capture graph topology or connection strength effectively.</li>
+      <li>To overcome these challenges, a new retrieval system called Embedding Based Retrieval (EBR) is proposed.</li>
+      <li>EBR is widely used in content and product recommendation systems and leverages low-dimensional embeddings of nodes in large graphs.</li>
+      <li>In EBR, embeddings are generated for each user by learning from rich information about users and their friend connections.</li>
+      <li>During online retrieval, candidates closest to the target user’s embedding in the embedding space are retrieved.</li>
+      <li>EBR addresses the limitations of graph traversal by enabling efficient nearest-neighbor search in the embedding space and retrieving high-quality candidates regardless of their hop distance.</li>
+      <li>Graph Neural Networks (GNNs) are used to generate user embeddings.</li>
+      <li>Infrastructure optimizations are implemented to support EBR for friend recommendation at Snapchat scale in a cost-effective manner.</li>
+    </ul>
+  </li>
+  <li><strong>Graph aware user embeddings:</strong>
+    <ul>
+      <li>User embedding quality is crucial for the effectiveness of Embedding Based Retrieval (EBR) in friend recommendation systems.</li>
+      <li>Graph Neural Networks (GNNs) are used to embed users in the Snapchat friend graph, leveraging their ability to learn rich representations over graph data.</li>
+      <li>GNNs extend convolutions to graphs and can be trained for node-level, link-level, and graph-level tasks.</li>
+      <li>The message passing paradigm is commonly used in GNN architectures, where nodes exchange messages over the graph topology to derive intermediate embeddings.</li>
+      <li>In the EBR use case, a 2-layer GraphSAGE model is employed, with mean-pooling as the aggregation function and vector concatenation followed by a linear layer as the updating function.</li>
+      <li>The model is trained using a transductive link prediction setup, where edges are split into training, validation, and test sets, and a max-margin ranking loss is used for supervision.</li>
+      <li>Training GNNs at scale poses scalability challenges. The graph is preprocessed into a compressed sparse row (CSR) format, and node features are compactly serialized.</li>
+      <li>Minibatch training is employed, using a producer-consumer shared-memory setup, where producers sample minibatches and put them on queues, and consumers train using GPUs.</li>
+      <li>Large-scale training is performed using a Google Compute Engine VM with multiple CPUs, memory, and GPUs.</li>
+      <li>Apache Airflow is used for daily user embedding generation for millions of Snapchat users, and the embeddings’ quality is closely monitored using offline ranking metrics.</li>
+    </ul>
+  </li>
+  <li>Approximate Nearest-Neighbor (ANN) search is used in EBR for candidate generation.</li>
+  <li>To handle the large-scale operations of candidate generation on Snapchat’s massive friend graph, encoding the entire graph into a single index is not practical.</li>
+  <li>Instead, Snapchat employs a cost-effective solution that leverages unique characteristics of their social graph.</li>
+  <li>The index size is significantly reduced by indexing only active users, focusing on users who have been active on Snapchat in the last 90 days.</li>
+  <li>Geographic proximity is exploited as a factor in the friend graph, as a majority of friend links are established between users who are geographically closer.</li>
+  <li>The index is divided into segments based on geographic locations, such as North America, Europe, MENA, Asia, etc., to manage memory footprint.</li>
+  <li>By directing queries to the geographic partition corresponding to the searcher’s location, query latency is kept low while still capturing the majority of friending activities.</li>
+  <li>
+    <p>These infrastructure optimizations result in a more scalable, robust, and cost-effective system, delivering significant business impact.</p>
+  </li>
+  <li>Online A/B testing was conducted to evaluate the effectiveness of Embedding Based Retrieval (EBR) for friend recommendations on Snapchat.</li>
+  <li>The control group consisted of candidates from existing retrieval algorithms, while the treatment group included candidates from EBR as an additional retrieval source.</li>
+  <li>The success metric used was the number of friendships made from friend recommendations.</li>
+  <li>The A/B tests ran for 4 weeks with a significance level (α) of 0.01.</li>
+  <li>Statistically significant improvements were observed for the treatment group across all markets.</li>
+  <li>The increase in the number of friendships made from friend recommendations ranged from 5% to 10% in different markets.</li>
+  <li>EBR had a larger impact in markets with higher user growth.</li>
+  <li>The overlap of top suggestions between EBR and existing retrieval algorithms was low, indicating that EBR serves as a good complement to the traditional methods.</li>
+  <li>The quality of candidates from EBR, in terms of conversion rate and reciprocation rate, was comparable to candidates from existing algorithms.</li>
+  <li>Future work includes improving the quality of user embeddings in Graph Neural Network (GNN) models, generating multiple embeddings to capture multiple social contexts, and further optimizing the EBR infrastructure through techniques like quantization and sharding strategies.</li>
+</ul>
+
+<h4 id="friend-story-ranking-with-edge-contextual-local-graph-convolutions"><a href="http://nshah.net/publications/EdgeRanking.WSDM.22.pdf">Friend Story Ranking with Edge-Contextual Local Graph Convolutions</a></h4>
+<ul>
+  <li>In this paper titled “Friend Story Ranking with Edge-Contextual Local Graph Convolutions,” the authors address the problem of ranking Friend Stories on social platforms, specifically focusing on the task of algorithmic Friend Story Ranking (FSR) with machine learning models. The study explores the use of graph representation learning and proposes an edge-contextual approach called ELR (Edge-Contextual Local Graph Convolutions) to rank Friend Stories based on factors such as local graph structure, edge types, directionality, and rich edge attributes.</li>
+  <li>The authors highlight that while graph neural networks (GNNs) have shown promising results in graph learning tasks, their direct application to link ranking tasks, such as FSR, is limited. Furthermore, existing GNN frameworks often do not handle edge-level attributes, which are essential in capturing rich user-user interactions in social data.</li>
+  <li>The proposed ELR method addresses these challenges by considering and attending to neighboring nodes, incorporating multiple edge types within local egonet structures, and leveraging graph convolutions. The authors validate ELR using two large country-level datasets from Snapchat, consisting of millions of users and tens of millions of links. The performance of ELR is compared to alternative methods, and it demonstrates superior results with approximately 8% and 5% error reduction measured by mean squared error (MSE) and mean absolute error (MAE), respectively.</li>
+  <li>The paper also discusses the generality, data efficiency, and ablation experiments conducted to confirm the advantages of ELR. The authors emphasize the importance of edge-contextual approaches in handling link ranking tasks and highlight the potential of graph neural networks in large-scale social graph learning problems.</li>
+</ul>
+
+<p><img src="../assets/GNN/10.png" alt="" /></p>
+
+<ul>
+  <li>The use of graph neural networks (GNNs) in the Friend Story Ranking (FSR) problem is discussed.</li>
+  <li>The goal is to predict the affinity between two users for Friend Stories, considering their activities, interactions, and influence from their local communities.</li>
+  <li>Multiple types of relationships (pairwise, intra-ego, and inter-ego) in the users’ egonets are differentiated, and self-attention over neighbors is used to improve learning over sparse user activity.</li>
+  <li>Edge attributes play a crucial role in message passing during aggregation, contributing to the learning of rich representations for users, links, and relation types.</li>
+  <li>The proposed framework, called ELR (Edge-contextual Local Graph Convolutions for Friend Story Ranking), utilizes local community information and neighbor attention to overcome interaction sparsity and enhance inference quality.</li>
+  <li>ELR outperforms various baselines, including tabular and graph-aware approaches, in terms of error reduction across different datasets and metrics.</li>
+  <li>The generality of ELR is demonstrated, showing its effectiveness on multiple FSR-related objectives.</li>
+  <li>Ablation studies confirm the value of each component in ELR, and qualitative results highlight the importance of neighbor attention.</li>
+  <li>The contributions of the work include studying the FSR problem using GNNs, proposing the ELR model, and demonstrating its performance on large-scale datasets from Snapchat.</li>
+  <li>
+    <p>ELR’s design can be extended to other link ranking problems, providing potential avenues for future research in the community.</p>
+  </li>
+  <li>The approach, ELR, tackles the FSR problem by incorporating graph representation learning to leverage social information beyond the relation of interest.</li>
+  <li>ELR consists of three modules: local graph encoding, friendship categorization, and affinity score prediction.</li>
+  <li>The local graph encoding module utilizes a GNN-inspired neural network to learn representations for users and relations in the local community graph.</li>
+  <li>The friendship categorization module differentiates three types of relations: pairwise relation, intra-ego relation, and inter-ego relation based on their relative locations and status in the local graph.</li>
+  <li>The affinity score prediction module jointly utilizes the three types of relations to predict the affinity score between two users.</li>
+  <li>The edge-contextual graph is introduced as an augmented input, expanding the perception from pairwise relations to contextual information in the social network.</li>
+  <li>The edge-contextual graph is a subgraph based on the egonets of the source and target nodes, capturing local community structure.</li>
+  <li>Node and edge features are constructed from historical user activities and user-user interactions, including edge features that characterize link behaviors.</li>
+  <li>The edge-contextual graph is encoded using a GNN-based encoding scheme, specifically the GraphSAGE model, which learns representations for nodes and updates them based on information from neighbors.</li>
+  <li>The mean aggregator is adapted to handle edge features by concatenating node representations with corresponding user-to-user features.</li>
+  <li>User representations are captured using multiple Edge-GNN layers, considering first-order and second-order proximity.</li>
+  <li>Link representations for specific links are constructed using pairwise edge features and associated user representations.</li>
+  <li>Friendship relations are categorized into different types, and their representations are learned separately to capture the influence of different facets of the edge-contextual graph.</li>
+</ul>
+
+<p><img src="../assets/GNN/11.png" alt="" /></p>
+
+<p><img src="../assets/GNN/12.png" alt="" /></p>
+
+<ul>
+  <li>In the context of predicting Friend Story affinity scores, the authors propose a categorization of friendship relations to capture the similarity of affinities between different pairs of users in an edge-contextual graph. The goal is to predict the likelihood of a user watching another user’s stories based on various relational factors.</li>
+  <li>The first category of relation is the pairwise relation, which characterizes the direct engagement between two users (𝑢 and 𝑣) in terms of their activities and interactions. User representations (h𝑢, h𝑣) and a friendship representation (f𝑢𝑣) are concatenated and passed through a fully-connected neural network layer to learn the pairwise relation.</li>
+  <li>The second category is the intra-ego relation, which considers the friendships of both users (𝑢 and 𝑣). The idea is that user behavior and interests are influenced by their friends due to shared communications and homophily. The intra-ego relation focuses on the immediate friends of 𝑢 and 𝑣. Aggregating the link representations between 𝑢 →N (𝑢) (edges from 𝑢 to 𝑢’s friends) and N (𝑣) →𝑣 (edges from 𝑣’s friends to 𝑣), aligned with the target edge (𝑢,𝑣), allows for the definition of the intra-ego relation representation of 𝑢. Mean aggregation is a simple approach, but it treats all friends equally. To account for the diversity of communication frequency and the closeness of friendships, a self-attention mechanism is used to assign different importance to friends within the intra-ego relations.</li>
+  <li>The third category is the inter-ego relation, which considers the level of interest from 𝑢’s friends towards the stories of 𝑣’s friends. This category relies on properties of homophily and shared preferences between friends. By examining the interest of 𝑢’s friends in 𝑣’s friends’ stories, it can imply 𝑢’s interest in 𝑣’s stories. The inter-ego relation contributes to capturing the broader social structure and shared preferences among friends.</li>
+  <li>
+    <p>The proposed approach extends beyond traditional models that focus only on users’ historical activities and interactions. It incorporates local community information through the edge-contextual graph signals, capturing transitive properties and regularizing inferences based on social structure.</p>
+  </li>
+  <li><strong>Baselines used:</strong>
+    <ul>
+      <li><strong>Linear Regression (LR):</strong> Since the linear regression model cannot handle graph-structured data, they concatenate original node features x𝑢,x𝑣 and edge features e𝑢𝑣 as input to the model.</li>
+      <li><strong>XGBoost (XGB):</strong> They construct input similarly to LR, using a boosted trees model instead.</li>
+      <li><strong>Multi-LayerPerceptron(MLP):</strong> They build a two-layerMLPmodel, using the same input features to LR and XGB models.</li>
+      <li><strong>GraphSAGE (GS):</strong> They train a two-layer GraphSAGE model with mean aggregation on the entire network G to predict 𝑠𝑢𝑣 using an inner product decoder on final node embeddings. They only use node features with graph structure since does not use them.</li>
+      <li><strong>Edge-GraphSAGE (E-GS):</strong> The same as GS, but they replace the message-passing in the original GraphSAGE with Equation 2 so that edge features are incorporated explicitly in the aggregation.</li>
+    </ul>
+  </li>
+  <li>This work focuses on the Friend Story Ranking (FSR) problem, which involves ranking existing network links based on user-user relationships. The authors propose the ELR model, leveraging graph representation learning and socially-motivated intuitions. They emphasize the importance of edge attributes and different types of relations (pairwise, intra-ego, and inter-ego) in local graph structures, addressing the sparsity of social interactions. Extensive experiments demonstrate that ELR outperforms baselines, achieving an 8% reduction in error for Friend Story click-through rate (CTR) prediction.</li>
+  <li>The study also explores the generality of ELR, the significance of modeling components, and provides qualitative insights.</li>
+</ul>
+
+<h3 id="meta">Meta</h3>
+
+<h4 id="embedding-based-retrieval-in-facebook-search"><a href="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.8562-6/240857486_611768640247079_8811823102066880943_n.pdf?_nc_cat=106&amp;ccb=1-7&amp;_nc_sid=ad8a9d&amp;_nc_ohc=sr8iMxwkSoUAX_L0zor&amp;_nc_ht=scontent-sjc3-1.xx&amp;oh=00_AfC9lBYlaFETBR89p6BciNBNmnJqrUh1wgF1XpU5KI1haw&amp;oe=648EBB78">Embedding-based Retrieval in Facebook Search</a></h4>
+<ul>
+  <li>Search in social networks like Facebook requires considering the searcher’s context, including their social graph.</li>
+  <li>Facebook search historically relied on a Boolean matching model, but this paper explores the application of embedding-based retrieval (EBR) in the Facebook Search system.</li>
+  <li>A unified embedding framework is developed to model semantic embeddings for personalized search.</li>
+  <li>The system uses an inverted index for embedding-based retrieval in a typical search system.</li>
+  <li>Various optimization techniques are discussed, including parameter tuning for approximate nearest neighbor (ANN) search and full-stack optimization.</li>
+  <li>Progress is presented on two advanced topics related to modeling in the EBR system.</li>
+  <li>EBR is evaluated on verticals (specific search categories) in Facebook Search, showing significant improvements in metrics through online A/B experiments.</li>
+  <li>The paper aims to provide insights and experiences for developing embedding-based retrieval systems in search engines.</li>
+</ul>
+
+<p><img src="../assets/GNN/13.png" alt="" /></p>
+
+<ul>
+  <li>” Among them embedding, which is also called representation learning, has been proven to be successful techniques contributing to the success [2].</li>
+  <li>In essence, embedding is a way to represent a sparse vector of ids as a dense feature vector, which is also called semantic embedding in that it can often learn the semantics. Once the embeddings are learned, it can be used as a representation of query and documents to apply in various stages of a search engine.”</li>
+  <li>Embedding-based retrieval (EBR) is a technique used in search engines to represent queries and documents as embeddings and convert the retrieval problem into a nearest neighbor search problem in the embedding space.</li>
+  <li>EBR poses unique challenges in large-scale search engines due to the massive amount of data to be processed and the need to combine embedding-based retrieval with term matching based retrieval.</li>
+  <li>Facebook search faces additional challenges, as the search intent depends not only on query text but also on the user issuing the query and the context.</li>
+  <li>Techniques are developed to address challenges in modeling, serving, and full-stack optimization of embedding-based retrieval in Facebook search.</li>
+  <li>A unified embedding model is proposed, incorporating features from search logs and extracting information from searcher, query, context, and documents.</li>
+  <li>Hard mining and ensemble embedding are explored as approaches to effectively represent and learn retrieval tasks.</li>
+  <li>A hybrid retrieval framework is developed, integrating embedding KNN with Boolean matching to score documents for retrieval.</li>
+  <li>Later-stage optimization is performed to incorporate embeddings into ranking layers and actively learn to identify good and bad results from embedding-based retrieval.</li>
+  <li>The EBR system is evaluated on verticals in Facebook search, demonstrating significant improvements in metrics through online A/B experiments.</li>
+  <li>The paper discusses modeling, system implementation, later-stage optimization, and advanced modeling techniques, providing insights and experiences for embedding-based retrieval systems in search engines.</li>
+  <li>Inverted index based ANN (approximate near neighbor) search algorithms were deployed in the system for embedding-based retrieval.</li>
+  <li>The advantages of using inverted index based ANN search include smaller storage cost and easier integration into the existing retrieval system.</li>
+  <li>The Faiss library was used for quantizing embedding vectors and implementing efficient nearest neighbor search in the inverted table scanning system.</li>
+  <li>Two major components of embedding quantization are coarse quantization and product quantization.</li>
+  <li>Coarse quantization involves quantizing embedding vectors into coarse clusters using algorithms like IMI and IVF, and the number of coarse clusters (num_cluster) needs to be tuned.</li>
+  <li>Product quantization includes variants like vanilla PQ, OPQ, and PQ with PCA transform, and the number of bytes for PQ (pq_bytes) is an important parameter to tune.</li>
+  <li>The parameter nprobe determines the number of clusters assigned to the query embedding, which affects the number of coarse clusters scanned.</li>
+  <li>An offline pipeline was built for efficient parameter tuning, and online experiments were conducted to finalize the settings.</li>
+  <li>Tricks and learnings from ANN tuning include tuning recall against the number of scanned documents, considering the imbalance of clusters, and using the number of scanned documents as a metric to approximate performance.</li>
+  <li>Facebook search ranking is a multi-stage system where embedding-based retrieval is applied at the retrieval layer, followed by sorting and filtering by ranking layers.</li>
+  <li>New results returned from embedding-based retrieval may be ranked sub-optimally by existing rankers designed for traditional retrieval scenarios.</li>
+  <li>Two approaches were proposed to address this problem:
+    <ul>
+      <li>Embedding as ranking feature: Propagating embedding similarities down the funnel helps rankers recognize new results and provides a semantic similarity measure for all results. Cosine similarity feature showed better performance in experiments.</li>
+      <li>Training data feedback loop: To address precision issues, a closed feedback loop based on human rating was implemented. Results from embedding-based retrieval were sent to human raters for labeling relevance. The relevance model was retrained using this data to filter out irrelevant results while keeping the relevant ones, improving precision for the recall improvement in embedding-based retrieval.</li>
+    </ul>
+  </li>
+  <li>Introducing semantic embeddings into search retrieval has long-term benefits for addressing semantic matching issues.</li>
+  <li>Implementing embedding-based retrieval in a large-scale personalized social search engine is challenging due to modeling difficulty, system implementation, and cross-stack optimization complexity.</li>
+  <li>The paper presented the approach of unified embedding for social search and the implementation of embedding-based retrieval in an inverted index based search system.</li>
+  <li>Further optimization is required to improve result quality and system performance. The paper shared experiences in model improvement, serving algorithm tuning, and later-stage optimization.</li>
+  <li>Successful deployment of embedding-based retrieval in production enables sustainable improvement of retrieval quality using semantic embedding learning techniques.</li>
+  <li>Future directions include exploring advanced models such as BERT, task-specific models, and deeper investigation into serving algorithm tuning and ranking model improvement.</li>
+  <li>Going universal involves leveraging pre-trained text embedding models for a universal text embedding sub-model and developing a universal query embedding model across different use cases.</li>
+</ul>
+
+<h3 id="pinterest">Pinterest</h3>
+
+<h4 id="pinsage"><a href="https://medium.com/pinterest-engineering/pinsage-a-new-graph-convolutional-neural-network-for-web-scale-recommender-systems-88795a107f48">PinSage</a></h4>
+<ul>
+  <li>Deep learning has made significant advancements in various machine learning and artificial intelligence tasks, but most of the research has focused on data defined on Euclidean domains, such as grids and sequences. However, many interesting and challenging data types exist on non-Euclidean domains, including graphs, manifolds, and recommender systems. The challenge lies in defining basic deep learning operations for such complex data.</li>
+  <li>To address this challenge, Pinterest developed PinSage, a random-walk Graph Convolutional Network capable of learning embeddings for nodes in web-scale graphs with billions of objects. PinSage creates high-quality embeddings of nodes connected in a large graph by leveraging information from nearby nodes. This approach improves the accuracy and robustness of the resulting node embeddings. For example, visually similar Pins that are semantically different can be disambiguated using the graph context.</li>
+  <li>This application of deep graph embeddings on such a large scale is one of the largest to date and opens up possibilities for web-scale recommender systems based on graph convolutional architectures.</li>
+  <li>Pinterest, with its millions of users and billions of saved objects, relies on making visual recommendations and providing context based on users’ interests. As the platform continues to grow, technologies must be developed to ensure smarter recommendations. Pin embeddings play a crucial role in tasks like Pin recommendation, classification, clustering, and reranking, which are essential for services like Related Pins, Search, Shopping, and Ads.</li>
+  <li>To generate high-quality embeddings, Pinterest developed PinSage, a scalable deep learning model that extracts node embeddings from web-scale graphs. By applying PinSage to Pinterest’s data with billions of nodes and tens of billions of edges, they have achieved success in generating high-quality embeddings for various tasks within the platform.
+<img src="../assets/GNN/14.png" alt="" /></li>
+  <li><strong>Challenges:</strong>
+    <ul>
+      <li>Scaling GCN-based node embeddings to graphs with billions of nodes and tens of billions of edges.</li>
+      <li>Violation of core assumptions of GCN design in big data environments.</li>
+      <li>Operating on the full graph Laplacian during training is infeasible for large, evolving graphs.</li>
+    </ul>
+  </li>
+  <li><strong>Key Innovations (PinSage framework):</strong>
+    <ol>
+      <li>On-the-fly convolutions:
+        <ul>
+          <li>Traditional GCN algorithms use full graph Laplacian for convolutions.</li>
+          <li>PinSage performs localized convolutions by sampling neighborhood and dynamically constructing computation graphs.</li>
+          <li>Eliminates the need to operate on the entire graph during training.</li>
+        </ul>
+      </li>
+      <li><strong>Constructing convolutions via random walks:</strong>
+        <ul>
+          <li>Importance-based neighborhoods defined by simulating random walks and selecting neighbors with highest visit counts.</li>
+          <li>Enables aggregators to consider neighbor importance and control memory footprint.</li>
+          <li>Outperforms traditional K-hop graph neighborhoods by 46% in offline evaluation.</li>
+        </ul>
+      </li>
+      <li><strong>Efficient MapReduce inference:</strong>
+        <ul>
+          <li>Bottom-up aggregation of node embeddings suited for MapReduce computational model.</li>
+          <li>Decomposed into map, join, and reduce operations for each aggregation step.</li>
+          <li>Enables generation of embeddings for billions of nodes within a few hours on a cluster.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Offline evaluation:</strong>
+    <ul>
+      <li>PinSage was evaluated on Pinterest data using visual and annotation embeddings.</li>
+      <li>Outperforms content-based deep learning baselines in terms of Pin-to-Pin recommendation (Recall and MRR).</li>
+      <li>PinSage shows 40% higher Recall and 22% higher MRR than the top baseline.</li>
+    </ul>
+  </li>
+  <li><strong>User studies:</strong>
+    <ul>
+      <li>Head-to-head comparison between PinSage and 4 baselines.</li>
+      <li>PinSage recommended preferred items in around 60% of cases.</li>
+      <li>PinSage combines visual, textual, and graph information for relevant recommendations.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/GNN/15.png" alt="" /></p>
+
+<ul>
+  <li><strong>A/B Test:</strong>
+    <ul>
+      <li>A/B experiments conducted in Home Feed and Related Pin Ads.</li>
+      <li>Compared against annotation embedding-based baseline.</li>
+      <li>Observed around 30% relative improvement in user engagement rates.</li>
+    </ul>
+  </li>
+  <li><strong>Conclusion:</strong>
+    <ul>
+      <li>PinSage is a highly-scalable random-walk Graph Convolutional Network.</li>
+      <li>Capable of learning embeddings for nodes in web-scale graphs with billions of objects.</li>
+      <li>Substantial improvement in recommendation performance demonstrated through offline metrics, user studies, and A/B tests.</li>
+    </ul>
+  </li>
+  <li><strong>Future implications:</strong>
+    <ul>
+      <li>Supercharging the backend of product discovery.</li>
+      <li>Enabling the future of shopping at scale with Pinterest.</li>
+      <li>Increased impressions for “Shop the…” feature by 25%.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="uber-eats">Uber Eats</h3>
+
+<h4 id="food-discovery-with-uber-eats-using-graph-learning-to-power-recommendations"><a href="https://www.uber.com/blog/uber-eats-graph-learning/">Food Discovery with Uber Eats: Using Graph Learning to Power Recommendations</a></h4>
+
+<p><img src="../assets/GNN/16.png" alt="" /></p>
+
+<ul>
+  <li><strong>Graph Learning:</strong>
+    <ul>
+      <li>Machine learning tasks can be performed on graph-structured data.</li>
+      <li>Learning representations of nodes in a graph encodes graph structure properties.</li>
+      <li>Vector representations approximate the strength of connections between nodes.</li>
+      <li>Objective is to find an encoding function that maps nodes to vector representations.</li>
+    </ul>
+  </li>
+  <li><strong>Uber Eats Use-case:</strong>
+    <ul>
+      <li>Graph neural network (GNN) approach used for encoding function.</li>
+      <li>GNNs have been widely adopted for various tasks and effective for recommendations.</li>
+      <li>GNN aggregates representations of neighboring nodes recursively.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/GNN/17.png" alt="" /></p>
+
+<ul>
+  <li><strong>Graph Learning:</strong>
+    <ul>
+      <li>Graph neural network (GNN) approach is used to obtain node representations.</li>
+      <li>Recursive aggregation of representations from neighboring nodes.</li>
+      <li>Limiting recursion depth to two in the example.</li>
+    </ul>
+  </li>
+  <li><strong>Encoding Function:</strong>
+    <ul>
+      <li>Breadth-first search performed starting from node \(A\).</li>
+      <li>Features \(x\) of nodes at two steps from \(A\) are obtained.</li>
+      <li>Aggregation/pooling function (e.g., average) applied to aggregated features.</li>
+      <li>Resulting neighborhood representation combined with node \(A\)’s own information.</li>
+      <li>Matrix multiplication with learned weight matrices (PROJ W and PROJ B) used for projection.</li>
+      <li>Recursive aggregation and projection to obtain the final representation of node \(A\).</li>
+    </ul>
+  </li>
+  <li><strong>Advantage:</strong>
+    <ul>
+      <li>Representation captures properties of node \(A\) and structural information of its neighborhood.</li>
+      <li>Aggregates information about nodes connected to node \(A\).</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="../assets/GNN/18.webp" alt="" /></p>
+
+<ul>
+  <li><strong>Recommendation Surfaces:</strong>
+    <ul>
+      <li>Uber Eats app has recommendation carousels for restaurants and menu items.</li>
+      <li>Personalized recommendations are based on user preferences and past orders.</li>
+    </ul>
+  </li>
+  <li><strong>Recommendation System Phases:</strong>
+    <ol>
+      <li><strong>Candidate Generation:</strong>
+        <ul>
+          <li>Scalable generation of relevant dish and restaurant candidates.</li>
+          <li>Pre-filtering based on factors like geographical location and user relevance.</li>
+        </ul>
+      </li>
+      <li><strong>Personalized Ranking:</strong>
+        <ul>
+          <li>ML model ranks pre-filtered candidates considering contextual information.</li>
+          <li>Factors include day, time, and user’s current location.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Utilizing GNNs for Recommendations:</strong>
+    <ul>
+      <li>Creation of bipartite graphs representing users with dishes and restaurants.</li>
+      <li>GraphSAGE, a GNN variant, chosen for scalability and efficient suggestions.</li>
+      <li>Node and neighbor information combined through max or mean pooling.</li>
+      <li>Sampling strategy limits nodes sampled at one and two-hop distances.</li>
+      <li>Modifications made to GraphSAGE for handling different node types and weighted edges.</li>
+    </ul>
+  </li>
+  <li><strong>Modifications to GraphSAGE:</strong>
+    <ul>
+      <li>Additional projection layer for handling different node features (user, restaurant, dish).</li>
+      <li>Projection layer ensures consistent vector sizes for different node types.</li>
+      <li>Weighted edges introduced to incorporate information on order frequency and ratings.</li>
+      <li>Adoption of hinge loss, a ranking-focused loss, for weighted edges.</li>
+    </ul>
+  </li>
+  <li><strong>Loss Function and Low-Rank Positives:</strong>
+    <ul>
+      <li>A weighted edge exists between a user u and a dish v if the user has ordered the dish at least once.</li>
+      <li>To predict higher scores for positive edges compared to randomly selected negative edges, a margin-based approach is used.</li>
+      <li>The problem with this loss is the interchangeability of high-weight and low-weight edges.</li>
+      <li>Introducing the concept of low-rank positives, where a positive edge &lt;u, v&gt; is accompanied by a low-rank positive edge &lt;u, l&gt; with a lower weight.</li>
+      <li>Revised loss incorporates a margin for ranking higher-weight edges above lower-weight edges, with a separate margin for negative samples.</li>
+      <li>Hyper-parameter controls the relative importance of the negative sample loss and the low-rank positive loss.</li>
+    </ul>
+  </li>
+  <li><strong>Utilizing Node Representations:</strong>
+    <ul>
+      <li>Trained GNN provides node representations that capture similarity between nodes.</li>
+      <li>Dot product and cosine similarity of user-item representations used as features in dish and restaurant recommender systems.</li>
+      <li>Offline and online testing demonstrates improved accuracy of the systems.</li>
+    </ul>
+  </li>
+  <li><strong>Evaluation and Performance Boost:</strong>
+    <ul>
+      <li>Model trained on historical data and tested on order data from a specific split date.</li>
+      <li>Cosine similarity used to rank dishes and restaurants for a user.</li>
+      <li>Graph learning embeddings result in over ~20% performance boost compared to the existing production model on various metrics.</li>
+      <li>Embeddings incorporated as features in the personalized ranking model, leading to a 12% boost in AUC compared to the baseline model.</li>
+      <li>Graph learning similarity feature identified as the most influential feature in the recommendation model.</li>
+    </ul>
+  </li>
+  <li><strong>Loss Function and Low-Rank Positives:</strong>
+    <ul>
+      <li>A weighted edge exists between a user u and a dish v if the user has ordered the dish at least once.</li>
+      <li>To predict higher scores for positive edges compared to randomly selected negative edges, a margin-based approach is used.</li>
+      <li>The problem with this loss is the interchangeability of high-weight and low-weight edges.</li>
+      <li>Introducing the concept of low-rank positives, where a positive edge &lt;u, v&gt; is accompanied by a low-rank positive edge &lt;u, l&gt; with a lower weight.</li>
+      <li>Revised loss incorporates a margin for ranking higher-weight edges above lower-weight edges, with a separate margin for negative samples.</li>
+      <li>Hyper-parameter controls the relative importance of the negative sample loss and the low-rank positive loss.</li>
+    </ul>
+  </li>
+  <li><strong>Utilizing Node Representations:</strong>
+    <ul>
+      <li>Trained GNN provides node representations that capture similarity between nodes.</li>
+      <li>Dot product and cosine similarity of user-item representations used as features in dish and restaurant recommender systems.</li>
+      <li>Offline and online testing demonstrates improved accuracy of the systems.</li>
+    </ul>
+  </li>
+  <li><strong>Evaluation and Performance Boost:</strong>
+    <ul>
+      <li>Model trained on historical data and tested on order data from a specific split date.</li>
+      <li>Cosine similarity used to rank dishes and restaurants for a user.</li>
+      <li>Graph learning embeddings result in over ~20% performance boost compared to the existing production model on various metrics.</li>
+      <li>Embeddings incorporated as features in the personalized ranking model, leading to a 12% boost in AUC compared to the baseline model.</li>
+      <li>Graph learning similarity feature identified as the most influential feature in the recommendation model.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Data and training pipeline:</strong>
+<img src="../assets/GNN/19.webp" alt="" /></p>
+  </li>
+  <li><strong>Data Pipeline:</strong>
+    <ul>
+      <li>Scalable data pipeline designed to train models and obtain real-time predictions in a production environment.</li>
+      <li>Separate models trained for each city due to loosely connected graphs.</li>
+      <li>Anonymized, aggregated order data used as input.</li>
+      <li>Four-step data pipeline transforms the data into the networkx graph format required for training models.</li>
+      <li>Pipeline extracts aggregated features not directly available in the raw order data.</li>
+      <li>Capable of creating graphs for older time frames for offline analysis.</li>
+    </ul>
+  </li>
+  <li><strong>Training Pipeline:</strong>
+    <ul>
+      <li>First step involves pulling data from Apache Hive tables and ingesting it into HDFS as Parquet files containing nodes and edges information.</li>
+      <li>Each node and edge has properties versioned by timestamp, enabling the construction of back-dated graphs.</li>
+      <li>The second step retains the most recent properties of nodes and edges for a specified date and stores them in HDFS using Cypher format.</li>
+      <li>Cypher query language in an Apache Spark execution engine is used in the third step to produce multiple graphs partitioned by city.</li>
+      <li>In the fourth step, city graphs are converted into the networkx graph format.</li>
+      <li>TensorFlow processes implemented for model training and embedding generation, executed on GPUs.</li>
+      <li>Generated embeddings stored in a lookup table for retrieval by the ranking model during suggestion requests.</li>
+    </ul>
+
+    <p><img src="../assets/GNN/20.png" alt="" /></p>
+  </li>
+  <li><strong>Visualizing Learned Embeddings:</strong>
+    <ul>
+      <li>Example of a hypothetical user on Uber Eats and their ordering history.</li>
+      <li>Representation of the user is obtained after initial orders and after additional orders.</li>
+      <li>The distance between these representations and popular dishes from different cuisines is computed.</li>
+      <li>Patterns emerge in the visualization:
+        <ul>
+          <li>Green box: Initially, the closest dishes to the user representation are Indian (expected due to initial Indian food orders). Some Chinese dishes also rank high, suggesting a correlation between these cuisine types.</li>
+          <li>Orange box: American, Italian, Thai, and Korean dishes are closer to the user representation after additional orders, influenced by ordering Pizza, Doughnuts, Cobb Salad, and Chinese dishes.</li>
+          <li>Blue box: Cuisines not initially close to the user representations increase in similarity after subsequent orders, indicating the model learned the user’s preference for new cuisine suggestions.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Future Directions:</strong>
+    <ul>
+      <li>Merging dish and restaurant recommendation tasks, currently treated separately, to reinforce each other.</li>
+      <li>Transitioning from two bipartite graphs to a single graph with nodes for all entities, requiring adjustments to the loss and aggregation functions.</li>
+      <li>Addressing the challenge of recommending reasonable items in data-scarce situations, such as new cities on the Uber Eats platform.</li>
+      <li>Exploring meta graph learning to overcome data scarcity limitations, showing promising results.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="google-maps">Google Maps</h3>
+
+<h4 id="eta-prediction-with-graph-neural-networks-in-google-maps"><a href="https://www.deepmind.com/publications/eta-prediction-with-graph-neural-networks-in-google-maps">ETA Prediction with Graph Neural Networks in Google Maps</a></h4>
+<ul>
+  <li>
+    <p><a href="https://www.deepmind.com/blog/traffic-prediction-with-advanced-graph-neural-networks">Traffic prediction with advanced Graph Neural Networks</a></p>
+  </li>
+  <li>Google Maps uses machine learning to predict estimated time of arrivals (ETAs) by combining live traffic data with historical traffic patterns. To further improve the accuracy of ETAs, DeepMind collaborated with the Google Maps team, reducing inaccuracies by more than 50% in cities like Taichung. They employed a generalized machine learning architecture called Graph Neural Networks (GNN) to incorporate relational learning biases and model the connectivity structure of real-world road networks. Here’s an overview of how it works:
+    <ol>
+      <li>Supersegment Division: Road networks are divided into “Supersegments” consisting of multiple adjacent road segments with significant traffic volume.</li>
+      <li>Route Analysis: A route analyzer processes vast amounts of traffic information to construct Supersegments.</li>
+      <li>Graph Neural Network Model: A novel Graph Neural Network model is used, optimized with multiple objectives. This model predicts the travel time for each Supersegment.</li>
+    </ol>
+  </li>
+  <li>By leveraging GNNs and considering spatiotemporal reasoning, Google Maps enhances its traffic prediction system, leading to more accurate ETAs for users worldwide.</li>
+</ul>
+
+<p><img src="../assets/GNN/21.jpg" alt="" /></p>
+<ul>
+  <li>When developing a machine learning system to estimate travel times using Supersegments, one of the key challenges is finding an appropriate architectural solution. The goal is to represent dynamically sized examples of connected road segments accurately, enabling a single model to achieve success.</li>
+  <li>The initial proof of concept for this project utilized the existing traffic system, including the segmentation of road networks and the real-time data pipeline. In this approach, each Supersegment covered a set of road segments, with each segment having specific length and speed features. Initially, a separate fully connected neural network model was trained for each Supersegment. Although the results showed promise and demonstrated the potential of neural networks for travel time prediction, the dynamic sizes of the Supersegments required training millions of separate models, posing a significant infrastructure challenge.</li>
+  <li>To address this issue, the team explored models capable of handling variable length sequences, such as Recurrent Neural Networks (RNNs). However, incorporating additional structure from the road network proved challenging. Instead, they turned to Graph Neural Networks (GNNs) because traffic modeling involves understanding how cars flow through a network of roads, and GNNs excel at modeling network dynamics and information propagation.</li>
+  <li>In the GNN-based model, the local road network is represented as a graph, with each route segment corresponding to a node. Edges exist between segments that are consecutive on the same road or connected through an intersection. The model utilizes a message passing algorithm in which messages and their impact on edge and node states are learned by neural networks. From this perspective, the Supersegments are road subgraphs, randomly sampled in proportion to traffic density. This approach allows training a single model using these sampled subgraphs, which can then be deployed at scale.
+<img src="../assets/GNN/22.gif" alt="" /></li>
+  <li>Graph Neural Networks (GNNs) generalize the concept of “proximity” in machine learning models, allowing for complex connections between road segments in traffic prediction.</li>
+  <li>GNNs utilize message passing between adjacent nodes to capture information flow in the road network, improving predictive power and accounting for factors like adjacent and intersecting roads.</li>
+  <li>Supersegments, consisting of connected road segments, can be of varying length and complexity but can be processed by the same GNN model.</li>
+  <li>Graph structures used during training can vary significantly, leading to variability in model performance. MetaGradients were used to adapt the learning rate dynamically and stabilize the parameters during training.</li>
+  <li>Combining multiple loss functions, including L_2 and L_1 losses on global traversal times and Huber and negative-log likelihood (NLL) losses on individual nodes, improved the model’s generalization ability and avoided overfitting.</li>
+  <li>The MetaGradient technique is being explored to vary the composition of the loss function during training based on reduction in travel estimate errors.</li>
+  <li>Close collaboration with the Google Maps team facilitated the application of these techniques at scale, overcoming research, production, and scalability challenges.</li>
+  <li>The final model and techniques resulted in a successful launch, improving the accuracy of ETAs on Google Maps and Google Maps Platform APIs globally.</li>
+</ul>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://medium.com/decathlondigital/building-a-recommender-system-using-graph-neural-networks-2ee5fc4e706d#:~:text=Typically%2C%20GNN%20recommender%20systems%20use,of%20information%20to%20learn%20from.">Building a Recommender System Using Graph Neural Networks by Jérémi DeBlois-Beaucage</a></li>
+  <li><a href="http://www.aritrasen.com/graph-neural-network-message-passing-gcn-1-1/">Graph Neural Network - Message Passing</a></li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/recsys/GNN/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:02:35 GMT -->
+</html>

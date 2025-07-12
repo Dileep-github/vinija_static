@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from vinija.ai/concepts/llm-alignment/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:15 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Vinija's Notes • LLM Alignment</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Vinija's detailed AI Notes">
+  <link rel="canonical" href="index.html">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <!-- Google fonts -->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>-->
+
+  <!-- RSS feed -->
+  <link rel="alternate" type="application/atom+xml" title="Vinija's AI Notes" href="../../feed.xml">
+  
+  <link href="../../favicon.html" rel="shortcut icon" />
+
+  <!-- Google ads -->
+  <script async src="../../../pagead2.googlesyndication.com/pagead/js/ff0a8.txt?client=ca-pub-5905744527956213"
+     crossorigin="anonymous"></script>
+</head>
+
+
+
+    <body>
+
+      <script src="../../../unpkg.com/vanilla-back-to-top%407.2.1/dist/vanilla-back-to-top.min.js"></script>
+      <script>addBackToTop({
+        backgroundColor: '#fff',
+        innerHTML: 'Back to Top',
+        textColor: '#333'
+      })</script>
+      <style>
+        #back-to-top {
+          border: 1px solid #ccc;
+          border-radius: 0;
+          font-family: sans-serif;
+          font-size: 14px;
+          width: 100px;
+          text-align: center;
+          line-height: 30px;
+          height: 30px;
+        }
+      </style>   
+
+    <header class="site-header">
+
+  <a class="site-title" href="../index-2.html">Vinija's AI Notes</a>
+
+  <a class="site-link" href="../../index.html">Back to vinija.ai</a>
+
+  <!-- Html Elements for Search -->
+  <div id="search-container">
+  <input class="site-search-box" type="text" autocomplete="off" id="search-input" placeholder="search...">
+  <div id="results-container"></div>
+  </div>
+
+  <!-- Script pointing to aman-script.js -->
+  <script src="../../js/aman-search.min.js" type="text/javascript"></script>
+
+  <!-- Configuration -->
+  <script>
+  document.getElementById('search-input').value='';
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    exclude: ["cs231a"],
+    searchResultTemplate: '<div class="site-search-results"><a href="{url}">{title}</a></div>',
+    noResultsText: '<div class="site-search-results"><p>No results found</p></div>',
+    json: 'https://vinija.ai/search.json',
+    limit: 5,
+    fuzzy: false,
+  })
+  </script>    
+
+</header>     
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>LLM Alignment</h1>
+  </header>
+
+  <article class="post-content">
+  <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#refresher-basics-of-reinforcement-learning" id="markdown-toc-refresher-basics-of-reinforcement-learning">Refresher: Basics of Reinforcement Learning</a></li>
+  <li><a href="#reinforcement-learning-from-human-feedback-rlhf" id="markdown-toc-reinforcement-learning-from-human-feedback-rlhf">Reinforcement Learning from Human Feedback (RLHF)</a>    <ul>
+      <li><a href="#reward-model" id="markdown-toc-reward-model">Reward Model</a></li>
+      <li><a href="#optimizing-the-policy" id="markdown-toc-optimizing-the-policy">Optimizing the Policy</a></li>
+      <li><a href="#putting-it-all-together-training-llama-2" id="markdown-toc-putting-it-all-together-training-llama-2">Putting it all together: Training Llama 2</a></li>
+    </ul>
+  </li>
+  <li><a href="#proximal-policy-optimization-ppo" id="markdown-toc-proximal-policy-optimization-ppo">Proximal Policy Optimization (PPO)</a>    <ul>
+      <li><a href="#core-principles-of-ppo" id="markdown-toc-core-principles-of-ppo">Core Principles of PPO</a></li>
+      <li><a href="#key-components-of-ppo" id="markdown-toc-key-components-of-ppo">Key Components of PPO</a></li>
+      <li><a href="#advantages-of-ppo" id="markdown-toc-advantages-of-ppo">Advantages of PPO</a></li>
+      <li><a href="#simplified-example" id="markdown-toc-simplified-example">Simplified Example</a></li>
+      <li><a href="#ppos-objective-function" id="markdown-toc-ppos-objective-function">PPO’s Objective Function</a></li>
+      <li><a href="#role-of-kl-divergence" id="markdown-toc-role-of-kl-divergence">Role of KL Divergence</a></li>
+      <li><a href="#summary" id="markdown-toc-summary">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#reinforcement-learning-with-ai-feedback-rlaif" id="markdown-toc-reinforcement-learning-with-ai-feedback-rlaif">Reinforcement Learning with AI Feedback (RLAIF)</a></li>
+  <li><a href="#direct-preference-optimization-dpo" id="markdown-toc-direct-preference-optimization-dpo">Direct Preference Optimization (DPO)</a>    <ul>
+      <li><a href="#dpo-and-its-use-of-binary-cross-entropy" id="markdown-toc-dpo-and-its-use-of-binary-cross-entropy">DPO and it’s use of Binary Cross Entropy</a></li>
+      <li><a href="#how-does-dpo-generate-two-responses" id="markdown-toc-how-does-dpo-generate-two-responses">How does DPO generate two responses</a></li>
+      <li><a href="#summary-1" id="markdown-toc-summary-1">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#kahneman-tversky-optimization-kto" id="markdown-toc-kahneman-tversky-optimization-kto">Kahneman-Tversky Optimization (KTO)</a></li>
+  <li><a href="#ppo-vs-dpo-vs-kto" id="markdown-toc-ppo-vs-dpo-vs-kto">PPO vs. DPO vs. KTO</a></li>
+  <li><a href="#simpo-simple-preference-optimization-with-a-reference-free-reward" id="markdown-toc-simpo-simple-preference-optimization-with-a-reference-free-reward">SimPO: Simple Preference Optimization with a Reference-Free Reward</a></li>
+  <li><a href="#bias-concerns-and-mitigation-strategies" id="markdown-toc-bias-concerns-and-mitigation-strategies">Bias Concerns and Mitigation Strategies</a></li>
+  <li><a href="#relevant-papers" id="markdown-toc-relevant-papers">Relevant papers</a>    <ul>
+      <li><a href="#openais-paper-on-instructgpt" id="markdown-toc-openais-paper-on-instructgpt">OpenAI’s Paper on InstructGPT</a></li>
+      <li><a href="#constitutional-ai-harmlessness-from-ai-feedback" id="markdown-toc-constitutional-ai-harmlessness-from-ai-feedback">Constitutional AI: Harmlessness from AI Feedback</a></li>
+      <li><a href="#openais-paper-on-ppo" id="markdown-toc-openais-paper-on-ppo">OpenAI’s Paper on PPO</a></li>
+      <li><a href="#anthropics-paper-on-constitutional-ai" id="markdown-toc-anthropics-paper-on-constitutional-ai">Anthropic’s Paper on Constitutional AI</a></li>
+      <li><a href="#rlaif-scaling-reinforcement-learning-from-human-feedback-with-ai-feedback" id="markdown-toc-rlaif-scaling-reinforcement-learning-from-human-feedback-with-ai-feedback">RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback</a></li>
+      <li><a href="#reinforced-self-training-rest-for-language-modeling" id="markdown-toc-reinforced-self-training-rest-for-language-modeling">Reinforced Self-Training (ReST) for Language Modeling</a></li>
+      <li><a href="#beyond-human-data-scaling-self-training-for-problem-solving-with-language-models" id="markdown-toc-beyond-human-data-scaling-self-training-for-problem-solving-with-language-models">Beyond Human Data: Scaling Self-Training for Problem-Solving with Language Models</a></li>
+      <li><a href="#diffusion-model-alignment-using-direct-preference-optimization" id="markdown-toc-diffusion-model-alignment-using-direct-preference-optimization">Diffusion Model Alignment Using Direct Preference Optimization</a></li>
+      <li><a href="#human-centered-loss-functions-halos" id="markdown-toc-human-centered-loss-functions-halos">Human-Centered Loss Functions (HALOs)</a></li>
+      <li><a href="#nash-learning-from-human-feedback" id="markdown-toc-nash-learning-from-human-feedback">Nash Learning from Human Feedback</a></li>
+      <li><a href="#group-preference-optimization-few-shot-alignment-of-large-language-models" id="markdown-toc-group-preference-optimization-few-shot-alignment-of-large-language-models">Group Preference Optimization: Few-shot Alignment of Large Language Models</a></li>
+      <li><a href="#icdpo-effectively-borrowing-alignment-capability-of-others-via-in-context-direct-preference-optimization" id="markdown-toc-icdpo-effectively-borrowing-alignment-capability-of-others-via-in-context-direct-preference-optimization">ICDPO: Effectively Borrowing Alignment Capability of Others via In-context Direct Preference Optimization</a></li>
+    </ul>
+  </li>
+  <li><a href="#further-reading" id="markdown-toc-further-reading">Further Reading</a>    <ul>
+      <li><a href="#huggingfaces-alignment-handbook" id="markdown-toc-huggingfaces-alignment-handbook">HuggingFace’s Alignment Handbook</a></li>
+      <li><a href="#empirical-evaluation-dpo-vs-ipo-vs-kto" id="markdown-toc-empirical-evaluation-dpo-vs-ipo-vs-kto">Empirical Evaluation: DPO vs. IPO vs. KTO</a></li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+<ul>
+  <li>In 2017, OpenAI introduced a groundbreaking approach to machine learning called Reinforcement Learning from Human Feedback (RLHF), specifically focusing on human preferences, in their paper <a href="https://arxiv.org/abs/1706.03741">“Deep reinforcement learning from human preferences”</a>. This innovative concept has since inspired further research and development in the field.</li>
+  <li>The concept behind RLHF is straightforward yet powerful: it involves using a pretrained language model and having human evaluators rank its outputs. This ranking then informs the model to develop a preference for certain types of responses, leading to more reliable and safer outputs.</li>
+  <li>RLHF effectively leverages human feedback to enhance the performance of language models. It combines the strengths of reinforcement learning algorithms with the nuanced understanding of human input, facilitating continuous learning and improvement in the model.</li>
+  <li>Incorporating human feedback, RLHF not only improves the model’s natural language understanding and generation capabilities but also boosts its efficiency in specific tasks like text classification or translation.</li>
+  <li>Moreover, RLHF plays a crucial role in addressing bias within language models. By allowing human input to guide and correct the model’s language use, it fosters more equitable and inclusive communication. However, it’s important to be mindful of the potential for human-induced bias in this process.</li>
+</ul>
+
+<h2 id="refresher-basics-of-reinforcement-learning">Refresher: Basics of Reinforcement Learning</h2>
+
+<ul>
+  <li>To understand why reinforcement learning is employed in RLHF, we need to gain a better understanding of what it entails.</li>
+  <li>Reinforcement learning has its basics in mathematics where an agent is interacting with the environment as shown below <a href="https://www.youtube.com/watch?v=2MBJOuVq380">(source)</a>:</li>
+</ul>
+
+<p><img src="../assets/rlhf/1.png" alt="" /></p>
+
+<ul>
+  <li>In this interaction, the agent takes an action, and the environment responds with a state and a reward. Here’s a brief on the key terms:
+    <ul>
+      <li>The <strong>reward</strong> is the objective that we want to optimize.</li>
+      <li>A <strong>state</strong> is the representation of the environment/world at the current time index.</li>
+      <li>A <strong>policy</strong> is used to map from that state to an action.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="reinforcement-learning-from-human-feedback-rlhf">Reinforcement Learning from Human Feedback (RLHF)</h2>
+
+<ul>
+  <li>Let’s start out by talking about what the motivation behind aligning LLMs to human feedback is.</li>
+  <li>The initial objective of training large language models like GPT was to predict subsequent text tokens accurately. However, this approach did not ensure that the outputs were helpful, harmless, or honest.</li>
+  <li>Consequently, there was a risk of generating content that might not align with ethical or safe human standards. To address this, a process was required to guide the model towards outputs that reflect human values, and that’s the role RLHF fulfills.</li>
+  <li>The image below <a href="https://openai.com/research/instruction-following">(source)</a>, depicts how RLHF was leveraged in InstructGPT and will be used as the foundation of our understanding.
+<img src="../assets/rlhf/openAI.png" alt="" /></li>
+  <li>The image outlines a three-step process used to train a language model using RLHF. Here’s an explanation of each step:
+    <ol>
+      <li>Collect Demonstration Data, and Train a Supervised Policy.
+        <ul>
+          <li>A prompt is taken from a collection of prompts.</li>
+          <li>A human labeler (an annotator) provides the desired output, demonstrating how the model should ideally respond.</li>
+          <li>This labeled data is then used to fine-tune the language model (like GPT-3) using supervised learning techniques. Essentially, the model is taught to imitate the demonstrations.</li>
+        </ul>
+      </li>
+      <li>Collect Comparison Data, and Train a Reward Model.
+        <ul>
+          <li>A prompt is chosen, and the model generates several potential outputs.</li>
+          <li>A labeler then ranks these outputs from best to worst according to criteria like helpfulness or accuracy.</li>
+          <li>This ranked data is used to train a reward model. The reward model learns to predict the quality of the language model’s outputs based on the rankings provided by human labelers.</li>
+        </ul>
+      </li>
+      <li>Optimize a Policy Against the Reward Model Using Reinforcement Learning.
+        <ul>
+          <li>A new prompt is selected from the dataset.</li>
+          <li>The current policy (strategy the model uses to generate outputs) creates a response.</li>
+          <li>The reward model evaluates this response and assigns a reward.</li>
+          <li>This reward information is used to update and improve the policy through a reinforcement learning algorithm known as <a href="#proximal-policy-optimization-ppo">Proximal Policy Optimization (PPO)</a> . The policy is adjusted to increase the likelihood of generating higher-reward outputs in the future.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li><a href="https://huyenchip.com/2023/05/02/rlhf.html">Chip Huyen</a> provides a zoomed out view of how the overall process works in her flowchart below:</li>
+</ul>
+
+<p><img src="../assets/rlhf/chip.jpg" alt="" /></p>
+
+<ul>
+  <li>
+    <p>Here’s a breakdown of the flowchart:</p>
+
+    <ol>
+      <li><strong>Language Modeling</strong>:
+        <ul>
+          <li>This is the first stage where a language model is trained on a large dataset. The dataset is composed of a vast amount of text data, which can be of varying quality. The training at this stage is optimized for text completion tasks. The scale mentioned is over 1 trillion tokens, and examples of such models include GPT-x, Gopher, Falcon, LLama, Pythia, Bloom, and StableLM. This results in a Pretrained Large Language Model (LLM).</li>
+          <li>To expand further: This is phase of pretraining involves developing a large language model (LLM) that functions as a completion machine, using statistical knowledge to predict the likelihood of sequences in language. This is achieved by feeding the model extensive text data, often exceeding trillions of tokens, from varied sources to learn language patterns. The model’s efficacy is contingent on the quality of the training data, with the aim to minimize cross-entropy loss across training samples. As the Internet becomes saturated with data, including that generated by LLMs themselves, there’s a growing need to access proprietary data for further model improvement.</li>
+        </ul>
+      </li>
+      <li><strong>Supervised Finetuning</strong>:
+        <ul>
+          <li>In the second stage, the pretrained LLM is further finetuned using high-quality data, which is often dialogue-focused to better suit conversational AI. This is done using demonstration data, and the process generates a Supervised Finetuning (SFT) model. The amount of data used for finetuning ranges from 10,000 to 100,000 (prompt, response) pairs. Examples of models that go through this process are Dolly-v2 and Falcon-Instruct.</li>
+          <li>To elaborate: This is phase involves Supervised Fine-Tuning (SFT) for dialogue, where a pre-trained model is optimized to generate preferred responses to prompts, such as direct answers to questions. High-quality demonstration data, consisting of prompt-response pairs, guides the model’s behavior. With about 13,000 such pairs, OpenAI’s approach emphasizes quality through expert labelers, while others like DeepMind use heuristics for data selection. The SFT process is critical for tailoring the model’s outputs to practical use cases, leveraging a smaller yet refined dataset to minimize cross-entropy loss for the dialogue-specific responses.</li>
+        </ul>
+      </li>
+      <li><strong>Classification and Reward Modeling</strong>:
+        <ul>
+          <li>The model undergoes a classification process where it is trained to give a scalar score to responses based on human feedback. This is to ensure that the model can evaluate the quality of its own responses. The data used here is called comparison data, and involves 100,000 to 1 million comparisons between a prompt, a winning response, and a losing response. This stage results in the creation of a Reward model.</li>
+        </ul>
+      </li>
+      <li><strong>Reinforcement Learning (RLHF)</strong>:
+        <ul>
+          <li>This phase involves using Reinforcement Learning techniques to train the model to generate responses that maximize the scores given by the reward model, effectively teaching the AI to prefer high-quality responses as judged by humans. This stage uses prompts (10,000 to 100,000) to adjust the model’s responses. The end product is the Final model, which should be adept at handling prompts in a way that aligns with human preferences. Examples of such models are InstructGPT, ChatGPT, Claude, and StableVicuna.</li>
+          <li>This phase of RLHF is an advanced training process that refines the behavior of a Supervised Fine-Tuned (SFT) model. It uses human feedback to score AI-generated responses, guiding the model to produce high-quality outputs. RLHF involves training a reward model to evaluate responses and optimizing the language model to prioritize these high scores. This phase addresses the limitations of SFT by providing nuanced feedback on the quality of responses, not just their plausibility, and mitigates issues like hallucination by aligning model outputs more closely with human expectations. Despite its complexity, RLHF has been shown to enhance model performance significantly over SFT alone.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>Below, we will expand on the key steps mentioned in this flow.</p>
+  </li>
+</ul>
+
+<h3 id="reward-model">Reward Model</h3>
+<ul>
+  <li>In the context of RLHF, the key function of a reward model is to evaluate a given input (such as a sequence of text) and produce a scalar reward. This reward is indicative of human preferences or judgments about the quality or desirability of the input.</li>
+</ul>
+
+<p><img src="../assets/rlhf/6.png" alt="" /></p>
+
+<ul>
+  <li>The image above <a href="https://huggingface.co/blog/rlhf">(source)</a> displays how the reward model works internally.</li>
+  <li>A reward model is a function or model that takes as input the output or behavior of an AI agent, which can include sequences of text, and produces a scalar reward signal that quantifies how well those outputs align with human preferences or desired behavior.</li>
+  <li>Architectures for reward models include:
+    <ul>
+      <li><strong>LM classifiers</strong>: An LLM fine-tuned as a binary classifier to score which response better fits the human preference</li>
+      <li><strong>Value networks</strong>: Regression models that predict a scalar rating representing relative human preference</li>
+      <li><strong>Critique generators</strong>: LMs trained to generate an evaluative critique explaining which response is better and why. The critique is used with instruction tuning.</li>
+    </ul>
+  </li>
+  <li>The goal is converting noisy human subjective judgments into a consistent reward function that can guide an RL agent’s training. Better reward modeling yields superior performance.</li>
+  <li>To summarize, the reward model is trained using the ranked comparison data (several outputs generated by the model) based on it’s alignment criteria which can be helpful, harmless, and honesty. The reward function combines various models into the RLHF process. It evaluates generated text’s “preferability.” by including a penalty term based on the Kullback-Leibler (KL) divergence between probability distributions from the RL policy and the initial model. This penalty prevents the RL policy from deviating significantly from the pretrained model, ensuring coherent text generation.
+    <ul>
+      <li>The Kullback-Leibler (KL) divergence, which is a measure of the difference between two probability distributions, can be used to overlap the two distributions (initial LM output vs. tuned LM output).
+        <ul>
+          <li>KL divergence is a measure of how one probability distribution diverges from a second, expected probability distribution. It quantifies the difference between two probability distributions.</li>
+          <li>Thus, with RLHF, KL divergence can be used to compare the probability distribution of an agent’s current policy with a reference distribution that represents the desired behavior.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="optimizing-the-policy">Optimizing the Policy</h3>
+<ul>
+  <li>The “policy” refers to a strategy or a set of rules that an agent uses to make decisions in an environment. The policy defines how the agent selects actions based on its current observations or state.</li>
+  <li>The policy in PPO is iteratively updated to maximize reward while maintaining a certain level of similarity to its previous version (to prevent drastic changes that could lead to instability).</li>
+  <li>In <a href="#direct-preference-optimization-dpo">Direct Preference Optimization (DPO)</a>, the policy is optimized directly from human preferences, where it increases the relative log probability of preferred responses to unpreferred ones using a binary cross entropy loss, thus aligning with human feedback while maintaining a balance as specified by the KL divergence constraint.</li>
+</ul>
+
+<h3 id="putting-it-all-together-training-llama-2">Putting it all together: Training Llama 2</h3>
+
+<ul>
+  <li>As a case study of how Llama 2 was trained, let’s go over the multi-stage process that integrates both human and model-generated feedback to refine the performance of language models. Here’s how it functions:
+    <ol>
+      <li><strong>Pretraining:</strong> Llama 2 undergoes initial pretraining with large amounts of data through self-supervised learning. This stage lays the foundation for the model by enabling it to understand language patterns and context.</li>
+      <li><strong>Supervised Fine-Tuning:</strong> The model then undergoes supervised fine-tuning with instruction data, where it is trained to respond to prompts in ways that align with specific instructions.</li>
+      <li><strong>Reward Models Creation (RLHF Step 1):</strong> Two separate reward models are created using human preference data –- one for helpfulness and one for safety. These models are trained to predict which of two responses is better based on human judgments.</li>
+      <li><strong>Margin Loss and Ranking:</strong> Unlike the previous approach that generates multiple outputs and uses a “k choose 2” comparison method, Llama 2’s dataset is based on binary comparisons, and each labeler is presented with only two responses at a time. A margin label is collected alongside binary ranks to indicate the degree of preference, which can inform the ranking loss calculation.</li>
+      <li><strong>Rejection Sampling and Alignment using PPO (RLHF Step 2):</strong> Finally, Llama 2 employs rejection sampling and Proximal Policy Optimization (PPO). Rejection sampling is used to draw multiple outputs and select the one with the highest reward for the gradient update. PPO is then used to align the model further, making the model’s responses more safe and helpful.</li>
+    </ol>
+  </li>
+  <li>The image below <a href="https://ai.meta.com/resources/models-and-libraries/llama/">(source)</a> showing how Llama 2 leverages RLHF.</li>
+</ul>
+
+<p><img src="../assets/rlhf/llama.jpg" alt="" /></p>
+
+<h2 id="proximal-policy-optimization-ppo">Proximal Policy Optimization (PPO)</h2>
+
+<ul>
+  <li>Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that addresses some key challenges in training agents through policy gradient methods. Here’s a detailed look at how PPO works:</li>
+</ul>
+
+<h3 id="core-principles-of-ppo">Core Principles of PPO</h3>
+
+<ol>
+  <li>
+    <p><strong>Policy Gradient Approach:</strong> PPO operates on the policy gradient approach, where the agent directly learns a policy, typically parameterized by a neural network. The policy maps states to actions based on the current understanding of the environment.</p>
+  </li>
+  <li>
+    <p><strong>Iterative Policy Improvement:</strong> The agent collects a set of trajectories under its current policy, and then updates the policy to maximize a specially designed objective function. This process is repeated iteratively, allowing the policy to gradually improve over time.</p>
+  </li>
+</ol>
+
+<h3 id="key-components-of-ppo">Key Components of PPO</h3>
+
+<ol>
+  <li>
+    <p><strong>Surrogate Objective Function:</strong> Central to PPO is its surrogate objective function, which considers the ratio of the probability of an action under the current policy to the probability under the old policy, multiplied by the advantage function. The advantage function assesses how much better an action is compared to the average action at a given state.</p>
+  </li>
+  <li>
+    <p><strong>Policy Ratio and Clipping Mechanism:</strong> The “policy ratio,” which is the ratio of the probability of an action under the new policy to that under the old policy, plays a crucial role. PPO employs a clipping mechanism in its objective function, limiting the policy ratio within a defined range (typically \([1-\epsilon, 1+\epsilon]\)). This clipping ensures that the updates to the policy are kept within a reasonable range, preventing the new policy from deviating excessively from the old one. Ultimately, this mechanism helps in maintaining the stability of the learning process.</p>
+  </li>
+  <li>
+    <p><strong>Multiple Epochs of Stochastic Gradient Ascent:</strong> In PPO, each batch of experiences is used for multiple epochs of stochastic gradient ascent. This efficient use of data for policy updates makes PPO more sample-efficient compared to some other methods.</p>
+  </li>
+  <li>
+    <p><strong>Value Function and Baseline:</strong> A value function is often trained alongside the policy in PPO. This value function estimates the expected return (cumulative future rewards) from each state and is used to compute the advantage function, which in turn informs the policy update.</p>
+  </li>
+</ol>
+
+<h3 id="advantages-of-ppo">Advantages of PPO</h3>
+
+<ul>
+  <li><strong>Stability and Reliability:</strong> The clipping mechanism in the objective function helps to avoid large, destabilizing updates to the policy, making the learning process more stable and reliable.</li>
+  <li><strong>Efficiency:</strong> By reusing data for multiple gradient updates, PPO can be more sample-efficient compared to some other methods.</li>
+  <li><strong>General Applicability:</strong> PPO has demonstrated good performance across a wide range of environments, from simple control tasks to complex simulations  like those in 3D simulations. It offers a simpler and more robust approach compared to previous algorithms like TRPO.</li>
+</ul>
+
+<h3 id="simplified-example">Simplified Example</h3>
+
+<ul>
+  <li>Imagine an agent learning to play a game. The agent tries different actions (moves in the game) and learns a policy that predicts which action to take in each state (situation in the game). The policy is updated based on the experiences, but instead of drastically changing the policy based on recent success or failure, PPO makes smaller, incremental changes. This way, the agent avoids drastically changing its strategy based on limited new information, leading to a more stable and consistent learning process.</li>
+</ul>
+
+<p>Proximal Policy Optimization (PPO) is designed with a specific objective function that helps in stabilizing and improving the training process in reinforcement learning. The objective function of PPO and the role of KL divergence in it can be described as follows:</p>
+
+<h3 id="ppos-objective-function">PPO’s Objective Function</h3>
+
+<ol>
+  <li>
+    <p><strong>Policy Ratio:</strong> The core of the PPO objective function involves the policy ratio, which is the ratio of the probability of taking a certain action under the current policy to the probability under the previous policy. This ratio is multiplied by the advantage estimate, which reflects how much better a given action is compared to the average action at a given state.</p>
+  </li>
+  <li>
+    <p><strong>Clipped Surrogate Objective:</strong> To prevent excessively large updates, which could destabilize training, PPO introduces a clipping mechanism in its objective function. The policy ratio is clipped within a certain range, typically \([1-\epsilon, 1+\epsilon]\) (where \(\epsilon\) is a small value like 0.1 or 0.2). This clipping ensures that the updates to the policy are not too large, which maintains stability in training.</p>
+  </li>
+  <li>
+    <p><strong>Value Function Loss:</strong> PPO also typically includes a value function loss in its objective. This part of the objective function ensures that the estimated value of the states (as predicted by the value function) is as accurate as possible, which is important for computing reliable advantage estimates.</p>
+  </li>
+  <li>
+    <p><strong>Entropy Bonus:</strong> Some implementations of PPO include an entropy bonus to encourage exploration. This part of the objective function rewards the policy for taking a variety of actions, which helps prevent premature convergence to suboptimal policies.</p>
+  </li>
+</ol>
+
+<h3 id="role-of-kl-divergence">Role of KL Divergence</h3>
+
+<ul>
+  <li>While the KL divergence is not a direct component of the basic PPO objective function, it plays a significant role in some implementations of PPO:
+    <ol>
+      <li>
+        <p><strong>Monitoring Policy Stability:</strong> KL divergence is used as a measure to monitor how much the policy changes during training. A large KL divergence indicates a significant change in the policy, which might lead to instability.</p>
+      </li>
+      <li>
+        <p><strong>Adjusting Policy Updates:</strong></p>
+        <ul>
+          <li><strong>KL Penalty:</strong> In some implementations, a KL penalty is added to the PPO objective function. This penalty increases when the KL divergence between the new and old policies becomes too large, thus discouraging drastic policy updates.</li>
+          <li><strong>KL Constraint:</strong> Alternatively, PPO can enforce a KL constraint, where the algorithm aims to keep the KL divergence below a predefined threshold. If this threshold is exceeded, the algorithm modifies its updates to reduce the divergence.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="summary">Summary</h3>
+
+<ul>
+  <li>Proximal Policy Optimization (PPO) stands out in the realm of reinforcement learning for its innovative approach to policy updates via gradient ascent. Its key innovation is the introduction of a clipped surrogate objective function that judiciously constrains the policy ratio. This mechanism is fundamental in preventing drastic policy shifts and ensuring a smoother, more stable learning progression.</li>
+  <li>PPO is particularly favored for its effectiveness and simplicity across diverse environments, striking a fine balance between policy improvement and stability.</li>
+  <li>The PPO objective function is designed to balance the need for effective policy improvement with the need for training stability. It does this through a clipped surrogate objective function, value function loss, and potentially an entropy bonus. KL divergence, while not a direct part of the basic PPO objective function, is often used in tandem with it to ensure that policy updates do not destabilize the learning process, either by penalizing large changes or by enforcing a constraint on the extent of change allowed between policy updates.</li>
+</ul>
+
+<h2 id="reinforcement-learning-with-ai-feedback-rlaif"><a href="https://arxiv.org/abs/2309.00267">Reinforcement Learning with AI Feedback (RLAIF)</a></h2>
+
+<ul>
+  <li>RLAIF uses AI-generated preferences instead of human annotated preferences. It leverages a powerful LLM (say, GPT-4) to generate these preferences, offering a cost-effective and efficient alternative to human-generated feedback.</li>
+  <li>RLAIF operates by using a pre-trained LLMs to generate feedback for training another LLM. Essentially, the feedback-generating LLM serves as a stand-in for human annotators. This model evaluates and provides preferences or feedback on the outputs of the LLM being trained, guiding its learning process.</li>
+  <li>The feedback is used to optimize the LLM’s performance for specific tasks like summarization or dialogue generation. This method enables efficient scaling of the training process while maintaining or improving the model’s performance compared to methods relying on human feedback.</li>
+</ul>
+
+<h2 id="direct-preference-optimization-dpo">Direct Preference Optimization (DPO)</h2>
+
+<ul>
+  <li>LLMs acquire extensive world knowledge and reasoning skills via self-supervised pre-training, but precisely controlling their behavior is challenging due to their unsupervised training nature. Traditionally, methods like RLHF, discussed earlier in this article, are used to steer these models, involving two stages: training a reward model based on human preference labels and then fine-tuning the LM to align with these preferences using reinforcement learning (RL). However, RLHF presents complexities and instability issues, necessitating fitting a reward model and then training a policy to optimize this reward, which is prone to stability concerns.</li>
+  <li>Proposed in <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization: Your Language Model is Secretly a Reward Model</a> by Rafailov et al. from Stanford in 2023, Direct Preference Optimization (DPO) is a novel approach that simplifies and enhances the aforementioned process. DPO leverages a mathematical relationship between optimal policies and reward functions, demonstrating that the constrained reward maximization problem in RLHF can be optimized more effectively with a single stage of policy training. DPO redefines the RLHF objective by showing that the reward can be rewritten purely as a function of policy probabilities, allowing the LM to implicitly define both the policy and the reward function. This innovation eliminates the need for a separate reward model and the complexities of RL.</li>
+  <li>This paper introduces a novel algorithm that gets rid of the two stages of RL, namely - fitting a reward model, and training a policy to optimize the reward via sampling. The second stage is particularly hard to get right due to stability concerns, which DPO obliterates. The way it works is, given a dataset of the form <code class="language-plaintext highlighter-rouge">&lt;prompt, worse completion, better completion&gt;</code>, you train your LLM using a new loss function which essentially encourages it to increase the likelihood of the better completion and decrease the likelihood of the worse completion, weighted by how much higher the implicit reward model. This method obviates the need for an explicit reward model, as the LLM itself acts as a reward model. The key advantage is that it’s a straightforward loss function optimized using backpropagation.</li>
+  <li>The stability, performance, and computational efficiency of DPO are significant improvements over traditional methods. It eliminates the need for sampling from the LM during fine-tuning, fitting a separate reward model, or extensive hyperparameter tuning.</li>
+  <li>The figure below from the paper illustrates that DPO optimizes for human preferences while avoiding reinforcement learning. Existing methods for fine-tuning language models with human feedback first fit a reward model to a dataset of prompts and human preferences over pairs of responses, and then use RL to find a policy that maximizes the learned reward. In contrast, DPO directly optimizes for the policy best satisfying the preferences with a simple classification objective, without an explicit reward function or RL.</li>
+</ul>
+
+<p><img src="../../images/papers/DPO.jpg" alt="" /></p>
+
+<ul>
+  <li>Experiments demonstrate that DPO can fine-tune LMs to align with human preferences as effectively, if not more so, than traditional RLHF methods. It notably surpasses RLHF in controlling the sentiment of generations and enhances response quality in tasks like summarization and single-turn dialogue. Its implementation and training processes are substantially simpler.</li>
+</ul>
+
+<h3 id="dpo-and-its-use-of-binary-cross-entropy">DPO and it’s use of Binary Cross Entropy</h3>
+
+<ul>
+  <li>DPO differs from traditional next-token prediction models. While typical language models predict the next token in a sequence, DPO focuses on fine-tuning the model based on human preferences between pairs of responses. It uses binary cross-entropy loss to adjust the model’s internal representation, so it is more likely to generate responses that align with human-preferred outcomes. This approach does not directly predict the next token; instead, it reshapes the probability distribution of the entire model to favor responses that match human preferences. The objective is to align the model’s output with what humans would find more acceptable or desirable in various contexts.</li>
+  <li>DPO works by utilizing Binary Cross-Entropy (BCE) to compare pairs of model-generated responses (preferred and dispreferred) against human preferences. For each pair, the BCE loss calculates how well the model’s predictions align with these preferences.</li>
+  <li>Here’s a simplified breakdown:
+    <ol>
+      <li><strong>Response Pairs</strong>: For each input, the model generates two responses.</li>
+      <li><strong>Human Preferences</strong>: Humans indicate which response is preferable.</li>
+      <li><strong>Model Probabilities</strong>: The model assigns probabilities to each response.</li>
+      <li><strong>BCE Loss</strong>: The loss function computes the difference between the model’s probabilities and the actual human preferences. It penalizes the model more when it assigns a higher probability to the dispreferred response.</li>
+    </ol>
+  </li>
+  <li>By minimizing this loss during training, DPO nudges the model to adjust its internal parameters. This way, it becomes more likely to generate responses that align with human preferences. The BCE loss acts as a guide, informing the model which types of responses are more desirable based on human feedback.</li>
+  <li>In essence, DPO represents a groundbreaking shift in training language models to align with human preferences. It consolidates the two-stage process of RLHF into a single, efficient end-to-end policy learning approach. By reparameterizing the reward function and unifying policy learning and reward modeling into one streamlined optimization process, DPO offers a more efficient and lightweight method for training language models to match human preferences.</li>
+  <li>Put simply, the loss function used in DPO is based on binary cross-entropy. This approach is chosen to optimize language models in alignment with human preferences. In DPO, the goal is to increase the relative log probability of preferred responses in a dataset. The binary cross-entropy loss function facilitates this by treating the optimization as a classification problem, where the model learns to classify between preferred and non-preferred responses. This method simplifies the traditional RLHF approach by directly optimizing for an implicit reward function, represented through human preferences, using a straightforward binary classification loss. This approach is both computationally efficient and theoretically grounded, making it effective for training language models to align with human preferences.</li>
+</ul>
+
+<h3 id="how-does-dpo-generate-two-responses">How does DPO generate two responses</h3>
+
+<ul>
+  <li>
+    <p>In DPO, generating two responses and assigning probabilities to each response involves a nuanced process:</p>
+
+    <ol>
+      <li><strong>Generating Two Responses</strong>:
+        <ul>
+          <li>The responses are typically generated using a supervised fine-tuned language model. This model, when given an input prompt, generates a set of potential responses.</li>
+          <li>These responses are often generated through sampling methods like beam search or random sampling, which can produce diverse outputs.</li>
+        </ul>
+      </li>
+      <li><strong>Assigning Probabilities</strong>:
+        <ul>
+          <li>Language models indeed assign probabilities at the token level, predicting the likelihood of each possible next token given the previous tokens.</li>
+          <li>The probability of an entire response (sequence of tokens) is calculated as the product of the probabilities of individual tokens in that sequence, as per the model’s prediction.</li>
+          <li>For DPO, these probabilities are used to calculate the loss based on human preferences. The model is trained to increase the likelihood of the preferred response and decrease that of the less preferred one.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>Through this process, DPO leverages human feedback to fine-tune the model, encouraging it to generate more human-aligned outputs.</p>
+  </li>
+</ul>
+
+<h3 id="summary-1">Summary</h3>
+
+<ul>
+  <li>RLHF is the most “dicey” part of LLM training and the one that needed the most art vs. science. DPO seeks to simplify that by removing RL out of the equation and not requiring a dedicated reward model (with the LLM serving as the reward model). The process it follows is as follows:
+    <ol>
+      <li>Treat a foundational instruction tuned LLM as the reference LLM.</li>
+      <li>Generate pairs of outputs (using say, different <a href="../token-sampling/index.html">token sampling/decoding</a> methods or temperature scaling) to the same prompt and have humans choose which one they like, leading to a dataset of human preferences/feedback.</li>
+      <li>Add a linear layer to the LLM so that it outputs a scalar value, and tune this new model with a new loss function called DPO loss which is based on binary cross entropy loss (compute log-ratio of scalar outputs of the reference LLM and the one being tuned, multiply by a divergence parameter).</li>
+      <li>Drop the last linear layer, and you have a fine tuned LLM on human feedback.</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="kahneman-tversky-optimization-kto">Kahneman-Tversky Optimization (KTO)</h2>
+
+<ul>
+  <li>Proposed in <a href="https://github.com/ContextualAI/HALOs/blob/main/assets/report.pdf">Human-Centered Loss Functions (HALOs)</a> by Ethayarajh et al. from Stanford and Contextual AI, Kahneman-Tversky Optimization (KTO) is a novel approach to aligning large language models (LLMs) with human feedback. - It’s based on the principles of prospect theory, a theory in behavioral economics. Unlike traditional methods, KTO focuses on maximizing the utility of LLM generations by aligning them with human feedback. Here are the key aspects:</li>
+  <li>Kahneman-Tversky Optimization (KTO) is a human-centered loss function that directly maximizes the utility of language model generations instead of maximizing the log-likelihood of preferences as current methods do. This approach is named after Daniel Kahneman and Amos Tversky, who are known for their work in prospect theory, a theory of how humans make decisions about uncertain outcomes.</li>
+  <li>
+    <p>KTO achieves the goal of generating desirable outputs by using a utility function to guide the training of a language model. This process involves several key steps:</p>
+
+    <ol>
+      <li>
+        <p><strong>Utility Function Definition</strong>: A utility function is defined based on the principles of Kahneman-Tversky’s prospect theory. This function assigns a value to each possible output of the language model, indicating its desirability or utility from a human perspective. The utility values can be determined based on factors like relevance, coherence, or adherence to specific criteria.</p>
+      </li>
+      <li>
+        <p><strong>Generating Outputs</strong>: During training, the language model generates outputs based on given inputs. These outputs are complete sequences, such as sentences or paragraphs, rather than individual tokens.</p>
+      </li>
+      <li>
+        <p><strong>Evaluating Outputs</strong>: Each generated output is evaluated using the utility function. The utility score reflects how desirable or aligned the output is with human preferences or objectives.</p>
+      </li>
+      <li>
+        <p><strong>Optimizing the Model</strong>: The model’s parameters are updated to increase the likelihood of generating outputs with higher utility scores. The optimization process aims to maximize the expected utility of the outputs, essentially encouraging the model to produce more desirable results.</p>
+      </li>
+      <li>
+        <p><strong>Iterative Training</strong>: This process is iterative, with the model continually generating outputs, receiving utility evaluations, and updating its parameters. Over time, the model learns to produce outputs that are increasingly aligned with the utility function’s assessment of desirability.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>In essence, KTO shifts the focus from traditional training objectives, like next-token prediction or fitting to paired preference data, to directly optimizing for outputs that are considered valuable or desirable according to a utility-based framework. This approach can be particularly effective in applications where the quality of the output is subjective or where specific characteristics of the output are valued.</p>
+
+    <ol>
+      <li><strong>What is KTO?</strong>
+        <ul>
+          <li>KTO is an alignment methodology that leverages the concept of human utility functions as described in prospect theory. It aligns LLMs by directly maximizing the utility of their outputs, focusing on whether an output is considered desirable or not by humans.</li>
+          <li>This method does not require detailed preference pairs for training, which is a departure from many existing alignment methodologies.</li>
+        </ul>
+      </li>
+      <li><strong>What Kind of Data Does KTO Require?</strong>
+        <ul>
+          <li>KTO obliterates the need for paired-preference ranking/comparison data and simplifies data requirements significantly. It only needs binary labels indicating whether an LLM output is desirable or undesirable. Put simply, with it’s binary preference data requirement, KTO contrasts with methods such as PPO and DPO that require detailed preference pairs.</li>
+          <li>The simplicity in data requirements makes KTO more practical and applicable in real-world scenarios where collecting detailed preference data is challenging.</li>
+        </ul>
+      </li>
+      <li><strong>Advantages Over DPO and PPO:</strong>
+        <ul>
+          <li>Compared to DPO and Proximal Policy Optimization (PPO), KTO offers several advantages:
+            <ul>
+              <li><strong>Simplicity in Data Collection</strong>: Unlike DPO and PPO, which require paired-preference data (i.e., ranking/comparison data) which is difficult to obtain, KTO operates efficiently with simpler binary feedback on outputs.</li>
+              <li><strong>Practicality in Real-World Application</strong>: KTO’s less stringent data requirements make it more suitable for scenarios where collecting detailed preferences is infeasible.</li>
+              <li><strong>Focus on Utility Maximization</strong>: KTO aligns with the practical aspects of human utility maximization, potentially leading to more user-friendly and ethically aligned outputs.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>Results with KTO Compared to DPO and PPO:</strong>
+        <ul>
+          <li>When applied to models of different scales (from 1B to 30B parameters), KTO has shown to match or exceed the performance of methods like DPO in terms of alignment quality.</li>
+          <li>KTO, even without supervised finetuning, significantly outperforms other methods at larger scales, suggesting its effectiveness in aligning models in a more scalable and data-efficient manner.</li>
+          <li>In terms of practical utility, the results indicate that KTO can lead to LLM outputs that are better aligned with human preferences and utility considerations, particularly in scenarios where detailed preference data is not available.</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+  <li>KTO operates without paired preference data, focusing instead on maximizing the utility of language model generations based on whether an output is desirable or undesirable. This is different from the traditional approach of next-token prediction and paired preference data used in methods like DPO.</li>
+  <li>
+    <p>Here’s how KTO functions:</p>
+
+    <ol>
+      <li>
+        <p><strong>Utility-Based Approach</strong>: KTO uses a utility function, inspired by Kahneman-Tversky’s prospect theory, to evaluate the desirability of outputs. The utility function assigns a value to each possible output of the language model, reflecting how desirable (or undesirable) that output is from a human perspective.</p>
+      </li>
+      <li>
+        <p><strong>Data Requirement</strong>: Unlike DPO, KTO does not need paired comparisons between two outputs. Instead, it requires data that indicates whether a specific output for a given input is considered desirable or not. This data can come from human judgments or predefined criteria.</p>
+      </li>
+      <li>
+        <p><strong>Loss Function</strong>: The loss function in KTO is designed to maximize the expected utility of the language model’s outputs. It does this by adjusting the model’s parameters to increase the likelihood of generating outputs that have higher utility values. Note that 
+the KTO loss function is not a binary cross-entropy loss. Instead, it is inspired by prospect theory and is designed to align large language models with human feedback. KTO focuses on human perception of losses and gains, diverging from traditional loss functions like binary cross-entropy that are commonly used in machine learning. This novel approach allows for a more nuanced understanding and incorporation of human preferences and perceptions in the training of language models.</p>
+      </li>
+      <li>
+        <p><strong>Training Process</strong>: During training, the language model generates outputs, and the utility function evaluates these outputs. The model’s parameters are then updated to favor more desirable outputs according to the utility function. This process differs from next-token prediction, as it is not just about predicting the most likely next word, but about generating entire outputs that maximize a utility score.</p>
+      </li>
+      <li>
+        <p><strong>Implementation</strong>: In practical terms, KTO could be implemented as a fine-tuning process on a pre-trained language model. The model generates outputs, the utility function assesses these, and the model is updated to produce better-scoring outputs over iterations.</p>
+      </li>
+    </ol>
+  </li>
+  <li>KTO is focused more on the overall utility or value of the outputs rather than just predicting the next token. It’s a more holistic approach to aligning a language model with human preferences or desirable outcomes.</li>
+  <li>In summary, KTO represents a shift towards a more practical and scalable approach to aligning LLMs with human feedback, emphasizing utility maximization and simplicity in data requirements.</li>
+</ul>
+
+<h2 id="ppo-vs-dpo-vs-kto">PPO vs. DPO vs. KTO</h2>
+
+<ol>
+  <li><strong>Kahneman-Tversky Optimization (KTO)</strong>:
+    <ul>
+      <li><strong>Function</strong>: Adapts the Kahneman-Tversky human value function to the language model setting. It uses this adapted function to directly maximize the utility of model outputs.</li>
+      <li><strong>Data Requirement</strong>: Does not need paired preference data, only knowledge of whether an output is desirable or undesirable for a given input.</li>
+      <li><strong>Practicality</strong>: Easier to deploy in real-world scenarios where desirable/undesirable outcome data is more abundant.</li>
+      <li><strong>Model Comparison</strong>: Matches or exceeds the performance of direct preference optimization methods across various model sizes (from 1B to 30B).</li>
+    </ul>
+  </li>
+  <li><strong>Proximal Policy Optimization (PPO)</strong>:
+    <ul>
+      <li><strong>Function</strong>: An RL algorithm that optimizes the language model by limiting how far it can drift from a previous version of the model.</li>
+      <li><strong>Implementation</strong>: Involves sampling generations from the current model, judging them with a reward model, and using this feedback for updates.</li>
+      <li><strong>Practical Challenges</strong>: Can be slow and unstable, especially in distributed settings.</li>
+    </ul>
+  </li>
+  <li><strong>DPO</strong>:
+    <ul>
+      <li><strong>Function</strong>: Minimizes the negative log-likelihood of observed human preferences to align the language model with human feedback.</li>
+      <li><strong>Data Requirement</strong>: Requires paired preference data.</li>
+      <li><strong>Comparison with KTO</strong>: While DPO has been effective, KTO offers competitive or superior performance without the need for paired preferences.</li>
+    </ul>
+  </li>
+</ol>
+
+<div align="center">
+<table class="tg">
+  <thead>
+    <tr>
+        <th class="tg-hcenter-valign-first"><strong>Aspect</strong></th>
+        <th class="tg-hcenter-valign-first"><strong>Proximal Policy Optimization (PPO)</strong></th>
+        <th class="tg-hcenter-valign-first"><strong>DPO</strong></th>
+        <th class="tg-hcenter-valign-second"><strong>Kahneman-Tversky Optimization (KTO)</strong></th>
+    </tr>
+  </thead>
+  <tbody>    
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Objective</strong></td>
+        <td class="tg-tcenter-valign-first">Maximizes expected reward while preventing large policy updates (clipped objective function).</td>
+        <td class="tg-tcenter-valign-first">Directly optimizes policy based on human preferences, using a binary classification objective (using a KL-divergence constraint).</td>
+        <td class="tg-tcenter-valign-second">Aligns models by maximizing the utility of LLM generations based on prospect theory, without requiring detailed preference pairs.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Input</strong></td>
+        <td class="tg-tcenter-valign-first">States and rewards from the environment.</td>
+        <td class="tg-tcenter-valign-first">States from the environment and human preference feedback.</td>
+        <td class="tg-tcenter-valign-second">LLM outputs with binary labels indicating desirable or undesirable outcomes.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Output</strong></td>
+        <td class="tg-tcenter-valign-first">Actions to be taken in the environment.</td>
+        <td class="tg-tcenter-valign-first">Actions to be taken in the environment, aligned with human preferences.</td>
+        <td class="tg-tcenter-valign-second">LLM generations aligned with simplified human utility functions.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Learning Mechanism</strong></td>
+        <td class="tg-tcenter-valign-first">Policy gradients with a clipped surrogate objective to update policy and value networks.</td>
+        <td class="tg-tcenter-valign-first">Binary cross-entropy optimization on human preference data, updating a single policy network.</td>
+        <td class="tg-tcenter-valign-second">Optimization based on the alignment of LLM outputs with binary feedback, not requiring complex preference models.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Network Components</strong></td>
+        <td class="tg-tcenter-valign-first">Separate policy and value networks.</td>
+        <td class="tg-tcenter-valign-first">A single policy network.</td>
+        <td class="tg-tcenter-valign-second">LLM framework, adapted for KTO methodology.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Feedback Mechanism</strong></td>
+        <td class="tg-tcenter-valign-first">Uses rewards from the environment as feedback for learning.</td>
+        <td class="tg-tcenter-valign-first">Uses human preference data as direct feedback for learning.</td>
+        <td class="tg-tcenter-valign-second">Utilizes binary feedback on LLM outputs to guide alignment without complex preference data.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Stability</strong></td>
+        <td class="tg-tcenter-valign-first">Clipping mechanism in objective function to maintain stability in policy updates.</td>
+        <td class="tg-tcenter-valign-first">Inherent stability by directly optimizing preferences with dynamic per-example importance weighting.</td>
+        <td class="tg-tcenter-valign-second">Achieves stable alignment by simplifying the feedback mechanism and focusing on utility maximization.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Complexity</strong></td>
+        <td class="tg-tcenter-valign-first">More complex due to dual network structure and balancing reward maximization with policy update stability.</td>
+        <td class="tg-tcenter-valign-first">Simpler, as it bypasses explicit reward modeling and directly optimizes policy from human preferences.</td>
+        <td class="tg-tcenter-valign-second">Reduces complexity by eliminating the need for detailed preference modeling, focusing instead on binary utility optimization.</td>
+    </tr>
+    <tr>
+        <td class="tg-tcenter-valign-first"><strong>Applicability</strong></td>
+        <td class="tg-tcenter-valign-first">Suitable for a wide range of RL environments where reward signals are available.</td>
+        <td class="tg-tcenter-valign-firstfirst">Particularly effective in scenarios where aligning with human preferences is crucial.</td>
+        <td class="tg-tcenter-valign-second">Especially useful in scenarios where rapid and simplified alignment with human feedback is desired.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- 
+## Use cases
+
+- Now let's look at how different papers have used this methodology with their own tweaks [(source)](https://www.youtube.com/watch?v=2MBJOuVq380).
+- The latest LLMs like ChatGPT tend to use RLHF for finetuning instead of supervised learning.
+- Anthropic ([Constitutional AI](https://arxiv.org/abs/2212.08073)):
+  - The initial policy they use for RLHF has context distillation that helps improve helpfulness, honesty, and harmlessness (HHH).
+  - Preference model pretraining (PMP): fine-tunes LM on dataset of binary ranking.
+- OpenAI ([InstructGPT](https://arxiv.org/abs/2203.02155), ChatGPT):
+  - Pioneered using RLHF.
+  - Both Instruct and ChatGPT first finetune the model via Supervised Learning then update it with RLHF.
+  - Human generated initial LM training text, then trains the RL policy to match this.
+  - Extensively uses human annotation.
+  - Uses PPO.
+- DeepMind ([A2C](https://arxiv.org/abs/1602.01783)):
+  - Does not use PPO, uses advantage actor-critic (A2C) instead the algorithm.
+  - Trains 
+  on different rules and preferences as well as trains on things the model should not do.
+ -->
+
+<h2 id="simpo-simple-preference-optimization-with-a-reference-free-reward"><a href="https://arxiv.org/abs/2405.14734">SimPO: Simple Preference Optimization with a Reference-Free Reward</a></h2>
+<ul>
+  <li>SimPO: Simple Preference Optimization with a Reference-Free Reward by Yu Meng, Mengzhou Xia, and Danqi Chen introduces a novel method in the domain of reinforcement learning from human feedback (RLHF), specifically in preference optimization.</li>
+  <li>This paper presents <strong>SimPO (Simple Preference Optimization)</strong>, which is designed to be simpler and more effective compared to existing methods like Direct Preference Optimization (DPO). Illustrated below we can see SimPO’s performance:</li>
+</ul>
+
+<p><img src="../assets/rlhf/14.png" alt="" /></p>
+
+<ul>
+  <li>Key Methodology and Steps:
+    <ol>
+      <li>
+        <p><strong>Implicit Reward Reparameterization</strong>: Unlike DPO which uses a complex reparameterization involving a reference model, SimPO uses a simple, length-normalized reward formulation. The reward is computed as the average log probability of a sequence, making the reward intrinsically aligned with the generation metric used during the model’s inference phase.</p>
+      </li>
+      <li>
+        <p><strong>Elimination of Reference Model</strong>: SimPO does not require a reference model, which simplifies the architecture and reduces computational and memory overhead.</p>
+      </li>
+      <li>
+        <p><strong>Target Reward Margin</strong>: To enhance discrimination between better and worse responses, SimPO introduces a target reward margin in the optimization objective. This is used within the Bradley-Terry model to ensure a significant separation in the scores assigned to winning and losing responses.</p>
+      </li>
+    </ol>
+  </li>
+  <li>Improvements Over Previous Methods:
+    <ul>
+      <li><strong>Simplicity and Efficiency</strong>: By removing the need for a reference model, SimPO simplifies the training process and reduces the resources required for training.</li>
+      <li><strong>Alignment with Generation Metrics</strong>: SimPO’s use of an average log probability for reward calculation aligns directly with the metrics used during the generation, improving the model’s performance because the training and inference objectives are harmonized.</li>
+      <li><strong>Enhanced Performance</strong>: The introduction of a target reward margin further refines the model’s ability to differentiate between more and less preferred responses. This structural change in the reward calculation has shown to provide substantial improvements over DPO and its variants.</li>
+    </ul>
+  </li>
+  <li>Performance and Evaluation:
+    <ul>
+      <li>SimPO has been evaluated across various benchmarks like AlpacaEval 2, MT-Bench, and the challenging Arena-Hard benchmark. It has demonstrated significant improvements in model performance without increasing the length of the responses generated by the model, a common issue in previous models. Specifically, SimPO shows improvements of up to 6.4 points on AlpacaEval 2 and up to 7.5 points on Arena-Hard compared to DPO.</li>
+      <li>This method represents a significant step forward in the field of RLHF by simplifying the training process, reducing resource requirements, and enhancing model performance effectively.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="bias-concerns-and-mitigation-strategies">Bias Concerns and Mitigation Strategies</h2>
+
+<ul>
+  <li>A fair question to ask now is if RLHF/RLAIF/ can add bias to the model. This is an important topic as large conversational language models are being deployed in various applications from search engines (Bing Chat, Google’s Bard) to word documents (Microsoft office co-pilot, Google docs, Notion, etc.).</li>
+  <li>The answer is, yes, just as with any machine learning approach with human input, RLHF has the potential to introduce bias.</li>
+  <li>Let’s look at the different forms of bias it can introduce:
+    <ul>
+      <li><strong>Selection bias:</strong>
+        <ul>
+          <li>RLHF relies on feedback from human evaluators, who may have their own biases and preferences (and can thus limit their feedback to topics or situations they can relate to). As such, the agent may not be exposed to the true range of behaviors and outcomes that it will encounter in the real world.</li>
+        </ul>
+      </li>
+      <li><strong>Confirmation bias:</strong>
+        <ul>
+          <li>Human evaluators may be more likely to provide feedback that confirms their existing beliefs or expectations, rather than providing objective feedback based on the agent’s performance.</li>
+          <li>This can lead to the agent being reinforced for certain behaviors or outcomes that may not be optimal or desirable in the long run.</li>
+        </ul>
+      </li>
+      <li><strong>Inter-rater variability:</strong>
+        <ul>
+          <li>Different human evaluators may have different opinions or judgments about the quality of the agent’s performance, leading to inconsistency in the feedback that the agent receives.</li>
+          <li>This can make it difficult to train the agent effectively and can lead to suboptimal performance.</li>
+        </ul>
+      </li>
+      <li><strong>Limited feedback:</strong>
+        <ul>
+          <li>Human evaluators may not be able to provide feedback on all aspects of the agent’s performance, leading to gaps in the agent’s learning and potentially suboptimal performance in certain situations.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Now that we’ve seen the different types of bias possible with RLHF, lets look at ways to mitigate them:
+    <ul>
+      <li><strong>Diverse evaluator selection:</strong>
+        <ul>
+          <li>Selecting evaluators with diverse backgrounds and perspectives can help to reduce bias in the feedback, just as it does in the workplace.</li>
+          <li>This can be achieved by recruiting evaluators from different demographic groups, regions, or industries.</li>
+        </ul>
+      </li>
+      <li><strong>Consensus evaluation:</strong>
+        <ul>
+          <li>Using consensus evaluation, where multiple evaluators provide feedback on the same task, can help to reduce the impact of individual biases and increase the reliability of the feedback.</li>
+          <li>This is almost like ‘normalizing’ the evaluation.</li>
+        </ul>
+      </li>
+      <li><strong>Calibration of evaluators:</strong>
+        <ul>
+          <li>Calibrating evaluators by providing them with training and guidance on how to provide feedback can help to improve the quality and consistency of the feedback.</li>
+        </ul>
+      </li>
+      <li><strong>Evaluation of the feedback process:</strong>
+        <ul>
+          <li>Regularly evaluating the feedback process, including the quality of the feedback and the effectiveness of the training process, can help to identify and address any biases that may be present.</li>
+        </ul>
+      </li>
+      <li><strong>Evaluation of the agent’s performance:</strong>
+        <ul>
+          <li>Regularly evaluating the agent’s performance on a variety of tasks and in different environments can help to ensure that it is not overfitting to specific examples and is capable of generalizing to new situations.</li>
+        </ul>
+      </li>
+      <li>**Balancing the feedback: **
+        <ul>
+          <li>Balancing the feedback from human evaluators with other sources of feedback, such as self-play or expert demonstrations, can help to reduce the impact of bias in the feedback and improve the overall quality of the training data.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="relevant-papers">Relevant papers</h2>
+
+<h3 id="openais-paper-on-instructgpt">OpenAI’s Paper on InstructGPT</h3>
+
+<ul>
+  <li>Making language models bigger does not inherently make them better at following a user’s intent. For example, large language models can generate outputs that are untruthful, toxic, or simply not helpful to the user. In other words, these models are not aligned with their users.</li>
+  <li><a href="https://arxiv.org/abs/2203.02155">Ouyang et al. (2022)</a> from OpenAI introduces InstructGPT, a model that aligns language models with user intent on a wide range of tasks by fine-tuning with human feedback.</li>
+  <li>Starting with a set of labeler-written prompts and prompts submitted through the OpenAI API, they collect a dataset of labeler demonstrations of the desired model behavior, which they use to fine-tune GPT-3 using supervised fine-tuning (SFT). This process is referred to as “instruction tuning” by other papers such as <a href="#finetuned-language-models-are-zero-shot-learners">Wei et al. (2022)</a>.</li>
+  <li>They then collect a dataset of rankings of model outputs, which they use to further fine-tune this supervised model using RLHF.</li>
+  <li>In human evaluations on their prompt distribution, outputs from the 1.3B parameter InstructGPT model are preferred to outputs from the 175B GPT-3, despite having 100x fewer parameters.</li>
+  <li>Moreover, InstructGPT models show improvements in truthfulness and reductions in toxic output generation while having minimal performance regressions on public NLP datasets. Even though InstructGPT still makes simple mistakes, their results show that fine-tuning with human feedback is a promising direction for aligning language models with human intent.</li>
+  <li>It is important to note that ChatGPT is trained using the same methods as InstructGPT (using SFT followed by RLHF), but is fine-tuned from a model in the GPT-3.5 series.</li>
+  <li>Furthermore, the fine-tuning process proposed in the paper isn’t without its challenges. First, we need a significant volume of demonstration data. For instance, in the InstructGPT paper, they used 13k instruction-output samples for supervised fine-tuning, 33k output comparisons for reward modeling, and 31k prompts without human labels as input for RLHF. Second, fine-tuning comes with an alignment tax “negative transfer” – the process can lead to lower performance on certain critical tasks. (There’s no free lunch after all.) The same InstructGPT paper found that RLHF led to performance regressions (relative to the GPT-3 base model) on public NLP tasks like SQuAD, HellaSwag, and WMT 2015 French to English. A potential workaround is to have several smaller, specialized models that excel at narrow tasks.</li>
+  <li>The figure below from the paper illustrates the three steps of training InstructGPT: (1) SFT, (2) reward model training, and (3) reinforcement learning via proximal policy optimization (PPO) on this reward model. Blue arrows indicate that this data is used to train the respective model in the diagram. In Step 2, boxes A-D are samples from the SFT model that get ranked by labelers.</li>
+</ul>
+
+<p><img src="../../images/papers/InstructGPT.jpg" alt="" /></p>
+
+<h3 id="constitutional-ai-harmlessness-from-ai-feedback"><a href="https://arxiv.org/abs/2212.08073">Constitutional AI: Harmlessness from AI Feedback</a></h3>
+<ul>
+  <li>The paper extends RLHF by training language models on datasets labeled for helpfulness and harmlessness. It introduces ‘HH’ models, which are trained on both criteria and have shown to be more harmless and better at following instructions than models trained on helpfulness alone.</li>
+  <li>An evaluation of these models’ ability to identify harmful behavior in language model interactions was conducted using a set of conversations rated for harmfulness. The study leveraged ‘red teaming’ where humans attempted to provoke the AI into harmful responses, thereby improving the training process.</li>
+  <li>The effectiveness of the training method was demonstrated through models’ performance on questions assessing helpfulness, honesty, and harmlessness, without relying on human labels for harmlessness.</li>
+  <li>This research aligns with other efforts like LaMDA and InstructGPT, which also utilize human data to train language models. The concept of ‘constitutional AI’ was introduced, focusing on self-critique and revision by the AI to foster both harmless and helpful interactions. The ultimate goal is to create AI that can self-regulate harmfulness while remaining helpful and responsive.</li>
+</ul>
+
+<h3 id="openais-paper-on-ppo">OpenAI’s Paper on PPO</h3>
+
+<ul>
+  <li><a href="https://arxiv.org/abs/1707.06347">Schulman et al. (2017)</a> proposes a new family of policy gradient methods for reinforcement learning, which alternate between sampling data through interaction with the environment, and optimizing a “surrogate” objective function using stochastic gradient ascent.</li>
+  <li>Whereas standard policy gradient methods perform one gradient update per data sample, they propose a novel objective function that enables multiple epochs of minibatch updates. The new methods, which they call proximal policy optimization (PPO), have some of the benefits of trust region policy optimization (TRPO), but they are much simpler to implement, more general, and have better sample complexity (empirically).</li>
+  <li>Their experiments test PPO on a collection of benchmark tasks, including simulated robotic locomotion and Atari game playing, showing that PPO outperforms other online policy gradient methods, and overall strikes a favorable balance between sample complexity, simplicity, and wall clock time.</li>
+</ul>
+
+<h3 id="anthropics-paper-on-constitutional-ai">Anthropic’s Paper on Constitutional AI</h3>
+
+<ul>
+  <li>As AI systems become more capable, we would like to enlist their help to supervise other AIs.</li>
+  <li><a href="https://arxiv.org/abs/2212.08073">Bai et al. (2022)</a> experiments with methods for training a harmless AI assistant through self-improvement, without any human labels identifying harmful outputs. The only human oversight is provided through a list of rules or principles, and so they refer to the method as ‘Constitutional AI’.</li>
+  <li>The process involves both a supervised learning and a reinforcement learning phase. In the supervised phase they sample from an initial model, then generate self-critiques and revisions, and then finetune the original model on revised responses. In the RL phase, they sample from the finetuned model, use a model to evaluate which of the two samples is better, and then train a preference model from this dataset of AI preferences.</li>
+  <li>They then train with RL using the preference model as the reward signal, i.e. they use ‘RL from AI Feedback’ (RLAIF). As a result they are able to train a harmless but non-evasive AI assistant that engages with harmful queries by explaining its objections to them. Both the SL and RL methods can leverage chain-of-thought style reasoning to improve the human-judged performance and transparency of AI decision making. These methods make it possible to control AI behavior more precisely and with far fewer human labels.</li>
+  <li>The figure below from the paper shows the basic steps of their Constitutional AI (CAI) process, which consists of both a supervised learning (SL) stage, consisting of the steps at the top, and a Reinforcement Learning (RL) stage, shown as the sequence of steps at the bottom of the figure. Both the critiques and the AI feedback are steered by a small set of principles drawn from a ‘constitution’. The supervised stage significantly improves the initial model, and gives some control over the initial behavior at the start of the RL phase, addressing potential exploration problems. The RL stage significantly improves performance and reliability.</li>
+</ul>
+
+<p><img src="../../images/papers/CAI.html" alt="" /></p>
+
+<ul>
+  <li>The graph below shows harmlessness versus helpfulness Elo scores (higher is better, only differences are meaningful) computed from crowdworkers’ model comparisons for all 52B RL runs. Points further to the right are later steps in RL training. The Helpful and HH models were trained with human feedback as in [Bai et al., 2022], and exhibit a tradeoff between helpfulness and harmlessness. The RL-CAI models trained with AI feedback learn to be less harmful at a given level of helpfulness. The crowdworkers evaluating these models were instructed to prefer less evasive responses when both responses were equally harmless; this is why the human feedback-trained Helpful and HH models do not differ more in their harmlessness scores.</li>
+</ul>
+
+<p><img src="../../images/papers/CAI2.jpg" alt="" /></p>
+
+<h3 id="rlaif-scaling-reinforcement-learning-from-human-feedback-with-ai-feedback"><a href="https://arxiv.org/abs/2309.00267">RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback</a></h3>
+
+<ul>
+  <li>This paper by Lee et al. from Google Research, introduces a novel method for training large language models (LLMs) with AI-generated feedback, addressing the challenges and costs associated with traditional human feedback methods.</li>
+  <li>The paper presents Reinforcement Learning from AI Feedback (RLAIF) as a promising alternative to the conventional RLHF. RLAIF utilizes an off-the-shelf LLM as a preference labeler, streamlining the training process and, in some cases, surpassing the performance of models trained with human feedback.</li>
+  <li>This approach is applied to text generation tasks such as summarization, helpful dialogue generation, and harmless dialogue generation. The performance of RLAIF, as assessed by human raters, is comparable or superior to RLHF, challenging the assumption that larger policy models are always more effective.</li>
+  <li>A key advantage of RLAIF is its potential to significantly reduce reliance on expensive human annotations. The study shows the efficacy of using the same model size for both the LLM labeler and the policy model, and highlights that directly prompting the LLM for reward scores can be more effective than using a distilled reward model.</li>
+  <li>The authors explore methodologies for generating AI preferences aligned with human values, emphasizing the effectiveness of chain-of-thought reasoning and detailed preamble in improving AI labeler alignment.</li>
+  <li>The following figure from the paper shows a diagram depicting RLAIF (top) vs. RLHF (bottom).</li>
+</ul>
+
+<p><img src="../../images/papers/RLAIF.jpg" alt="" /></p>
+
+<ul>
+  <li>RLAIF’s scalability and cost-effectiveness are notable, with the approach being over ten times cheaper than human annotation. This aligns with the growing trend in LLM research focusing on quality over quantity in datasets.</li>
+  <li>The paper suggests that combining RLHF and RLAIF could be a strategic approach, especially considering that LLMs like GPT-4 have been trained with human feedback. This hybrid model could represent a balanced integration of high-quality human data, amplified significantly by AI, potentially shaping the future of LLM training and influencing approaches like the development of GPT-5.</li>
+</ul>
+
+<h3 id="reinforced-self-training-rest-for-language-modeling"><a href="https://arxiv.org/abs/2308.08998">Reinforced Self-Training (ReST) for Language Modeling</a></h3>
+
+<ul>
+  <li>RLHF can improve the quality of large language model’s (LLM) outputs by aligning them with human preferences.</li>
+  <li>This paper by Gulcehre et al. from Google DeepMind and Google Research proposes Reinforced Self-Training (ReST), a simple algorithm for aligning LLMs with human preferences inspired by growing batch reinforcement learning (RL).</li>
+  <li>ReST generates samples from an initial LLM policy to create a dataset, which is then used to improve the LLM policy using offline RL algorithms. This method is more efficient than traditional online RLHF methods due to offline production of the training dataset, facilitating data reuse.</li>
+  <li>ReST operates in two loops: the inner loop (Improve) and the outer loop (Grow).
+    <ul>
+      <li><strong>Grow</strong>: The LLM policy generates multiple output predictions per context, augmenting the training dataset.</li>
+      <li><strong>Improve</strong>: The augmented dataset is ranked and filtered using a scoring function based on a learned reward model trained on human preferences. The model is then fine-tuned on this filtered dataset with an offline RL objective, with the possibility of repeating this step with increasing filtering thresholds.</li>
+    </ul>
+  </li>
+  <li>The following image from the paper illustrates the ReST method. During the Grow step, a policy generates a dataset. At Improve step, the filtered dataset is used to fine-tune the policy. Both steps are repeated, the Improve step is repeated more frequently to amortise the dataset creation cost.</li>
+</ul>
+
+<p><img src="../../images/papers/ReST.html" alt="" /></p>
+
+<ul>
+  <li>ReST’s advantages include reduced computational burden, independence from the original dataset’s quality, and simplicity in implementation.</li>
+  <li>Machine translation was chosen as the application for testing ReST, due to strong baselines and well-defined evaluation procedures. Experiments were conducted on IWSLT 2014, WMT 2020 benchmarks, and an internal high-fidelity benchmark called Web Domain. The evaluation used state-of-art reference-free reward models like Metric X, BLEURT, and COMET. ReST significantly improved reward model scores and translation quality on test and validation sets, as per both automated metrics and human evaluation.</li>
+  <li>ReST outperformed standard supervised learning (BC G=0 I=0) in reward model scores and human evaluations. The BC loss (Behavioral Cloning) was found to be the most effective for ReST, leading to continuous improvements in the model’s reward on holdout sets. However, improvements in reward model scores did not always align with human preferences.</li>
+  <li>ReST showed better performance over supervised training across different datasets and language pairs. The inclusion of multiple Improve steps and Grow steps resulted in significant improvements in performance. Human evaluations showed that all ReST variants significantly outperformed the BC baseline.</li>
+  <li>ReST is distinct from other self-improvement algorithms in language modeling due to its computational efficiency and ability to leverage exploration data and rewards. The approach is applicable to various language tasks, including summarization, dialogue, and other generative models.</li>
+  <li>Future work includes fine-tuning reward models on subsets annotated with human preferences and exploring better RL exploration strategies.</li>
+</ul>
+
+<h3 id="beyond-human-data-scaling-self-training-for-problem-solving-with-language-models"><a href="https://arxiv.org/abs/2312.06585">Beyond Human Data: Scaling Self-Training for Problem-Solving with Language Models</a></h3>
+
+<ul>
+  <li>Training language models typically requires vast quantities of human-generated text, which can be scarce or of variable quality, especially for specialized domains like mathematics or programming. This scarcity limits the model’s ability to learn diverse patterns and hinders its performance. \(ReST_{EM}\) addresses this problem by reducing the reliance on human-curated datasets and instead exploring the potential of fine-tuning models using self-generated data validated through scalar feedback mechanisms.</li>
+  <li>This paper by Singh et al. from Google DeepMind, presented at NeurIPS 2023, explores a new frontier in Large Language Model (LLM) training: Reinforced Self-Training based on expectation-maximization (\(ReST_{EM}\)). This innovative approach aims to reduce reliance on human data while avoiding the pitfalls of a synthetic data death spiral, a trend becoming increasingly evident in LLM training.</li>
+  <li>\(ReST_{EM}\) is a potent alternative to traditional dataset curation, comprising two primary stages: generating multiple output samples (E-step) and fine-tuning the language model on these samples (M-step). This process is cyclically iterated, combining the generation of model-derived answers and their subsequent refinement. The feedback for filtering these outputs is sourced from tasks with binary feedback, such as math problems with clear right or wrong answers.</li>
+  <li>The paper’s focus is on two challenging domains: advanced mathematical problem-solving (MATH) and code generation (APPS). Utilizing PaLM 2 models of various scales, the study demonstrates that \(ReST_{EM}\) significantly outperforms models fine-tuned solely on human-generated data, offering up to 2x performance boosts. This indicates a major step toward more independent AI systems, seeking less human input for skill refinement.</li>
+  <li>\(ReST_{EM}\) employs an iterative self-training process leveraging expectation-maximization. It first generates outputs from the language model, then applies a filtering mechanism based on binary correctness feedback—essentially sorting the wheat from the chaff. Subsequently, the model is fine-tuned using these high-quality, self-generated samples. This cycle is repeated several times, thus iteratively enhancing the model’s accuracy and performance on tasks by self-generating and self-validating the training data.</li>
+  <li>Notably, the experiments revealed diminishing returns beyond a certain number of ReST iterations, suggesting potential overfitting issues. Ablation studies further assessed the impact of dataset size, the number of model-generated solutions, and the number of iterations on the effectiveness of ReST.</li>
+  <li>The models fine-tuned using ReST showed enhanced performance on related but distinct benchmarks like GSM8K, Hungarian HS finals, and Big-Bench Hard tasks, without any noticeable degradation in broader capabilities. This finding underscores the method’s versatility and generalizability.</li>
+  <li>The following figure from the paper shows Pass@K results for PaLM-2-L pretrained model as well as model fine-tuned with \(ReST_{EM}\). For a fixed number of samples \(K\), fine-tuning with \(ReST_{EM}\) substantially improves Pass@K performance. They set temperature to 1.0 and use nucleus sampling with \(p = 0.95\).</li>
+</ul>
+
+<p><img src="../../images/papers/BHD.html" alt="" /></p>
+
+<ul>
+  <li>While ReST offers significant advantages in performance, it necessitates a moderate-sized training set of problems or prompts and access to a manually-designed or learned reward function. It’s highly data-efficient but requires careful application to prevent overfitting.</li>
+  <li>This research opens new avenues for self-improvement in language models, suggesting the need for automating manual parts of the pipeline and exploring algorithmic improvements to further enhance performance. With \(ReST_{EM}\) showing promising results, especially in larger models, one can anticipate further exploration in applying self-training techniques to various other domains beyond math and coding tasks. The significant improvement over fine-tuning on human data implies that future models can be made more efficient, less reliant on extensive datasets, and potentially achieve better performance.</li>
+</ul>
+
+<h3 id="diffusion-model-alignment-using-direct-preference-optimization"><a href="https://arxiv.org/abs/2311.12908">Diffusion Model Alignment Using Direct Preference Optimization</a></h3>
+
+<ul>
+  <li>This paper by Wallace et al. from Salesforce AI and Stanford University proposes a novel method for aligning diffusion models to human preferences.</li>
+  <li>The paper introduces Diffusion-DPO, a method adapted from DPO, for aligning text-to-image diffusion models with human preferences. This approach is a significant shift from typical language model training, emphasizing direct optimization on human comparison data.</li>
+  <li>Unlike typical methods that fine-tune pre-trained models using curated images and captions, Diffusion-DPO directly optimizes a policy that best satisfies human preferences under a classification objective. It re-formulates DPO to account for a diffusion model notion of likelihood using the evidence lower bound, deriving a differentiable objective.</li>
+  <li>The authors utilized the Pick-a-Pic dataset, comprising 851K crowdsourced pairwise preferences, to fine-tune the base model of the Stable Diffusion XL (SDXL)-1.0 model with Diffusion-DPO. The fine-tuned model showed significant improvements over both the base SDXL-1.0 and its larger variant in terms of visual appeal and prompt alignment, as evaluated by human preferences.</li>
+  <li>The paper also explores a variant of the method that uses AI feedback, showing comparable performance to training on human preferences. This opens up possibilities for scaling diffusion model alignment methods.</li>
+  <li>The figure below from paper illustrates: (Top) DPO-SDXL significantly outperforms SDXL in human evaluation. (L) PartiPrompts and (R) HPSv2 benchmark results across three evaluation questions, majority vote of 5 labelers. (Bottom) Qualitative comparisons between SDXL and DPO-SDXL. DPOSDXL demonstrates superior prompt following and realism. DPO-SDXL outputs are better aligned with human aesthetic preferences, favoring high contrast, vivid colors, fine detail, and focused composition. They also capture fine-grained textual details more faithfully.</li>
+</ul>
+
+<p><img src="../../images/papers/Diffusion-DPO.jpg" alt="" /></p>
+
+<ul>
+  <li>Experiments demonstrate the effectiveness of Diffusion-DPO in various scenarios, including image-to-image editing and learning from AI feedback. The method significantly outperforms existing models in human evaluations for general preference, visual appeal, and prompt alignment.</li>
+  <li>The paper’s findings indicate that Diffusion-DPO can effectively increase measured human appeal across an open vocabulary with stable training, without increased inference time, and improves generic text-image alignment.</li>
+  <li>The authors note ethical considerations and risks associated with text-to-image generation, emphasizing the importance of diverse and representative sets of labelers and the potential biases inherent in the pre-trained models and labeling process.</li>
+  <li>In summary, the paper presents a groundbreaking approach to align diffusion models with human preferences, demonstrating notable improvements in visual appeal and prompt alignment. It highlights the potential of direct preference optimization in the realm of text-to-image diffusion models and opens avenues for further research and application in this field.</li>
+</ul>
+
+<h3 id="human-centered-loss-functions-halos"><a href="https://github.com/ContextualAI/HALOs/blob/main/assets/report.pdf">Human-Centered Loss Functions (HALOs)</a></h3>
+
+<ul>
+  <li>This report by Ethayarajh et al. from Stanford University presents a novel approach to aligning large language models (LLMs) with human feedback, building upon Kahneman &amp; Tversky’s prospect theory. The proposed Kahneman-Tversky Optimization (KTO) loss function diverges from existing methods by not requiring paired preference data, relying instead on the knowledge of whether an output is desirable or undesirable for a given input. This makes KTO significantly easier to deploy in real-world scenarios where such data is more abundant.</li>
+  <li>The report identifies that existing methods for aligning LLMs with human feedback can be seen as human-centered loss functions, which implicitly model some of the distortions in human perception as suggested by prospect theory. By adopting this perspective, the authors derive a HALO that maximizes the utility of LLM generations directly, rather than relying on maximizing the log-likelihood of preferences, as current methods do.</li>
+  <li>The KTO-aligned models were found to match or exceed the performance of direct preference optimization methods across scales from 1B to 30B. One of the key advantages of KTO is its feasibility in real-world applications, as it requires less specific types of data compared to other methods.</li>
+  <li>To validate the effectiveness of KTO and understand how alignment scales across model sizes, the authors introduced Archangel, a suite comprising 56 models. These models, ranging from 1B to 30B, were aligned using various methods, including KTO, on human-feedback datasets such as Anthropic HH, Stanford Human Preferences, and OpenAssistant.</li>
+  <li>The following report from the paper illustrates the fact that LLM alignment involves supervised finetuning followed by optimizing a human-centered loss (HALO). However, the paired preferences that existing approaches need are hard-to-get. Kahneman-Tversky Optimization (KTO) uses a far more abundant kind of data, making it much easier to use in the real world.</li>
+</ul>
+
+<p><img src="../../images/papers/HALO.html" alt="" /></p>
+
+<ul>
+  <li>The report’s experimental findings reveal surprising insights into the scaling and effectiveness of different alignment methods. It was observed that supervised finetuning (SFT) contributes significantly to the performance gains at every scale under 30B. The benefits of combining SFT with alignment methods become apparent at model sizes of around 7B and above. Interestingly, KTO alone was found to be significantly better than DPO (Direct Preference Optimization) alone at scales of 13B and 30B.</li>
+  <li>The practical implications of KTO are notable, especially in contexts where abundant data on customer interactions and outcomes is available, but counterfactual data is scarce. This aspect underscores KTO’s potential for broader application in real-world settings compared to preference-based methods like DPO.</li>
+  <li>Future work suggested by the authors includes exploring a human value function specifically for language, examining differences in model behavior at different scales, and investigating the potential of synthetic data in model alignment with KTO. The report highlights the importance of understanding how human-centered loss functions can influence the alignment of LLMs with human preferences and perceptions.</li>
+  <li><a href="https://github.com/ContextualAI/HALOs/">Code</a></li>
+</ul>
+
+<h3 id="nash-learning-from-human-feedback"><a href="https://arxiv.org/abs/2312.00886">Nash Learning from Human Feedback</a></h3>
+
+<ul>
+  <li>This paper by Munos et al. from Google DeepMind introduces an alternative approach to the conventional RLHF for aligning large language models (LLMs) with human preferences. This new approach, termed Nash Learning from Human Feedback (NLHF), focuses on learning a preference model from pairwise human feedback and pursuing a policy that generates responses preferred over any competing policy, thus achieving a Nash equilibrium for this preference model.</li>
+  <li>The NLHF approach aims to encompass a broader spectrum of human preferences, maintain policy independence, and better align with the diversity of human preferences. This method marks a significant shift from the traditional RLHF framework, which is more limited in capturing the richness and diversity of human preferences.</li>
+  <li>Key contributions of this work include the introduction and definition of a regularized variant of the preference model, the establishment of the existence and uniqueness of the corresponding Nash equilibrium, and the introduction of novel algorithms such as Nash-MD and Nash-EMA. Nash-MD, founded on mirror descent principles, converges to the Nash equilibrium without requiring the storage of past policies, making it particularly suitable for LLMs. Nash-EMA, inspired by fictitious play, uses an exponential moving average of past policy parameters. The paper also introduces policy-gradient algorithms Nash-MD-PG and Nash-EMA-PG for deep learning architectures. Extensive numerical experiments conducted on a text summarization task using the TL;DR dataset validate the effectiveness of the NLHF approach.</li>
+  <li>The regularized preference model in NLHF uses KL-regularization to quantify the divergence between the policy under consideration and a reference policy. This regularization is particularly crucial in situations where the preference model is more accurately estimated following a given policy or where it is essential to remain close to a known safe policy.</li>
+  <li>In terms of implementation, the paper explores gradient-based algorithms for deep learning architectures, focusing on computing the Nash equilibrium of a preference model. This exploration emphasizes the applicability of these algorithms in the context of LLMs.</li>
+</ul>
+
+<h3 id="group-preference-optimization-few-shot-alignment-of-large-language-models"><a href="https://arxiv.org/abs/2310.11523">Group Preference Optimization: Few-shot Alignment of Large Language Models</a></h3>
+
+<ul>
+  <li>This paper by Zhao et al. from UCLA proposes Group Preference Optimization (GPO), a novel framework for aligning large language models (LLMs) with the opinions and preferences of desired interest group(s) in a few-shot manner. The method aims to address the challenge of steering LLMs to align with various groups’ preferences, which often requires substantial group-specific data and computational resources. The key idea in GPO is to view the alignment of an LLM policy as a few-shot adaptation problem within the embedded space of an LLM.</li>
+  <li>GPO augments a base LLM with an independent transformer module trained to predict the preferences of a group for LLM generations. This module is parameterized via an independent transformer and is trained via meta-learning on several groups, allowing for few-shot adaptation to new groups during testing. The authors employ an in-context autoregressive transformer, offering efficient adaptation with limited group-specific data. Put simply, the preference module in GPO is trained to explicitly perform in-context supervised learning to predict preferences (targets) given joint embeddings (inputs) of prompts and corresponding LLM responses. These embeddings allow efficient processing of in-context examples, with each example being a potentially long sequence of prompt and generated response. The module facilitates rapid adaptation to new, unseen groups with minimal examples via in-context learning.</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>GPO is designed to perform group alignment by learning a few-shot preference model that augments the base LLM. Once learned, the preference module can be used to update the LLM via any standard preference optimization or reweighting algorithm (e.g., PPO, DPO, Best-of-N). Specifically, GPO is  parameterized via a transformer and trained to perform in-context learning on the training preference datasets. Given a training group \(g \in G_{\text {train }}\), they randomly split its preference dataset \(\mathcal{D}_g\) into a set of \(m\) context points and \(n-m\) target points, where $$n=\left</td>
+          <td>\mathcal{D}_g\right</td>
+          <td>\(is the size of the preference dataset for group\)g\(. Thereafter, GPO is trained to predict the target preferences\)y_{m+1: n}^g\(given the context points\)\left(x_{1: m}^g, y_{1: m}^g\right)\(and target inputs\)x_{m+1: n}^g$$. Mathematically, this objective can be expressed as:</td>
+        </tr>
+      </tbody>
+    </table>
+
+\[L(\theta)=\mathbb{E}_{g, m}\left[\log p_\theta\left(y_{m+1: n}^g \mid x_{1: n}^g, y_{1: m}^g\right)\right]\]
+
+    <ul>
+      <li>where the training group \(g \sim G_{\text {train }}\) and context size \(m\) are sampled uniformly. \(\theta\) represents the parameters of the GPO preference model.</li>
+    </ul>
+  </li>
+  <li>The figure below from the paper shows: (Left) Group alignment aims to steer pretrained LLMs to preferences catering to a wide range of groups. For each group \(g\), they represent its preference dataset as \(\mathcal{D}_g=\) \(\left\{\left(x_1^g, y_1^g\right), \ldots,\left(x_n^g, y_n^g\right)\right\}\). Here, \(y_i^g\) signifies the preference of group \(g\) for a pair of given prompt \(q_i^g\) and response \(r_i^g\), while \(x_i^g\) is its LLM representation obtained with \(\pi_{\mathrm{emb}}\left(q_i^g, r_i^g\right)\). (Right) Once trained, GPO provides a few-shot framework for aligning any base LLM to a test group given a small amount of in-context preference data.</li>
+</ul>
+
+<p><img src="../../images/papers/GPO.html" alt="" /></p>
+
+<ul>
+  <li>GPO’s architecture is designed for permutation-specific inductive biases, discarding positional encodings found in standard transformers. However, this loses the pairwise relations between the inputs and outputs. To solve this, GPO concatenates each pair of inputs and outputs into a single token, informing the transformer of their pairwise relation. The target inputs are padded with a dummy token (e.g., 0), and a masking strategy is employed where context pairs can self-attend, but padded targets can only attend to context points.</li>
+  <li>Once learned, the GPO preference module can serve as a drop-in replacement for a reward or preference function for policy optimization and re-ranking algorithms – essentially, it is a reward model that supports few-shot learning.</li>
+  <li>GPO is distinct from in-context prompting of a base LLM, as it does not update the base LLM’s parameters and only requires user preferences for LLM generations. The few-shot model learned by GPO augments the base LLM, offering more flexibility than traditional prompting methods.</li>
+  <li>The implementation of GPO involves splitting a group’s preference dataset into context and target points. The model is trained to predict target preferences given the context points and target inputs. The figure below from the paper illustrates the GPO architecture for a sequence of \(n\) points, with \(m\) context points and \(n-m\) target points. The context \(\left(x_{1: m}, y_{1: m}\right)\) serves as few-shot conditioning for GPO. GPO processes the full sequence using a transformer and predicts the preference scores \(\hat{y}_{m+1: n}\).</li>
+</ul>
+
+<p><img src="../../images/papers/GPO_2.html" alt="" /></p>
+
+<ul>
+  <li>The objective function is mathematically expressed as a function of these parameters, with training groups and context size sampled uniformly.</li>
+  <li>The framework was empirically validated using LLMs of varied sizes on three human opinion adaptation tasks: adapting to the preferences of US demographic groups, global countries, and individual users. Results showed that GPO not only aligns models more accurately to these preferences but also requires fewer group-specific preferences and less computational resources, outperforming existing strategies like in-context steering and fine-tuning methods.</li>
+  <li>Experiments involved two base LLMs, Alpaca 7B and Llama2 13B, and were conducted using the OpinionQA and GlobalOpinionQA datasets. GPO demonstrated significant improvements over various baselines, achieving a 7.1% increase in alignment score over the In-context Finetune method for the OpinionQA dataset and an 8.4% improvement for the GlobalOpinionQA dataset.</li>
+  <li>GPO also excelled in adapting to individual preferences, with superior performance across 15 survey topics in the OpinionQA dataset. This ability is particularly noteworthy given the diverse and often contrasting opinions within individual and demographic groups.</li>
+  <li>The paper also discusses limitations and future work directions, noting the imperfections of survey data, language barriers in group alignment, and the need to extend the method to more complicated response formats and settings. Additionally, the authors highlight potential ethical concerns, such as misuse of aligned models and amplification of biased or harmful outputs, suggesting future research should address these issues.</li>
+  <li><a href="https://siyan-zhao.github.io/llm-gpo/">Code</a></li>
+</ul>
+
+<h3 id="icdpo-effectively-borrowing-alignment-capability-of-others-via-in-context-direct-preference-optimization"><a href="https://arxiv.org/abs/2402.09320">ICDPO: Effectively Borrowing Alignment Capability of Others via In-context Direct Preference Optimization</a></h3>
+
+<ul>
+  <li>This paper by Song et al. from Peking University and Microsoft Research Asia introduces In-Context Direct Preference Optimization (ICDPO), a novel approach for enhancing Large Language Models (LLMs) by borrowing Human Preference Alignment (HPA) capabilities without the need for fine-tuning. ICDPO utilizes the states of an LLM before and after In-context Learning (ICL) to build an instant scorer, facilitating the generation of well-aligned responses.</li>
+  <li>The methodology rethinks Direct Preference Optimization (DPO) by integrating policy LLM into reward modeling and proposes a two-stage process involving generation and scoring of responses based on a contrastive score. This score is derived from the difference in log probabilities between the optimized policy (\(\pi_{*}\)) and a reference model (\(\pi_0\)), enhancing LLM’s performance in HPA.</li>
+  <li>The following figure from the paper illustrates an overview of ICDPO. (a) The difference in teacher data utilization between normal fine-tuning and ICL without fine-tuning. (b) The core of ICDPO is that expert-amateur coordination maximizes \(S\) which represents the disparity between the expert and the amateur. It brings more accurate estimation than using only the expert LLM.</li>
+</ul>
+
+<p><img src="../../images/papers/ICDPO.html" alt="" /></p>
+
+<ul>
+  <li>Extensive experiments demonstrate ICDPO’s effectiveness in improving LLM outputs across various metrics, showing it to be competitive with standard fine-tuning methods and superior to other fine-tuning-free baselines. Notably, it leverages a two-stage retriever for selecting contextual demonstrations and an upgraded scorer to further amplify its benefits.</li>
+  <li>The paper also explores the implications of ICDPO for the broader field of HPA, suggesting potential applications and improvements in aligning LLMs with human preferences without the computational and resource overheads associated with traditional fine-tuning approaches.</li>
+</ul>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<h3 id="huggingfaces-alignment-handbook">HuggingFace’s Alignment Handbook</h3>
+
+<ul>
+  <li><a href="https://github.com/huggingface/alignment-handbook">The Alignment Handbook</a> contains robust recipes to align language models with human and AI preferences. It also contains code to train your very own Zephyr models:
+    <ul>
+      <li>Full fine-tuning with Microsoft’s DeepSpeed ZeRO-3 on A100s</li>
+      <li>LoRA or QLoRA fine-tuning on consumer GPUs</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="assets/LLM/Alignment.html" alt="" /></p>
+
+<ul>
+  <li>Dataset from HuggingFace called <a href="https://huggingface.co/datasets/HuggingFaceH4/no_robots">No Robots</a> of 10k instructions and demonstrations to train instruct models. This is based on the SFT dataset from OpenAI’s InstructGPT paper. 100% organic and written entirely by skilled human annotators.</li>
+</ul>
+
+<h3 id="empirical-evaluation-dpo-vs-ipo-vs-kto">Empirical Evaluation: DPO vs. IPO vs. KTO</h3>
+
+<ul>
+  <li><a href="https://huggingface.co/blog/pref-tuning">Preference Tuning LLMs with Direct Preference Optimization Methods</a> by Hugging Face summarizes their extensive evaluation of three state of the art alignment algorithms. DPO vs IPO vs KTO.</li>
+  <li>The results demonstrate a complex interaction between key hyper-parameters, models, and datasets. As a quick overview:
+    <ul>
+      <li>DPO: casts the RLHF objective via a loss based on a prompt and its positive and negative completions</li>
+      <li>IPO: has an identity function rather than DPO’s sigmoid that can potentially cause overfitting</li>
+      <li>KTO: rather than (+ve, -ve) pairs, takes unpaired good and bad data</li>
+    </ul>
+  </li>
+  <li>The team conducted experiments on two models possessing 7B parameters each; namely, Zephyr-7b-beta-sft and OpenHermes-7B. Subsequently, preference fine-tuning was applied utilizing two widely recognized preference datasets: Ultrafeedback and Intel’s Orca DPO pairs. It is pertinent to note that all the associated code is accessible as open-source at <a href="https://github.com/huggingface/alignment-handbook">The Alignment Handbook</a>.</li>
+  <li>This investigation aims to discern the influence of the beta parameter on model performance. To this end, the MT Bench, a multi-turn benchmark employing GPT-4 to assess model efficacy across eight distinct categories, was utilized. Despite its limitations, MT Bench serves as a viable instrument for evaluating the capabilities of conversational large language models (LLMs).</li>
+  <li>In the case of the Zephyr model, it was determined that optimal performance was attained at the minimal beta value of 0.01. This finding was consistent across all three algorithms evaluated, suggesting that a more detailed examination within the beta range of 0.0 to 0.2 could yield valuable insights for the research community.</li>
+  <li>Regarding the OpenHermes model, although the relative performance of each algorithm remained consistent - with the ranking being DPO &gt; KTO &gt; IPO - the optimal beta value exhibited significant variation among the algorithms. Specifically, the most favorable beta values for DPO, KTO, and IPO were identified as 0.6, 0.3, and 0.01, respectively.</li>
+</ul>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=2MBJOuVq380">Reinforcement Learning from Human Feedback: From Zero to chatGPT</a></li>
+  <li><a href="https://huggingface.co/blog/rlhf">Illustrating RLHF</a></li>
+  <li><a href="https://www.linkedin.com/in/sebastianraschka?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3AACoAAAxqHaUBEa6zzXN--gv-wd8ih0vevPvr9eU&amp;lipi=urn%3Ali%3Apage%3Ad_flagship3_search_srp_all%3Bic8rQnV%2BTHqwI0K2TXBzzg%3D%3D">Sebastian Raschka’s LinkedIn post</a></li>
+  <li><a href="https://offthegridxp.substack.com/p/what-is-constitutional-ai-harmlessness">Off The Grid’s post on HHH</a></li>
+  <li><a href="https://twitter.com/AnthropicAI/status/1603791161419698181">Anthropic’s tweet thread</a></li>
+  <li><a href="https://medium.com/mlearning-ai/paper-review-constituional-ai-training-llms-using-principles-16c68cfffaef">Building block’s medium post on CAI</a></li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+   <div align="center" class="wrap">
+      <div align="center" class="footer-col-1 column">
+         <ul>
+            <li>
+               
+               <span class="icon github">
+                  <a href="https://github.com/vinija">
+                     <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                        <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                           c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                           c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                           c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                           C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                           c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                           c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                           c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                           c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                     </svg>
+                  </a>
+               </span>
+               <!-- <span class="username">vinija</span> -->
+               
+<!--               <a href="">-->
+<!--                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"-->
+<!--                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">-->
+<!--                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJoAAAVjBAMAAABzrVjQAAAABGdBTUEAALGPC/xhBQAAACBjSFJN-->
+<!--                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEX///+xsLCxsLCxsLCx-->
+<!--                        sLD///+bxiTSAAAABHRSTlMAAKP3FWDuDwAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCa-->
+<!--                        nBgAAAAHdElNRQfkBwQDMic2f+cwAAA03klEQVR42u2dW3IdOZJEu81mAcMqbOCacQMy0wImVNr/-->
+<!--                        msZKKpVeuHkzEA8PIPx8douAh+MkkmKR1H/+QwghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQ-->
+<!--                        QgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIeQQ/vt2KOMzyeH/GtiE7rgP/3u+TQPdcRukgU3o-->
+<!--                        jtsgb+fbNNAlt+GtgU3ojtsgDWxCd9yGT2/n2zTQJbfhrYFN6I7bIA1sGuiS2/DWwCZ0x214a2DT-->
+<!--                        QJfcBelgE7rkNrw1sAndcRukgU0DXXIXvsl0tE3oktvwb+MH2zTQJXdBOtiELrkL32U62KaBbrkL-->
+<!--                        P3R+rE1/oEvugnSwCV1yF/76sfRTbRrolrvwU+un2oQuuQvSwaaBbrkLP9d+qE3okrvwS+1n2jTQ-->
+<!--                        LTdBOtj0J7rlLvxa/JE2oUvugnSwaaBbbsJvMh1pE7rlLvze/IE2DXTLTZAWNqFbbsKnSfXn2TTQ-->
+<!--                        NTdh1v1xNg10y02QFjahW+7CtPzTbBrolpswb/80m9AtN0Fa2DTQNTfhSf2H2YRuuQmPFja9o2vu-->
+<!--                        gTzr/yibBrrmJjw9gKNsQrfcBGlh00DX3IPnMh1lE7rmJlycwEE2DXTNPZAeNqFrbsLVEZxj00d0-->
+<!--                        zT24PINjbBromnsgPWxC19yE60M4xaaBrrkHL07hFJvQNfdAetg00D334NUxHGITuuYeSA+b0DU3-->
+<!--                        oYdNA11zE3rYhG65Cy1sGuiWu9DCJnTJbehg00CX3IYGNg10x31oYBO64kacb9NAV9yI821CN9yJ-->
+<!--                        420a6IY7cbxN6IJbcbpNA11wKw63ib8YPJXDbULX24yzbRroeptxtk3odrtxtE0D3W43jrYJXW47-->
+<!--                        TrbpHV1uOw62aaC77cfBNqGrbci5Ng10tQ051yZ0sx051qaBbrYjx9qELrYlp9qE7rUnh9o00L32-->
+<!--                        5FCb0LU25UybBrrWppxpE7rVrhxp00C32pUjbUKX2pYTbfqILrUtB9o00J325UCb0JW2YEz/1/Ns-->
+<!--                        GqpWyBIy5v/zcTahi27Bk2f2OJuGqhWyhDSx6Q900R2QtyY2oYtuwVsTm4aqFbKEdLEJXXQLnj+2-->
+<!--                        Z9k0VK2QJS6aPssmdNEdkC42DVUtZImrqk+yaahaIUtIF5vQRXfgr8sn9yCbhqoWssR12QfZhC66-->
+<!--                        A//qMq7/7+1tGqpayBIv2j7HJnTRHfhuy3jx/29u01DVQlaQV3WfYtNQ1UKWeNn3KTahi+7Aj66M-->
+<!--                        l39iY5uGqhayxOvCD7EJXXQHPnSxaahqISvIjcbPsAnddAfuPL9H2PSObroBv4gy7vyhLW0aqlrI-->
+<!--                        Erc6P8EmdNEdeHSxaahqISvIvdIPsAnddAduPsL72zRUtZAV5Gbr+9uEbroDd5/h7W1CF92BSe1j-->
+<!--                        +gd3t2moaiEryO3ed7cJ3XQH7j/Fm9s0VLWQFeR+8ZvbhG66AZ8Uj/HeNg1VL2QFTfN724RuugFP-->
+<!--                        BBmaP7yHTeimO/Ck+jH9wzvbNFS1kBVE1f3ONqGbbsBTPYbuj9e3aah6ISsoy9/YJnTTDXhux1D+-->
+<!--                        +eo2DVUvZAVt+9vaxF8MHs+FHEP7AbVtQjfdgCs3hvojKts0VL2QFfT972oTuukGXKox9B9S16ah-->
+<!--                        6oWssHAAm9qEbroBK4/znjYNVS9kAVk5gS1tGqpeyApLR7ClTeimG/DKi7H0URVtGqpeyAJ/rZ3B-->
+<!--                        jjahq27A4hO9oU1D1QtZ4KUVb3+ufVw9m9BVN8BwBJvZNNBVn49YTuDyg6vZNG71QQy8kOnlx29k-->
+<!--                        E7rqBpgPYBubBrrq8xHzATxfoZhN6Kob4HAAm9g00FWfj1wewLttjVo2oas+H3E5gC1sekd3fT7X-->
+<!--                        BzBurvLMyUo23Z2FLCPXJ3B7nQ1sQlfdAK8TqG/TQFd9Pg+vE5DyNqGr/p1fAn5E57EiL05gWFeq-->
+<!--                        Y9P9UVLYIqTLTN95v71SeZvQVd+tfaDDLSOOR1Dcpo/oru+XPtAJF3l5Bua1qthU5oReulQqrYbX-->
+<!--                        Y5kXq2ITuur7ldfKe58bj4m5pyI2DXTXVx1N+dO+W7XZhnm1Ijahq/6C6DJ/ROf1Hm6Yl6thk2aO-->
+<!--                        MPZM7TidZp7KNqGr/nzjR8yK5r7JnWmGYr3CNqGr/qx+yxVK7jfeMC9YwSbNFMi2N9bJ/Rzq2oSu-->
+<!--                        2iBThfBu8w3zigVs0gyBLHtfnW7ON8xLFrAJ3bVNpgL5X3JzkGHuDG+TZoYQPlknQA/wCrk5xzCv-->
+<!--                        CbcJ/4vB7TOgJ3AacCjWLGoTumoHmQo8EVfI3TGGeVG0TZoJQjhjigtuy3SATft0vatOMUOUtAl9-->
+<!--                        Ck4yFf5RQMWEw7ws2CZ01+dM4jDhUCxb0SZNfnDVm+oUdRoFbUJ/x5mYJ1g8i5oTaiYoaBO4avOX-->
+<!--                        LevrFDZAPZvQ9XvPAx5ngqjyD/PKSJu2qtr5NFJQfgegJn85m9DlnzeRcUJN/HI2gasW8wDlRjJO-->
+<!--                        OMxr42zSZI/gxJlsE2rSy3QFmE3o4h8hU4GH+gnRhh/mxWE27Vb1HmP9gP7rH8PcH8omTfIITp3L-->
+<!--                        MqEmu0xXQNkErlrMAxQdzDLhMC8PskkTPIJzJzNMqIku0xVANoGrFvMAZUczTDjM62NsQncdOZvm-->
+<!--                        TMKQ6OTzDSA2oQtf6vo24OG+EH4s8wohNm3Z9T7jrT4uw7wDwiZN6jpd7zPf6uOiyT3vEGETumsx-->
+<!--                        T1B8wMda7GHuEGCTJnQIp08oCbHnewBswladcDWhR1xNPcwl5tv0EVt1wtUEvpwkI/V8k3SboEWb-->
+<!--                        ytaAHDDlaOYtptuE7NlWdtTBlJlPE1qmK2TbBKzZ3LYG2HiynllzNvNtsm2CtezQdtTJuJKUeV5j-->
+<!--                        sk2wkj3aVgEaTwyRNYcz3yfXJvwvOrK0reIjZj5L5GHuMdcmTMOvWwhAczR+pEWe95hqE6Zhv7pV-->
+<!--                        IKYTU2LN8cx3SrUJUbBn3WFn40Ve4nmRmTYh+r1VQgzbTac5n/lWmTbl1/sb0SOuHo4Lkhh4vlei-->
+<!--                        Tent+vetI3u6zAOaN5lnkyZrFGKeovDE5uE0eeeb5dmUW+2c2Aktp1NhOE1ema6QZlNytYoK4kgd-->
+<!--                        7kPqEc2rTLMptVlVBXFojqfAbJq48+2ybMos9imRA07ZazbNGcl0hSybkr1RNBCJ5nzws2nSzvdL-->
+<!--                        simv1uDGlaTNln1I8y5zbNLkrN24ko87jaY5JZmukGNTvjkTlv6N+sQDMiDmoNqw8x1TbErqNKVy-->
+<!--                        JTmj5R/TvMwUmxDuRFUeeELLiDmmOut8ywybUhp9TdR41yQM5vUK15yTTFfIsAlkz635w/kYP5lX-->
+<!--                        1GFuM8Gmd4w99+YPR3NE4ME0UeebxtsUX+c9YqZ7zT6DaU5KpivE2wTTJ6r0wDNaQcwJV5LOdw23-->
+<!--                        KbrM/NK1xM7l+I/saY5qXme4TUiDfuQRMh2+AcegQ7GtTFeItkmTcJfWK1Ug5nhrQef7RtsENegH-->
+<!--                        nP/V1TIdeOYcin1lukKwTViFXk6fg+aUkGNpcs43jrUpsEclD//hCrQg5myrOec7x9qEdug7/rNV-->
+<!--                        qME35lDsLNMVQm3SxAvGX5ECPYg52XLM+dahNqEVCus98Jg0AGPOC420KarEBcQ8jImYoR7A85oX-->
+<!--                        GmkTWqEfcPcj7pyMB5qUcr55oE1og37E3Y8CXbiHHIrNZbpCnE2abNGIeRojW8ykObH57nE2oQ2K-->
+<!--                        bT7woG6CDTlvNMymgP4qNa9lh5E0RybTFcJsQgsUXT24DjEn+p1h3j/KJk2yeAKqB/ch5kS2jPP9-->
+<!--                        g2zC/2Lw6Oq1eM8UEHGYKw2yCe3PndFz8Z4pIOIwVxpjkyZXAhF2oCsRcyJTxPn2MTah9fmFCDvg-->
+<!--                        nfgnHIrdZbpCiE2aWBnE6KGk/lCaY5PpCiE2oe25NXk2mrPCTKVJON89wibv3ur1vsKf5afSnNt8-->
+<!--                        9wCbNKFS8O99Ce+x3ANqDm7eaYBNaHnia48/rPUDTQo439zfJu/S7MQJAi1GzIkMAeeb+9uEdud3-->
+<!--                        4gTBNuOdbyj2lukK7jZpIuUg5pmceHcezDuf5ujmpbrbhHbn7uAANKeFGEyTb763t03ejRUsfZ3i-->
+<!--                        g2nObr63s02aQFnEGqKh+GSaw5PpCs42oc1J6DzpuACTaeLJdAVfm7zrqth5oXrEnGg53nxrX5vQ-->
+<!--                        4kyJdgTXj5gD/cQwb+1qkyZOGs6Vm3h3ns03neb45q262oQWRzE3Bs153QGXbt6qp03vaHEUc4Mo-->
+<!--                        Pdsw7+xokyZMIr6NGyk9m+YA5zs72oTW5gkZkoQcWPpwmnAyXcHPJu+iShaeeWDpw2nCyXQFP5vQ-->
+<!--                        1qQUbsZ5ODEH+oFh3tjNJk2UVJI0uYnzcGIOtHiE843dbEJLk9J37ollT6fJNt/Yyya0NDl9557Y-->
+<!--                        HVDZ5rU62eRdkh9imCoC5/E8o2kOcV6rk01oZ7Rj4yg83jDv62OTJkcyiaIgqhJzoLVo8319bEIr-->
+<!--                        c0GiKO5HljyfJppMV3Cxybuhom37UHc+zTHKdAUXm9DGJLXtQ935hmJbma7gYRNamKy2889s+VjD-->
+<!--                        k823dbDJuZ6yZQPOLHdATbL5tg42oYXJKtuLsgMO87Z2mzQZ8nEs2wvnCf2CaU5y3qvdJrQvK1ND-->
+<!--                        0RzaDTDB5r2abXLuxhtZGioU58Ywwea9Wm2q9YvB706NpeqEw7yr1Sa0La8AyJLcmZjzfGOYdzXa-->
+<!--                        pAkAAWFLbmlizrOSa76r0Sa0LC9B2OJ5apkjanLJdAWbTc69BIDx5QVFR9ScpkxXsNmEdiWxak+K-->
+<!--                        jjgUm8p0BZNNmu1BgHy5xndEMedZOM75phabvH+fegCfUMK4HdvqwQbHmm9qsQmtSmbTrmiOLXFG-->
+<!--                        Taz5pgabfDuJwa1pX3yH9EqlOdB5sQab0KasDw3Hd0ivVMNc7LpNmr1hiG6mLHy7Q6SaF7tuE1oU-->
+<!--                        w9BwNOf2GkSqebHLNvkWEoWoZkrDtzyvITWp5nuu2uTbRxheRXtTckjNmc73XLUJrUly0d6UHHKY-->
+<!--                        91y0SbMxkgfUmaT+xBxHH2q+56JNaEvugnXG5+Be4vUFf00oma6wZpNrGZGgrckpEBBKpius2YSW-->
+<!--                        JLtnfypOORRbynSFJZve0ZJk9+xPxSmHYkuZrrBik2ZXMGhpnlJxSs25ynSFFZvQiuT37I/m5BaP-->
+<!--                        NjTTfMsFm1yLCAYtTU6JYo6jzjTfcsEmtCEa0NLktCjmNF8Y5i31Nmn2hIN25jmeU4o5jfpk51vq-->
+<!--                        bUILogLtTE6NYk7zhWHeUm3TR7QgKtDO+BzdK/7KjyTTFbQ2eZaQANqZpCLzI8l0Ba1NaD0gNUeg-->
+<!--                        ObqkMTWRZLqC0ibXDhJAO3NBvTE1hyvTFZQ2oe3A1BxCvTGHYkeZrqCzSbNfCdDKXFBvTM3pynQF-->
+<!--                        nU1oOUA1h6A5u7WzjUw031FlE9oNPWhlnM5u7WwjE8131NjkOX8SaGWS2hRzGm2i+Y4am9BqLIBW-->
+<!--                        5gLP3xgq5jR/M8w7KmzSbFYFtDJXOI4p5jDaA57vqLAJbcYKaGOS+hRzmL8Z5h3v26TZqwxoY65w-->
+<!--                        HFPMYbQnPN/xtk2areqANiar0fRAMl3htk1oL4AtB6E5vJQ5NYFkusJdmzxHTwRtTFal6YFkusJd-->
+<!--                        m9BaIFuOotqcQ7GhTFe4aZNmo0qghbmk2pyaQ5bpCjdtQlsBbTmKanMOxYYyXeGeTZp9SoEWxu30-->
+<!--                        MubU5JHpCrds2uAXg0e2HIXm9F7wyM4j0xVu2YR2Yh20MG6n9wIxh1HmmW94xybHqbNBC+N2ei8Q-->
+<!--                        cxhlnvmGd2xCK2EALcw1fnOKOctbkk2aTaqB9uUavznFnEV50PMNb9iENsIC2pdr/OYUc5a3HJve-->
+<!--                        0UZYQPvid3zXiDmLMs58w5c2+U2MAO2L3/FdI+YsyjjzDV/ahPbBBtoXv+O7RsxZlHHmG76yyW9g-->
+<!--                        CGhf/I7vGjFnUcaZb/jKJrQORtC+vMBtTjFHeUuwSbNBRdC6vKDWoEOxn0xXeGET2oYKJQdSa9Ch-->
+<!--                        2E+mK1zbhJbBjLyVxm9QjzTDXOylTZrlayJvpfErODvNvNhLm9Au2JG30mjO75rsNPNir2zymxWG-->
+<!--                        vJXGr+HsNPNir2xCq+CAvJVGc37XZKeZF3thk9+oOOStNm6DeoQZ5mIvbEKb4IG81cZtUI8ww1zs-->
+<!--                        c5vQIrggrxoE4zaoR5hhLvapTZql60KbatiE9sCH6jZpDvCS2ja5jYmFNpWwCa2BE7Spgk1uU6JB-->
+<!--                        60KbfH/DJxa0Lq+oNOdQ7KexCe2AH2hbaNM57znaVMAmtAKOoG2hTZpVq4O2hTahDfAEbYvnCUbP-->
+<!--                        qcly2yavAUuAtqW7TV7z1QBtS3eb0Ofvi9ytkjZF2OQ1XhFoE9Qm9PE7U90mr75r2qRZcQdoE9Im-->
+<!--                        9Ol7Q5uANmkW3ALahLNJs94e0CacTeiz96e8TZojvKCgTU6TlQJtS1+b0CcfAdqWtjY5DVYLtC1t-->
+<!--                        bUIffAhoW7ra9D/ogw8BbctL6ow5FPu9tOm/6F5DekYPkTMlbfIcTjt2IWhTCrSJNvlBm2iTH7SJ-->
+<!--                        NvnRxKZ32pRBE5t8xsxOMq/1eJvKf4mANm1Ucw+bPmUnkekKtAmNy5iSnWS+IW1CQ5v2qZk2xSSZ-->
+<!--                        b0ib4NCmDJxscik6kjJD0ibaRJvch6NNyYXPN6RNcMoMSZtoE21yH+4K9ByvoE0Z0KbkGWnTATZ5-->
+<!--                        zJkeRKYr0CY4tGmXlp8PXgfatEvLtCkoyLxU2gSHNu3SMm0KCjIvlTbBoU27tOxXdek5JT3IfEfa-->
+<!--                        BIc2bdLyFjY5fDFc0guf70ib8NCmBNxs8uk6jioT0ibaRJvch2tu0yO98HmntAmPfcL8wueddrCp-->
+<!--                        +qfhVQakTbSJNrkPR5uSC5fpCrQJT5UBaZNh9DJUmY820SbalNTyJja9F5mPNp1gk+YUadMqbjYV-->
+<!--                        /zScNmVAm3LHo020iTbdw8+mD+hRLqFNGfjZJOYskdCmDGhT7nS0iTbRpnv42VT703DalAFtok11-->
+<!--                        Wu5iEyKHTFdoYpOYwxSeE5FjXihtwkObdmiZNsXlmBfaxCaXf7+t6JyCyDHftIlNpT8Np00btEyb-->
+<!--                        AnPMN6VNeGhTCo42uVUegNEmSI55n7QJD21KgTbRJj8cbar8iZPNJoHkmO9Km/DQphRoE23y493R-->
+<!--                        Jr/S3bHZhMkxr7O0TbaaaVNgjnmdtAkPbdqg5rDWS40pmBzzbWkTHtpUv+YmNn3A5JDpCqVtcv0S-->
+<!--                        gZjTRGGyCZRj3iZtwkObcvC0qe6rzmKTgHLM96VNeGhTDrSJNtXoObT4MlOicszLpE14aFP9nlvY-->
+<!--                        5DoTbdKAniZgSkHlmG9Mm/DQpiRcbXKt3hGDTbAc8y5pEx7DSK45aFNvm3wnok0q0NO4DymuOY63-->
+<!--                        STNgQ5twZct0hVY2iTlPCLQpCdpEm/z409Wmoq+6Kk/H8Ta1+DScNpVvesoDPY7vjM45aJMOMecJ-->
+<!--                        QHOItAlU9fk2eU9Dm5Sgx3EdUYBB5nvTJjjLIyKDyHSF6jb94WuTmAP5Q5vyoE1ps9AmLehxJrzT-->
+<!--                        pjTOt6nMKA1s0oy43AIU2pQHbUqbhDapQc/zO7SpftnH2+QfhDapEXMgZzRnSJus0KasOTrYtNj2-->
+<!--                        U9DzOM33AZtEpivQJjSL84GTyHSF+jad/qp7LzMFbapxDvnjRUxBmxZAz+MyXkSSFjZphqRNSUXL-->
+<!--                        dIWGNok5kSt1ZqBNC3xCD+Qw3Qd0FJmusIFNZ3/itGYTPIpMV+hok5gTObJkU8wEPWxaKpw2hUaZ-->
+<!--                        J+hoU6lXXaEBaFOhw1hjJf9f+J5lusIONh39iVOh/LRpiUJfI9Cc4L8UyCLTFbawaalywHFkjVYg-->
+<!--                        i0xX6GmTmCMhR4tK38Smgz9xWrGpQpZ5gz1tqvOqqxS+i03v3jY90BN9YyG7RGXpYpNmTuyJaFnI-->
+<!--                        XqLleYF72OT8q3kjj0THymNSIoxMV9jDpmM/cVqwSUqEmafoapOYI7mwYFONMPP+NrFpoXXYoWjQ-->
+<!--                        5w78Oj5tameT1Ch5HmMTm0591ZV6CmjTOuiJ/kZzfvEPQR+b9L2faVOVNDJdoa9NYs5kp9Yz0Mem-->
+<!--                        M191tR6BRjZpRj3XpjIVy3SFxjaJOVP6TLGRG9l04qtObVOdODJdobNNj+1Gio3TySbNrJZGEikW-->
+<!--                        mDaZ2G2iQnlkusI+NgW86sScyYTWpui4rWx6P80mbdzoPK1s0j7KBc7nmmrut7LptFed9ukoFWje-->
+<!--                        XG+boJeT0iYpFWieZiebtA9zcZuUUaVUv/M0O9l02KuunPi0yQpuGM3Z5XjfzCblARQ5JJ9hiiWa-->
+<!--                        97aVTf4/pBn1a9puUM/6Zjad9KrTHF1SzG42KY9gvZZqo6SkpE12QKMUDNnNpohXnZhDxU+Sk7Gd-->
+<!--                        TZqB77LBIPUyyXSFzWwK+Fsd5lswVQklJ1M7m4551akSJmXqZ5Nm4mKHtTyGFAw1z7SbTYdcTu8V-->
+<!--                        badNLtSeQrJCNbRJM3K581oaomSqeWXb2XTE5VRT9Y42fQyw6ZE8Q03TO9qkmdnWTYkREqN1tOmA-->
+<!--                        V13RZC1t0gxtKyeKosFa2vRHgE2pl5Pm1KrmkukKG9oU8qoTc6qQ/Jmxmtqkmfo2NeOX7VWmK+xo-->
+<!--                        0+aXk+LQ8kIpg51kk2bs26Slr5hJXatMV9jSpq0vJ8WZZUXSJ6NNr6iXPbnVrjZp5jYW5I3i6xuP-->
+<!--                        wq3Oy9rTpo0vp/tHJtmltrVJM3it4ysm92qp8642tWnby+n+iUl6p31t0kxe6QBLqW3odF7VrjZt-->
+<!--                        ejndPzDJr7SxTe8RNok51gsKif07jW3SjF7mDO+HluKVzvNta1PMq07MsZwyIxrtbJNm9iKneD+y-->
+<!--                        VG90HnBfm2Iup9DfNVdE6me0tkkzvLWm5MCBIZwKnSfc2KaYyynwWiguU3ObNNNbe0qNu0Gf85Z2-->
+<!--                        tmmzywnv8wua26QZH64Ten/fOmW6wtY2BV1OYs414f5RhWzvG/FMmzTzK4iIit3dvU2ZrrC3TUGX-->
+<!--                        U8CB3j8pgZXZ3iZNAeauDNz/7a+f9ihz3tDmNu1yOeF2VkCbNA3gdLqfUjbpcp5zd5uiLicxB/sB-->
+<!--                        xTEhq6RNYZeTmJN9ByRxZJXzoNvbFHU5OR6sYlNok7Qp7nJyO1lFQNmmyXnS/W2K+Q5xP500Z4Qt-->
+<!--                        kjb9TZRNLoerOaIHtkfapG0hWyfNP1olG/U4z3qCTXGXk/kL06rf0YmukTapa8jVSbOX7FTjPOwR-->
+<!--                        NsVdTjaddL89GF0ibfqHkF/6bNZJ9w99CrpE2rRShJakTOgKadN3Am1aPGelTIJukDatNZGikzYQ-->
+<!--                        ukBlZJmucIpNcV8Rf97dFfE7+EObvhNpk/bq0JzLyvox0Ka1LhaQ+0l0f5fTrl6jwXngc2wK+Uc1-->
+<!--                        V058ZW10d1+gTT8SbNO9Mw8VNRbatNpGjE+rCdDN6dPLdIWTbIr9e91ljV+IWDMT2vQzCTZ9nv/H-->
+<!--                        Fs1J/Aa6toUZZLrCWTaZznRRAfueYpgY1d4881k2perkBrq0lfJkusJhNiW961wR89BO0KbfQLtB-->
+<!--                        m06ySVNJDdCNLVUn0xWOs2k7ncQ8MaK5eerzbNrtXYeu6zu0aQbaDxViHtcN2mRtBQ66rMXeZLrC-->
+<!--                        iTbtpJOYh8XUNs99pE0bvevQTf0IbXoCWpK7hP4jQVpo0zPQmpgOBQRt8mgGCLqm5c5kusKpNu2h-->
+<!--                        k5jHRFU2T36sTVvohO5ovTGZrnCuTRvoBPxN89bCZLrCwTbV10nMI8L6mkc/2abyOqH7MdQl0xWO-->
+<!--                        tqm4TmKeD9fWY7rC2TbV1gldjqWs+QqH21RaJ3Q3v0GbXlFXJ0FX8xu06SVldUIX8zu0ybekRIp9-->
+<!--                        sUlZ1HyBDjbV1EnQrfzOsIZvYVNJndCdTKBN3j1lIeaZkC09Sd/Epno6iXmkAG6nf/LxXWwq97ZD-->
+<!--                        12Hr6MnH97GpmE7oNkwVPfv7aCObSr3tBF2GqaFn6TvZVOl6Qjcx565NH558fC+b6lxP6CKeYEzf-->
+<!--                        zKb43wN9D0HX8ARj+nY21XjdiXmKGAZtiqksFHQFT7Gl72hTAZ/QBZiakacf3dMmtE+CHt/Uy+Pp-->
+<!--                        R3e1aenf1mlg051X3fMP7mvTG/DzcfTgFwzLo9DaJtgLDz32FZbwzW16gwgl6JktfVyFp01/c9uD-->
+<!--                        Ty6vR0HPaynj6kNp0zdeOvD1j/1xvE3jMvvj6kNp00+8Pv3rru+BnvIFVyPK5UfSJiUNbLq4pl/8-->
+<!--                        oA1tUuIgU3mb3laT0yYlDjIJeoblKV99GG3SMXrYNNfp5UfRJh1dbJoMeiM2bdLhYRN6hqVR5c6H-->
+<!--                        0CYdDjLtYtMCtEkHbbqCNqnweNHRJvIVD5sEPUQctEkFbbqENqnweNEJeog4aJMK2nQJbVJBmy6h-->
+<!--                        TRoGbbqENmlwsQk9RCC0SQNtuoY2afCQiTaRr9Cma2iTBtp0DW1SMGjTNbRJAW16AW1SQJteQJsU-->
+<!--                        0KYX0CYFLjLRJvIF2vQC2qSANv3nNv9FRy0PbaJNbgzaRJvcoE20yQ8nmwQ9hwHa5AZtok1+0Cba-->
+<!--                        5IePTLSJ/A1tok1+0Cba5IeTTTt/iYA2uUGbaJMftIk2uTG8bHqgJ1mHNnnhZpOgJ1mHNnlBm2iT-->
+<!--                        H7SJNvnhZtPGn4bTJi9oE23yw88mQY+yDG3ygjbRJj/cZKJNxPNfKEePsgxt8oI20SY/HG0S9Cyr-->
+<!--                        0CYvaBNt8sPRpm1fdbTJC9pEm/zwtEnQwyxCm7zwtOmTPQ4E2uSFp027vupokxeuNgl6mjVokxe0-->
+<!--                        iTb54WrTpq862uSFr02CHmcJ2uQFbaJNfvjatOerjjZ54WyToOdZgTZ5QZtokx/ONm35qqNNXnjb-->
+<!--                        JOiBFqBNXnjbtOPlRJu8ePe26YGeSA9t8mLwVUeb3HC3acNXHW3ywt8mQY+khjZ54W/TfpcTbfIi-->
+<!--                        wCZBz6SFNnkRYNN2lxNt8iLCpg/ooZTQJjcCbBL0TEpokxsBNu32qqNNbkTYJOihdNAmNyJs2uxy-->
+<!--                        ok1uhNgk6KlU0CY3Qmza63KiTW4MXk60yY0Ym7a6nGiTG0E2CXouBbTJjSCbdrqcaJMfQTYJeq77-->
+<!--                        0CY/gmza6HKiTX5E2STowW5Dm/yIsmmfy4k2+THaX060yY8wm7a5nGiTH3E2CXq0m9AmP+Js2uVy-->
+<!--                        ok2OxNkk6NHuQZscibNpk8uJNjkSaNMev4+eNjkyAnUS9HB3oE2ORNq0xbuONjkSapOgp7sBbfIk-->
+<!--                        0qYdLifa5EmoTYKe7jW0yZP35pcTbfJkNL+caJMnsTbV14k2uRJrU/l3HW1yJdgmQc/3Atrkysfe-->
+<!--                        lxNtcmX0vpxokyvRNhX/lfS0yZdom2q/62iTL+E2CXrCK2iTL6P15USbfIm3SdAjXkCbnAm3qbJO-->
+<!--                        tMmZeJsKv+tokzPvnS8n2uTMSLicHughn0GbnMmwqey7jjZ5k2GToId8Am3yJsOmqpcTbfJmNNaJ-->
+<!--                        NnnzR4pNgh5zCm1yJ8WmmpcTbXJn9NWJNrmTZJOg55xAm/zJsani5USb/EmyqaBOtMmfkWSToAf9-->
+<!--                        DdrkT5ZN9S4n2hRAlk3ldKJNAXzMsknQk/4CbQpgdL2caFMEaTYV04k2RZBnk6BH/QnaFMFoejnR-->
+<!--                        pggSbRL0rD9Cm0LIs6mUTrQphMTLqdK7jjaFkGmToIf9Dm2KIdGmQj8QRZtiyLyc6rzraFMMqTYJ-->
+<!--                        etpv0KYgMm0qcznRpiBSL6cqOtGmIHJtEvS4X6FNUaTaVORyok1RdLycaFMUuTbV+KITbQoj16YS-->
+<!--                        7zraFEby5SToed9oUyDJNlW4nGhTHMk2CXpe2hRJ9uUk6IFpUyTJNuHfdbQpkGybBD0wbQpkdLuc-->
+<!--                        aFMk3S4n2hRJ+uX0ATsvbYok3Sbwu442hZJuk0DHpU2hNLucaFMsvS4n2hTLe6vLiTaFkfOPGpTS-->
+<!--                        iTYF8CfIo68IbnDa5AvUI/jlRJu8GGiJ/kVgHdAmB+qI9BVYEbTJRjWRviCoNmjTOiVN+sID1Aht-->
+<!--                        WqOuSV8AtUKbFkC78hrBFEOblAy0KPfAlEObNGyi0mfU5USbbvMRbYgKSEW06R5oOdQIoiXadAO0-->
+<!--                        GUsgiqJNr0BbsYoAuqJNlwy0EwYe+XXRpudgv7HETn5jtOkZaBfsSHpntGnKQJvgQnpttGkC2gIv-->
+<!--                        JLs42vQrqG/njiC7O9r0MwMtgCuS3B5t+pGzXPqcfjnRpu8c51L65USbvnGgS5+zLyfa9JUzXcq+-->
+<!--                        nGjT35zq0ufky4k2He1S8uVEm452iTblgj7tcDLLbG4T+qgTkMQ6W9s00CedQmKhjW3q4VLq5dTX-->
+<!--                        JvQh55HXaVebBvqIE5G0VpvahD7gXNJqbWkT+nSzeWQV29Cm3X94QI9kVdvPJvTRIsjqtptNJ32f-->
+<!--                        7n0kqd1mNg30uYJIqreXTehDhfHI6beTTQN9pjgkp+FGNjWWKetV18em7PP79DTJANgkKR23sSnv-->
+<!--                        4B638iQr9elWKCtNbEo6u4cmU65OKTX3sClBpoWHP9Umyei5hU1FT2qk6pRRdAebyp5Sqk4ZTTew-->
+<!--                        KfCEpG4096x3ON6muO8Y8PhrUqZOCWWfbtOofTZh8WhTAEGnJW4BE23yC/2Us22Kkck1YqJO8X0f-->
+<!--                        bVOETN5fVI7I+IRHeOEn2/TufyDinzJPp4Dwv3CwTbscR5pN8a+6c2366H0Wj6CgI82mqAn+5Vib-->
+<!--                        vGWSuKhpOgXO8JVTbdrqHLJsCn/VHWrT+0YuJf6EX3TtZ9o0tjqDvHedBM9xpE2uhyMZiZNsin4w-->
+<!--                        TrTJU6a/ciJnveuCxzjQJk+ZHjuGvkBipzjPJsfHPOdb87+SY1PwVXueTX7VPzJjjxydYoc4zia3-->
+<!--                        3jMvpr/J0UlCZzjNpk1qD41Om5wYXq0jwqfoFDrBWTZ5ySRbp8eNdpZNOzy/8fFpU6XT2H4A2HQn-->
+<!--                        2TTqP7wpE9CmMkch0BkSbIoc8BybfH4/KnoK2lSDI2TKeNcFpj/GJo9jEPQQbyE/aEObtJwiU8K7-->
+<!--                        LnDMU2yq3bIGj+fimrjsh9jk0PEDPcM3wnWKi36GTQ4HgB7hB6JtkrDkR9h0lkzhl5OEJT/CprNk-->
+<!--                        itcpLPgJNtnLR0/wK7QJxnkyReskUbEPsOlAmYLfdRIVe3+bzMWjB5gSalPYyNvbZJbpgZ5gDm3a-->
+<!--                        sXVBD/AE81OCGHp3m6ylR/VqhzalY/2mpqhaPaBNmzWe/ROYKkagTkGR97bJWjg6/zW0aau+0fFf-->
+<!--                        YH1WLpCYxFvbZKw7qNIy89GmxLKDGvUkzKaga3lnm0oW6orxeaFNaVWj49/iPcomCYm7sU0V6yw2-->
+<!--                        JG26yyjYZrUpadNdbG2i0yeNmVzAtjbZHlpBx0+akzbdo2CXMQTpJBFZd7XJ1jE6vQraFI3tewdC-->
+<!--                        mgzD9uDQpte8m5pEp1cSYlNICXva1OlqegvSKSLonjbV6zGUEWGTBATd0iZbu+j0C9CmQN6rtRiN-->
+<!--                        7fGhTVfYPmtCp18iQqeAmDva9F7tkUyANpVsFh1+kUGbChYr6PSr+NsUUMWGNlV7IHMwPUO0KaTW-->
+<!--                        gAazeKdNAZgaRIeHDZ5TxnY2jWKP4yaT06YpxfrbZnTaNMH0gAo6PXD2lDp2s6nYw7jR8LTpN0yP-->
+<!--                        p397O01Pm37D1B46PHj8hEL2ssn0cAo6PXh+2uTZJjq8B7SpSJmCDu+B6XGiTX5dosP74GqTeKfb-->
+<!--                        yiZLc6V/xeV9TA8UbfJq0r05ELSpQpHo8F6YHina9J1SxW3ZQvQjtpFNpqcSHb5IDbTpG5baBB2+-->
+<!--                        SA+06R9Mz6SAw3vyTpvslKoNiemxin3Ietjk3dq+TdCmL5ieSGz0UlXQpr8xtYaNXqsL2sTPwf3K-->
+<!--                        oE180f2Ml03ezexiU6XO8NAmE8NSmSCT16uDNlWqrAK0CdYeMngQgzaByhNg8DCcbHLuZg+bKj1/-->
+<!--                        NTA9X7SJNv2E7Xd/trbJ9CA6F1YF2gRp7oHLHYnpCaNNq+BiFy6lsU2mx9C5rzr4XE6+mXawqdLT-->
+<!--                        VwjalF8bLHU4LpeTb6QNbLK1hkpdvZeuNpnaElTq6sXQJtr0Ex6Xk2+i+jbZOgOFzoE2qTHZJKDQ-->
+<!--                        G1QTUVB9mwqVVQ7apMT2/GEyp0GblNCmsHIa2mTq6pBfKBfUDm1CdlUQ8+Xk21B1m2x1+XZVENqU-->
+<!--                        WBckciq0Ka8tSORUrJeTuKYpbpOtLN+qamK9nFzD0KbNoU1ZXSESZ2N73mgTbXKsqJNNxgcPkDgf-->
+<!--                        2nQXm00CSLxbR51sshUlgMTbleQahTZtD226xyhUVF1sLblGoU3bQ5vuYZPpr/zAGGhTfE1dPm2i-->
+<!--                        TfcYtCm+J9cktOkAaFNwSd49laZMS7TpAEaVlmjTAdCm2I4+d/q0yfQrVV2D0KYToE2RFdEm2uRX-->
+<!--                        UTebBm16gfX3qyfHhUKbAhtqZ5PhHneNQZuOoEhNdW0yykSbaJNLQV84/tej/MSgTdcYbZLkuFho-->
+<!--                        U1Q/tIk2+fXT0ab1m9w1RVmbjDLRJtrkUU9ES/Wp0RNtOoNRoqeqNv1Jm1TQppB2mtq0/F81XVPQ-->
+<!--                        pkMo0VNVm95pk44SPVW1ySqTpKYtwOrj5xqCNh3CoE3PoU1KaJN/N7SJNvl109em1dvcNQNtOgXa-->
+<!--                        9JSPtEkLbfKuprNNgzY9w2xTZtga0Kan0CY1tMm5mdY2LT6BrhFo0zEs9SSuEWjTMdCmJ9CmBd5p-->
+<!--                        0xyzTB1tWnoExTUCbToG2vQE2rQAbXoCbcpqTVwT0KZzoE1TBm1agTZNoU1L4HuiTefwEd4TbTqH-->
+<!--                        ldp8E9Cmc6BNUz7SphVo0xS7TLSJNn2DNi1Bm6bQpqzenH9zMW06CH1N4huANh0EbfJphTat9Sa+-->
+<!--                        ASraNGjTGrRpAm1ahDZNoE2L6Gt6+AagTQehL845AG06CNrkUgptWizOOQBtOgja5FIKbVoszjlA-->
+<!--                        RZscZKJNtxDnALTpIGjTBNq0CG2aQJsWoU0TPGzy7mkL1DY9nAPQpoNQ2+QdgDYdBG2aQJsWoU0T-->
+<!--                        aNMitGkCbVpEa5N7SbTpIGjTBNq0CG2a4GFTyy9f0qYJtGkRrU3uAWjTQdCmCbRpEdo0gTYtQpsm-->
+<!--                        0KZFlDaJe4BjbfKvqj60aQJtWoQ2TaBNiyhtergHoE0HobTJPwBtOgjaNMHFpo5/qaNNE2jTIjqb-->
+<!--                        xD8AbToI2jSBNi1Cmyb42PRIy1uGj+jH7VybJC1vGXQFBQSgTQdBm8yl0Ka14iL6Odemhp+G0yZr-->
+<!--                        KbRpsTgJCECbDgJeD206CHg9B9skaYGrQJuspdCmfxnwdmjTOdCmGU42/ZUWuAgqm0ISVLRJ1Up2-->
+<!--                        YYWhTeZWaNNabyEJTrZJ0hLXQNNbTDe06Rzw3dCmc9B0E5PgZJu6feKEr4Y2nQO+Gtp0DopmJCZB-->
+<!--                        RZv+9LIpqLOiaB7CoGYq2uT1xXDa9JSgCEfb1OtVR5vm0KYVFDZJUATadAy0aY6bTVGtlaRAL7Tp-->
+<!--                        GBS9REUoadNw0ykvM54CtdCmY7jfikRFONymsN7qoSgtrBXadAqK0sIyHG5To1cdbbIXQ5u+cb8T-->
+<!--                        CctQ0ia/LxE0etVV6IQ2ncL9TuIynG5Tn1ddhUpo0yGM241IXIiaNt2vBtldKWiTQzW0SV1ZYIjj-->
+<!--                        beryqrvdx6fAELTpEG73IYEhatrk9nMGwe3V4f7zF5mipk2ef6nrcTnRpgtok5LbNklkigY2hfZX-->
+<!--                        hRptFLXpnTbpuN1GaIqiNg3PyykzOIj7f20JjdHBJslMjuF2X7Fd0KYjuN1XbIyiNrl+Gt7gVVek-->
+<!--                        ihY2SWp0BEWaoE0nMIo0UdWm2/3cIjU6gNttBefoYZOkZs+nSg+06QSq9FDVJt9PnA5/1d1+9KKD-->
+<!--                        NLFJcsMnc9emyG+U+0ITm86+nMo8U2Vtuvu80ab7NoUH6WKT5KavWVV4krI2eX4z7+GX012bJDxJ-->
+<!--                        WZu8P3GKrxJGnQeKNu0PbXrNcNYpOX69oiQ+Sh+bEsrEUOhxqmuT96fhx15ON8cP/9LlW2WbvD9x-->
+<!--                        OvVyGoXGb2TToZfTe6HpC9t096G7zYfsCVIodDW1siml0KotpQxf2Ca+6u7wsdLsrWyS9BHKlJQz-->
+<!--                        emWbBi8nt45y0vSySdJniKbWc1TZJv9X3XmXU63HqJlNSa2mMWo9RaVteufl9IJiD1Fpm+4+eW0v-->
+<!--                        p7sFZU1d2qY//G0663KqNnRpmwI+cTrrcqo2c22bBi8nj3rSAvWzSQBzBFFu4to2Rbzqzrmcyl1N-->
+<!--                        HW0SxCDIcvISFbfp7uOn4oGYBNeN5EXqaNMh77qC0xa3KeRVd8a7ruDV1NOmIy6nirNWt+nuE9ju-->
+<!--                        crr73wlSR61uU9Dl9MAM48h7waupq03bv+tGyUHL23S7Nh2CmcaNmnOWt8n9B8iPuJxqXk31bYp6-->
+<!--                        1e2tU82raQObbj+GSpKLxnSSnKuvTTvrVHXE+jaFver2fddVvZp2sCnsctpWp6pXU2+b0tv2oe7T-->
+<!--                        soFNca+6PXW6/XTlT7eDTXGX05bvusLDNbdpQ51ujyb52XawKfBVt59O9x8tQLgtbLrfoB7BjbVE-->
+<!--                        6cG2sCn0ckK0ntEEIh1t2kqnUXuqPWy6X+IKD+BkYT1A8u1hU+zltM9n4vdHEki+TWxSPJQH61R+-->
+<!--                        Itq0j06KEgSTcBObgl91W+ikeaJAEXexSVPloTophhFQxF1sCr+cyuu0wyzb2DSa66SZRFAht7Ep-->
+<!--                        6mdXNtFpj0G2sSn+VVdZp6EZQ2Ax97FJVegiD/CMPrPjcu5jU8blVPS/2e0i00426To9SCfd4MgJ-->
+<!--                        NrIp5XIqqJPyKUJG3ckmZa2roMe0TS3IrLSpuE7aoaFhd7Ip51WHPpGf2UqmvWzSVruMoCddnRgc-->
+<!--                        fCub0i4n9Kl8Q/34gPPuZZO63XXQoy6N+wAH3sumvMupgk4ftZEFnXgzm9RPqwEBz7rhA7CZTZmX-->
+<!--                        E/h09HEf6MPZzqbRRKeFOQV9NvvZFPHvkBc8oQWZ8O+5DW3KfdeBzmiboL+wn00rj60FyR9xk5i/-->
+<!--                        s59N2ZfT588fcucbKxk/oU/lCxvatNS2jczx6id8zoY25V9Oie+RsZbvA/pMvrKjTYuN7+BT6XCv-->
+<!--                        2dGm5K8S5B3ZcjT0gXxjS5sQ77r4QxtFcynY06b14sv6dPdfVp0g6OP4lz1tQl1OcT4ZEgn6ML6z-->
+<!--                        qU0JP0ee6ZMljqDP4gc2tQn3rgs4wHJyL7OrTcB3ne8ZGj5fKifTvjYNsE4+52gOIehz+IltbSqg-->
+<!--                        k1UohwkEfQo/s69N6HfdPzwW0797bC7oM/iFjW1C/r3uJ/T//d5rZ/QR/MrGNpV4131Dbqd23BR9-->
+<!--                        AL+xs01F3nX3jzd3NwBb21RPp3/466eUI2aTB7r939nbpqBz2gJBlz9hb5sa6yTo6mdsblPZd11L-->
+<!--                        mba3qalOgq59zvY2DfTBUqbvbG9TS53QnT9jf5savuvQjT/lAJva6YTu+zkn2NRMJ3TbFxxh00Af-->
+<!--                        MGX6yhE2ddIJXfUlZ9jURyd00dccYhPox38p08+cYlOLz8T/stcUyzE2NdCpxu9ouuIcm47XSdAF-->
+<!--                        v+Ygmw7XSdD13uAkm6w/6FgaQbd7h5NsqvNTLE1lOsumc7/sJOhm73GWTafqhK71LofZdKZO6FJv-->
+<!--                        c5pNJ+qErvQ+x9l0nk7oQhWcZ9NhOgm6Tg0H2nTUlzEF3aWKI206R6cHukkdZ9p0ik7oGrUcatMZ-->
+<!--                        OqFLVHOqTQd8Li7oCvUca9P2Ogm6wAXOtWlzndDtLXGwTTt/8iTo6tY42qZtdRJ0cYucbdOmbzt0-->
+<!--                        a8scbtOOOgm6s3VOt2m/tx26Lwvn27SXToJuy0QDm3Z626GrMtLBpm2uJ0H3ZKWHTXtcT+iS7DSx-->
+<!--                        aQOdPqArcqCLTdXfdoKux4U+NpX+UWB0N040sqnu607QxXjRyqaarztBl+JHM5sKXk/oRjzpZlO1-->
+<!--                        6wndhi/9bKrkE7oJbzraVOV19wHdgzstbSrhk6A7CKCpTfDXnaDnD6GtTVCfHujZg2hsE8wn9Nhx-->
+<!--                        tLYJ8fmToEeOpLlN2b95FT1tMO1test74Ql60HBo098kfHuBoGfMgDb9w6BKdmjTd4KEEvRcedCm-->
+<!--                        n3AX6gN6olRo02/4qYSeJB3aNIXvtyVo03N4J2mhTS/gjaSANt2DHt3hvk2EEEIIIYQQQgghhBBC-->
+<!--                        CCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCH/8P/T2g3wTNSy-->
+<!--                        bgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wNy0wNFQwMzo1MDozOSswMzowMFesjGwAAAAldEVY-->
+<!--                        dGRhdGU6bW9kaWZ5ADIwMjAtMDctMDRUMDM6NTA6MzkrMDM6MDAm8TTQAAAAAElFTkSuQmCC" />-->
+<!--                  </svg>-->
+<!--               </a>-->
+
+               <a href="mailto:vinija@gmail.com">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW4AAAFuBAMAAABTjO+8AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEWxsLDGxcW4t7esq6u+
+                        vr7Z2NiqqamxsLCvrq7Ozc2ysrK1tbWenZ2dnZ3////zevNgAAAAAXRSTlMAQObYZgAAAAFiS0dE
+                        Dm+9ME8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkBwQDLRvUSpUpAAALt0lEQVR42u2d
+                        PW8jyRGGR7Lk3XXEyNqQwAVKBewtiHMkwAfQoQ4L3B02ImCs98KVuFZzFfECm3Am4A7YDXmR/sQF
+                        /gHO7+94R6Somarq7qr+mGra/YZifzzsfmc4XdNdappcOvjixZcX2VrPpj+az1r8QxtDqp/MRmfa
+                        IDI93WKbxUgbRaS3D9zmUhtFolfmUUttGL6OOtjm+kIbh61Jl3t/nPLK9LXUBuLpAGDvi1NWkHs/
+                        nPKtwVprQ/l1QGDvg1NWFLf5URvLp28NrbUCy+sfzJB6MUqD/SoeRagkk/M0nkOqFA+Rx2+H5zY3
+                        8dzfK2CncIrGcBtztYfuvtdtJPdHJe7ZXtrEmPdx2MdK2OZ6P+1tzEUU9+/VuMdR3E/UuM/+L7lP
+                        9pR7um3lry+G0iQp93lUKxL9rnJX7spduSt35a7clbtyV+7KXbkrd+Wu3JW7clfuyl25K3flrtyV
+                        u3JX7spduSt35a7c+809Men0rnJX7spduSt35a7clVuiOzXuZQz2QyMK3POLcOzjHd/w3DEnBaa7
+                        xgH3z1+nE2h6xx3u8McmFNYN4U55dIkOd6hTpkaZO8wp3QaUuEOO93ZdosUdchC86xI1bvmvT7+6
+                        GrfUKX2X6HFLndJ3iSK3zCnoWJoet8Qp+EyxHrfEKSemIG6+U4jDi5rcXKdQJ881ublOwS5R5uad
+                        SiePuOpyc5xC5yfQ5eakIaFcos7td4rlILQ2t88ptiwW2tw+p9AuKYDb7RTrcXl9bpdT7LlO9Lld
+                        TrG5pAhuu1McSRVK4LY5xZURpwRu8y+6ht0lhXDTOSOcqTfK4KaSi7jzJpXBTTnF5RLE/eeEiRXO
+                        BNzYKX8wEu6JSad3NPeC5RSLS+ZTNe6XNBFwynPLMOtxnx3SxXtOsbjkjer7tE9k8a5TLC5ZKL8H
+                        pHvpOMWSg22kzH1EV9g55XhFfv6m0X7vSieP3CXL+97+sS63JVnn2jXcm9yFytxkctSHAadza82a
+                        ArgtTtnQ3FEfbRMAanPTcB/aT55Rn8xvC+E+WFF03YI9bWvpc9MuXjb4lUir3Ztafe7mlKjzgWZ4
+                        XMkVwA1fkd0D0j9Ky8bDnVF4vw9l5FvKP51IRQnclJPPmu8cLimEm3jse0fYft1ppQhuYsl+iROW
+                        9lYUZXDjZc0NujX0V3CFcCOnzBv4TcYlcjeHPu6/91sphRvmDUbcoHgx3E8qd+Wu3JW7cv9Pcpf6
+                        ezn1cLdBwQK54ZoHcy9K5EZrTMxtXhbIPTV+7h5jGdx4DUxxz0vjfrZicZuvCuM+NTzuzpqnBG4q
+                        JktzP64xC+C2RDYp7sc1fQHcd4bPvYuh6HPTkXsb90PMSp2bflNi5X6IEapzr4TcW6dYuH/9Tzr9
+                        28Vt+zdydu6NUyzcv5l0eufgPrBVsnNvdl0rc08CuHsvUXS47f8pz8XdOkWV+8heycXdvp1S5Z4E
+                        cn+uq8n9yVHJzT2/UOQ+dFVyc5srRe63Edxmosa9cFZC3H+iyw3P3dfio4f7jN7Zps09e+LjZp2D
+                        GZr7hhFn45w7Gph7MeLEB0+K437DimsyztUN8BzbUbufisFNVQXcGUV0PmJyExsQNLnbfYw8brxV
+                        RZF7E2hlceOAnCL3uYAbhbb0uLfhYSY3DCW+DOaQ6hQCiriRU4YacNjvWMgNw1uR/9+WKzjPu4Af
+                        m/vA1kJWWUeLzY1CLmM5hViwz3UANwxxhSR/EQrOcWdDoIAbBosYh6oj5RgpAbdj1vII9rfsfCbh
+                        hgGMzE6B89tLryDiPnK1lFzO60nEjQJ0Sz6FWK+cJDJuuJszo1Pg3IJkYULuQ3drCQWuJZicTciN
+                        gnRnPAqxfgL9zMDnUm7olJh0hg7Beb2CBcTc8KhgHqeA0VncRnOjPcwzP4VYn7x9yLlhWAKPRbTg
+                        nN7gInJu1OqVl0MoNDKjJNwogPUmMfdzRvsh3JzxiBAMSC6oQiHcqOWbJqFQWI8clSBuFMBK6RSe
+                        C8O4YQAroVPgXM7pYmHcKBqzaBIJueQ8KTcKYDGc8jNMxUsJOtAWYArlRnvhRh6g1+1AXvtKoSyJ
+                        toKh3CiQNG+c2q4C5u4hR4HfcXJutD/LGTLcrRXdKw3oPntwKZwb7YdzDeUdAwXPoeNLhnOjMIHD
+                        KV3bjqyl0DWztrcYwY2cYh3Knm3tt0zoEldgKYYb7XYaWwqe9ErZbplw/pyXQgw37okuBn8CR/Qo
+                        QJcsXV1HcaPdfOTMop9A+jEMus4dVIrjRjue1kShE1iIdAq6yi8ycqOgEuFJIucO8RiGrhVPx5Hc
+                        aK8Wcgq5nwIv7aDjfGGCWG6062kJCtD7V2agFHTJ4sLTbyw3ChkAp1gyM4EgALpOZr5uo7nRwfVL
+                        56e0UybOT/NwoxHtVrHv+euWglc3IyQTz40c3LmDOfb8uUoxFiEJuNEd4/FeYHOJuxQnPJCA2+4U
+                        +/7hVkuLl1iL7BTc6Bdxmw3IsX+41fbOE+KSRNzIKZv7wcTNvbnzoLq80EASbrxXb9bYzyL0nYJ+
+                        lzguScWNwgef72ToieP6G8Ip6Npg7mxJxI0W4jf4xMoaz8CPREKQQbnxNqi/wT+0q7g7+Ef4ddn7
+                        cVJxk2mlep5oC5Fn4uCXG5b7mQdpfF/Kc63ydxEl47ak0YMD6Z6WsQK3E2l3uTmnRbCjJSG3y7zn
+                        nGmRvO1PyO0wb/embJ+WtaCvlNz0UVQDbspUXrh7iXazJOW2Hdcb9UpZMjXL9oQk5bY4BT7gTclS
+                        S1FPabnJ46joAY8MTQj3PCXmJpxCLAOIox7S/SCJuYklDrUMOEGlpP2k5j6GQORiETlFvE04NTcc
+                        SctiET12S984J+ZGPDNLQbjMkb5xTsttWWhGlRyCG43irbUoWsbP2L0k50YsrtoobHLL7CU9N5z7
+                        9wlLZ+SGI+j5LRHNTkZuMQf8jZL8ZibknojnXV4jAzfjFRUUCiAuh+cOYgj4rqm5V6Ai77k0rFZC
+                        btHL9Ueh5971sNzB/Qd+31TccL75kZDAmmm4Q0etIaIu6+G4Ud9jNjZ7M0gO7jtQSXZWMKh2Cm60
+                        nUuEjUOG42G4Ub/nMu6g752A+xRUkZ89Dmghnlu4cZPSs4l4xqK5j+V9YuG0qtm5p6BC2BZ2cSux
+                        3Ik2gqNZG+XlFvdnE+swRjrukyQuCWgpjjvhwRLh4Zoo7qQHeWRjEMXNOdjEl6i1GO7EB9VEB/Yi
+                        uJMfDJSMQwR3+oOYghbDub1HaQPEn8FwbtBHkoPG/OPiwdx5DnazWw3l9hzLD9aEOYuh3KD9ZIkL
+                        uCkoArnzJYpgthzGnTMxB28mw7hXmVzSypn2JI47b+IZVush3LkT/XBmM4T7LqNL7scFgFPjEsCd
+                        Pz0Rowc59xCJw+CMpuD2txkv/9iIuW0J6tLKm1RNyg2DmF+xMOQ6hVyR3L72UsmXqFHIPVz6RE9P
+                        Mm4YnsqZrnLqnFkZN2grWVYISnCM+mEJETcMYo5ycrt7k3DDwEPq/DhQrtmVcJ8M6BLfOAm4QQAv
+                        cVYfSo4e+dxDu6QVmOFOqJPP/dzaRj7Zx4rNDYJ3GbKEUbL2yuWG33w2CDaa5V0wj8v9yVI/t2zj
+                        xeQGgbuBXEL1fCHifkv+dRCBmX4v4abrDiRyzFjcIDyVKTelTYdU7yzuiZ5LWoGQ4SWXm6o3qMC4
+                        LXncIDw1QP5sqCNMwOBe4W87tMDy/pLDDerkz/pNCYzd2s+t75JWiMLLfQe/qY7grPu4/1mCS1qB
+                        8Tv1cIP5UcP2HGH3cI/1uN1H2N3cw/yvCZtOQ7mzBQN5ch1hd3Kf63K7jrC7uIf73zU2nYZwK7uk
+                        lfUIu4v7XJu6sR5hd3FffV2CJmLuslW5K3flLk+Vu3JX7vJUuSt35S5P+8p9vafcc2/y1DJ1RWb8
+                        Kl8fmo/aCEE6sy/1i9bal9S4UDXu3Nelqn2B/Z02RIBmjT1pY8HahC5PtDHE2mxf8mXeLU4PkeKn
+                        8U0Nir2LFL9eabMIdN0JcB//5cW+6JcN8X8B85vetwnigQ8AAAAldEVYdGRhdGU6Y3JlYXRlADIw
+                        MjAtMDctMDRUMDM6NDU6MjcrMDM6MDDsnuMrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA3LTA0
+                        VDAzOjQ1OjI3KzAzOjAwncNblwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+
+               <a id="theme-toggle" onclick="modeSwitcher()" style="cursor: pointer;">
+                  <svg version="1.1" class="mail-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                     viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                     <image id="image0" width="16" height="16" x="0" y="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACYVBMVEU/PzpEREBBQT1CQj4/
+                        PztAQDtHR0NJSUU+PjpISERDQz9AQDw5OTRFRUE8PDhCQj1CQj89PTlKSkY+PjlNTUlLS0hEREBD
+                        Qz9aWleHh4WtrazBwcHCwsLCwsLCwsLAwMCurq2IiIZgYFxXV1Sbm5rFxcXCwsKgoKBkZGFERECX
+                        l5bExMSPj45LS0empqWpqahUVFCnp6axsbFTU09CQj6lpaSpqahISESRkZCNjYtUVFG/v7/FxcW7
+                        u7vExMVhYV6ampmTk5FXV1S3t7eenp1VVVHCwsOYmJd3d3XIyMjCwsJdXVqEhIKrq6uGhoSnp6aX
+                        l5aAgH6srKzAwMBdXVq8vLzCwsOZmZhNTUm3t7bDw8PCwsKYmJexsbCYmJawsK/CwsJOTkq2trXD
+                        w8K9vb1bW1jBwcK9vb2pqaiXl5aCgoCvr66AgH6jo6OGhoNYWFXAwMB9fXvIyMjGxsZeXluamplM
+                        TEi5ubmcnJteXlrCwsLGxsaTk5FDQz+dnZzJycljY2CJiYe+vr5bW1hUVFCcnJuVlZRGRkKmpqW4
+                        uLd8fHl/f33AwMCioqFFRUFQUEyurq6wsLCFhYNkZGBSUk9SUk9hYV6JiYenp6bHx8inp6ZKSkZP
+                        T0unp6bExMS6urm0tLSzs7O4uLjExMSioqGMjIrExMTKysuVlZRFRUFiYl6hoaDExMTIyMicnJtr
+                        a2hhYV6Li4qxsbDDw8O+vr2zs7KHh4VlZWPHx8fGxsbCwsLJycnIyMjDw8PKysvExMTKysrMzMzL
+                        y8vFxcXJycrFxcbGxsfHx8jIyMnExMX///9/oPL/AAAAuHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAA
+                        AAAAAQEYUJzK4+3kzJxYGSKE5+qSIgJe7GoGlqYMprcLAZapAl1uH/H70vMkhWYP1ZoW7G5G/fMb
+                        UbpinWtbrMsd1OVuBtfn7m3IbMnlBNTozhzz1Z5sVq5Yt2YW7zf48iCTD9CiH/DzZwWv9Ctp0QsQ
+                        rnABqNFKO82sAg22uF0fBwUfV7T7uw0Lp/PYycnV8qtu7/JxASeZ7vGgLh5hqebTrWUhilEqqgAA
+                        AAFiS0dEyvO0NuYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfkCBYKLR1KuANWAAACD0lE
+                        QVQoz23TZXvUQBAA4CG7R09K4ZANFtwKFHcvTrHi0BZ3d5dCKe4uxd1d7jbZJCQFwr9ik1wud83N
+                        hyRP3uzOk5lZIE6IUK95i5atWktSm7bt2ncQQHTfg3MVUMdOnRNJ6kRS7tK1GxZSXEhIqH53SWE0
+                        HUzp0TMPe6txUS9Vo1nB1N59wi6HivrqNBByv/7Y5gGRgTmU+6DBAufwkF85kCczhoZFwMOGa0Ed
+                        MVKjbNRogOgYOahG8dhxJpXHx2DCxOBiY1I0f/IUykqmwjQllwpig+kJWjsDZiYCWop4yQpm6TQ5
+                        G+bkVhKaW8LYPJhfR9UFUafcaOEik5ZBebbqFa4SlLf4Ny2vw/oS5CqJRpbavCxr5wpPScPlK0y6
+                        ElZlNNJI5bUjtHoNY2th3R9f1/tKCjbINLkRNtWmdy5t5KsY2/yXWltg6zbNqxXylcS376Bs5y7A
+                        u+V0JX2N7dlrUmUfArz/gL384KFMDR8+olBWeTQOJH7M4N2vOp6PPIzi6hN8gIyTSASCTp3mz9qZ
+                        s43jYQEhAZoI587zPqkXLtrDRPClyzy9aV25eu1602Y3bt66fYen0+/WhNw5x/fuq8we/wcPHz1+
+                        8tSyW2w8q8HeKcGR5y8s/gHTTPOffVdevnodyzhE+M3bd7Lp1JeZ1vsPH53/KEwx/xX06fOXqq+S
+                        VPbt+4+fQjx1BP8DniGUSqIRNGsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDgtMjJUMTA6NDU6
+                        MjkrMDM6MDBYVnojAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA4LTIyVDEwOjQ1OjI5KzAzOjAw
+                        KQvCnwAAAABJRU5ErkJggg==" />
+                  </svg>
+               </a>
+            </li>
+         </ul>
+      </div>
+      <div align="center" class="footer-col-1 column">
+         <a href="../../index.html">www.vinija.ai</a>
+      </div>
+      <!-- <div class="footer-col-2 column">
+         </div>
+         
+         <div class="footer-col-3 column">
+         
+         </div> -->
+   </div>
+   <!-- add permalinks to headers in kramdown -->
+   <!-- <script>
+      var headings = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML =
+              '<a href="#' + headings[i].id + '">' +
+                  headings[i].innerText +
+              '</a>';
+      }
+   </script>   -->
+
+   <!-- add title case to section headings -->
+   <script src="../../js/ap-style-title-case.js" type="text/javascript"></script>   
+   <script>
+      var headings = document.querySelectorAll("h1, h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]");
+      
+      for (var i = 0; i < headings.length; i++) {
+          headings[i].innerHTML = titleCase(headings[i].innerHTML);
+      }
+      
+      var toc = document.querySelectorAll("a[id^='markdown-toc-']");
+      
+      for (var i = 0; i < toc.length; i++) {
+          toc[i].innerHTML = titleCase(toc[i].innerHTML);
+      }      
+   </script>        
+</footer>
+
+    <script src="../../js/nanobar.min.js"></script>
+    <script>
+    var options = {
+      classname: 'my-class',
+        id: 'my-id'
+    };
+    var nanobar = new Nanobar( options );
+    nanobar.go(100);
+    </script>     
+
+    <!-- Scroll bar -->
+    <div class="progress-bar"></div>
+    <!-- Script used to generate --scroll variable with current scroll percentage value -->
+    <script>
+    var element = document.documentElement,
+      body = document.body,
+      scrollTop = 'scrollTop',
+      scrollHeight = 'scrollHeight',
+      progress = document.querySelector('.progress-bar'),
+      scroll;
+
+    document.addEventListener('scroll', function() {
+      scroll = (element[scrollTop]||body[scrollTop]) / ((element[scrollHeight]||body[scrollHeight]) - element.clientHeight) * 100;
+      progress.style.setProperty('--scroll', scroll + '%');
+    });
+    </script>    
+    <!-- theme switcher -->
+    <script src="../../js/mode-switcher.js"></script>
+    <!-- mathjax -->
+    <script type="text/javascript" src="../../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJaxdda6.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- make mathjax responsive -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+       "HTML-CSS": { linebreaks: { automatic: true } },
+       "SVG": { linebreaks: { automatic: true } },
+      });
+    </script>
+    <!-- Copy button -->
+    <script src="../../js/clipboard.min.js"></script>
+    <script src="../../js/copy.js"></script>      
+    </body>
+
+<!-- Mirrored from vinija.ai/concepts/llm-alignment/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 12 Jul 2025 14:00:21 GMT -->
+</html>
